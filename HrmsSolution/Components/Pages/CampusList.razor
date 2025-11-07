@@ -1,4 +1,4 @@
-﻿@page "/campus"
+﻿@* @page "/campus"
 @inject HrmsAppSolution.Services.CampusService CampusService
 
 <h3>รายชื่อวิทยาเขต</h3>
@@ -24,4 +24,4 @@ else
     {
         campuses = await CampusService.GetAllCampusAsync();
     }
-}
+} *@

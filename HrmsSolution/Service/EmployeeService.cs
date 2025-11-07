@@ -1,38 +1,45 @@
-﻿using System.Net.Http.Json;
-using Datamodels.Hrms;
-using HrmsSolution.Components;
+﻿using Datamodels.Hrms;
+using System.Net.Http.Json;
 
-namespace HrmsAppSolution.Services
+namespace HrmsSolution.Service
 {
-    public class EmployeeService
+    public class EmployeeService : IEmployeeService
     {
         private readonly HttpClient _httpClient;
+        private const string ApiPath = "api/Employee";
 
-        public EmployeeService(HttpClient httpClient)
+        public EmployeeService(IHttpClientFactory httpClientFactory)
         {
-            _httpClient = httpClient;
+            _httpClient = httpClientFactory.CreateClient("Api");
         }
 
-        public async Task<List<StaffDetail>> GetAllStaffDetailsAsync()
+        public async Task<List<Employee>> GetAllEmployeesAsync()
         {
-            var result = await _httpClient.GetFromJsonAsync<List<StaffDetail>>("api/StaffDetail");
-            return result ?? new List<StaffDetail>();
+            return await _httpClient.GetFromJsonAsync<List<Employee>>(ApiPath);
         }
-        public async Task<StaffDetail?> GetStaffDetailAsync(string id)
+
+        public async Task<Employee> GetEmployeeByIdAsync(string id)
         {
-            return await _httpClient.GetFromJsonAsync<StaffDetail>($"api/StaffDetail/{id}");
+            return await _httpClient.GetFromJsonAsync<Employee>($"{ApiPath}/{id}");
         }
-        public async Task AddEmployeeAsync(StaffDetail staffDetail)
+
+        public async Task<Employee> AddEmployeeAsync(Employee employee)
         {
-            await _httpClient.PostAsJsonAsync("api/StaffDetail", staffDetail);
+            var response = await _httpClient.PostAsJsonAsync(ApiPath, employee);
+            response.EnsureSuccessStatusCode();
+            return await response.Content.ReadFromJsonAsync<Employee>();
         }
-        public async Task UpdateEmployeesAsync(StaffDetail staffDetail)
+
+        public async Task<bool> UpdateEmployeeAsync(string id, Employee employee)
         {
-            await _httpClient.PutAsJsonAsync($"api/StaffDetail/{staffDetail.StaffId}", staffDetail);
+            var response = await _httpClient.PutAsJsonAsync($"{ApiPath}/{id}", employee);
+            return response.IsSuccessStatusCode;
         }
-        public async Task DeleteEmployeeAsync(string id)
+
+        public async Task<bool> DeleteEmployeeAsync(string id)
         {
-            await _httpClient.DeleteAsync($"api/StaffDetail/{id}");
+            var response = await _httpClient.DeleteAsync($"{ApiPath}/{id}");
+            return response.IsSuccessStatusCode;
         }
     }
 }

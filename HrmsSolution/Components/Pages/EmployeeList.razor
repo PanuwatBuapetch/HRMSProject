@@ -1,0 +1,31 @@
+﻿@page "/employees"
+@using Datamodels.Hrms
+@using HrmsSolution.Service
+@using AntDesign
+@using CurrieTechnologies.Razor.SweetAlert2
+
+
+<Button OnClick="ToAddEmployee">
+    <Icon Type="plus" /> เพิ่มพนักงานใหม่
+</Button>
+<h1>รายชื่อพนักงานทั้งหมด</h1>
+<hr />
+<div style="margin-bottom: 16px;">
+
+</div>
+<Table DataSource="@employees" Loading="@isLoading">
+    <Column @bind-Field="@context.EmployeeId" Title="รหัส" Sortable />
+    <Column @bind-Field="@context.FullNameThai" Title="ชื่อ-นามสกุล" Sortable />
+    <Column @bind-Field="@context.PositionNameThai" Title="ตำแหน่ง" Sortable />
+    <Column @bind-Field="@context.DeptNameThai" Title="แผนก" Sortable />
+    <Column @bind-Field="@context.LocationNameThai" Title="สาขา" Sortable />
+    <Column @bind-Field="@context.Email" Title="อีเมล" />
+
+    <ActionColumn Title="จัดการ">
+        <Space>
+            <SpaceItem>
+                <Button Type="default" OnClick="() => OnViewDetails(context)">ดูรายละเอียด</Button>
+            </SpaceItem>
+        </Space>
+    </ActionColumn>
+</Table>

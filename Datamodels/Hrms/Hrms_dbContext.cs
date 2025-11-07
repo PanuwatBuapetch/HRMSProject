@@ -11,62 +11,37 @@ public partial class Hrms_dbContext : DbContext
     {
     }
 
-    public virtual DbSet<Campus> Campuses { get; set; }
-
     public virtual DbSet<Department> Departments { get; set; }
 
-    public virtual DbSet<ExampleTest> ExampleTests { get; set; }
+    public virtual DbSet<Division> Divisions { get; set; }
 
-    public virtual DbSet<Executive> Executives { get; set; }
+    public virtual DbSet<Employee> Employees { get; set; }
 
-    public virtual DbSet<ExecutivePosition> ExecutivePositions { get; set; }
+    public virtual DbSet<EmployeeSession> EmployeeSessions { get; set; }
 
-    public virtual DbSet<ExecutiveStaff> ExecutiveStaffs { get; set; }
+    public virtual DbSet<EmployeeTitle> EmployeeTitles { get; set; }
 
-    public virtual DbSet<Faculty> Faculties { get; set; }
+    public virtual DbSet<JobPosition> JobPositions { get; set; }
 
-    public virtual DbSet<LoginSession> LoginSessions { get; set; }
+    public virtual DbSet<Location> Locations { get; set; }
+
+    public virtual DbSet<Management> Managements { get; set; }
+
+    public virtual DbSet<ManagementPosition> ManagementPositions { get; set; }
 
     public virtual DbSet<Mission> Missions { get; set; }
 
-    public virtual DbSet<Section> Sections { get; set; }
+    public virtual DbSet<Team> Teams { get; set; }
 
-    public virtual DbSet<Staff> Staff { get; set; }
+    public virtual DbSet<VEmployeeDetail> VEmployeeDetails { get; set; }
 
-    public virtual DbSet<StaffDetail> StaffDetails { get; set; }
+    public virtual DbSet<VManagementDetail> VManagementDetails { get; set; }
 
-    public virtual DbSet<StaffPosition> StaffPositions { get; set; }
-
-    public virtual DbSet<StaffTitle> StaffTitles { get; set; }
-
-    public virtual DbSet<Unit> Units { get; set; }
+    public virtual DbSet<WorkUnit> WorkUnits { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         modelBuilder.HasPostgresExtension("uuid-ossp");
-
-        modelBuilder.Entity<Campus>(entity =>
-        {
-            entity.HasKey(e => e.CampId).HasName("campus_pkey");
-
-            entity.ToTable("campus", "person");
-
-            entity.Property(e => e.CampId)
-                .HasMaxLength(2)
-                .HasColumnName("camp_id");
-            entity.Property(e => e.CampAdd)
-                .HasMaxLength(2000)
-                .HasColumnName("camp_add");
-            entity.Property(e => e.CampDesc)
-                .HasMaxLength(2000)
-                .HasColumnName("camp_desc");
-            entity.Property(e => e.CampNameEng)
-                .HasMaxLength(200)
-                .HasColumnName("camp_name_eng");
-            entity.Property(e => e.CampNameThai)
-                .HasMaxLength(200)
-                .HasColumnName("camp_name_thai");
-        });
 
         modelBuilder.Entity<Department>(entity =>
         {
@@ -77,272 +52,150 @@ public partial class Hrms_dbContext : DbContext
             entity.Property(e => e.DeptId)
                 .HasMaxLength(3)
                 .HasColumnName("dept_id");
-            entity.Property(e => e.CampusId)
-                .HasMaxLength(4)
-                .HasColumnName("campus_id");
-            entity.Property(e => e.CentralId)
-                .HasMaxLength(10)
-                .HasColumnName("central_id");
             entity.Property(e => e.DeptDesc)
                 .HasMaxLength(200)
                 .HasColumnName("dept_desc");
-            entity.Property(e => e.DeptMissionId)
-                .HasMaxLength(10)
-                .HasColumnName("dept_mission_id");
             entity.Property(e => e.DeptNameEng)
                 .HasMaxLength(200)
                 .HasColumnName("dept_name_eng");
             entity.Property(e => e.DeptNameThai)
                 .HasMaxLength(200)
                 .HasColumnName("dept_name_thai");
-            entity.Property(e => e.DeptTel)
-                .HasMaxLength(100)
-                .HasColumnName("dept_tel");
-            entity.Property(e => e.DeptTelFax)
-                .HasMaxLength(200)
-                .HasColumnName("dept_tel_fax");
-            entity.Property(e => e.ExternalDocNo)
-                .HasMaxLength(100)
-                .HasColumnName("external_doc_no");
-            entity.Property(e => e.FacId)
+            entity.Property(e => e.DivisionId)
                 .HasMaxLength(3)
-                .HasColumnName("fac_id");
-            entity.Property(e => e.InternalDocNo)
-                .HasMaxLength(100)
-                .HasColumnName("internal_doc_no");
+                .HasColumnName("division_id");
             entity.Property(e => e.Isactive)
                 .HasMaxLength(1)
                 .HasColumnName("isactive");
-            entity.Property(e => e.IscedId)
+            entity.Property(e => e.LocationId)
                 .HasMaxLength(4)
-                .HasColumnName("isced_id");
-            entity.Property(e => e.JobId)
-                .HasMaxLength(4)
-                .HasColumnName("job_id");
+                .HasColumnName("location_id");
             entity.Property(e => e.MissionId)
                 .HasMaxLength(10)
                 .HasColumnName("mission_id");
-            entity.Property(e => e.NewDeptId)
-                .HasMaxLength(100)
-                .HasColumnName("new_dept_id");
-            entity.Property(e => e.OldDept)
-                .HasMaxLength(3)
-                .HasColumnName("old_dept");
-            entity.Property(e => e.Priority)
-                .HasMaxLength(3)
-                .HasColumnName("priority");
         });
 
-        modelBuilder.Entity<ExampleTest>(entity =>
+        modelBuilder.Entity<Division>(entity =>
         {
-            entity.HasKey(e => e.Id).HasName("example_test_pkey");
+            entity.HasKey(e => e.DivisionId).HasName("division_pkey");
 
-            entity.ToTable("example_test", "person");
+            entity.ToTable("division", "person");
 
-            entity.Property(e => e.Id).HasColumnName("id");
-            entity.Property(e => e.CampId)
+            entity.Property(e => e.DivisionId)
                 .HasMaxLength(2)
                 .IsFixedLength()
-                .HasColumnName("camp_id");
-            entity.Property(e => e.Title)
+                .HasColumnName("division_id");
+            entity.Property(e => e.CentralId)
+                .HasMaxLength(10)
+                .HasColumnName("central_id");
+            entity.Property(e => e.DivisionDesc)
+                .HasMaxLength(60)
+                .HasColumnName("division_desc");
+            entity.Property(e => e.DivisionNameEng)
                 .HasMaxLength(200)
-                .HasColumnName("title");
-        });
-
-        modelBuilder.Entity<Executive>(entity =>
-        {
-            entity.ToTable("executive", "person");
-
-            entity.Property(e => e.ExecutiveId)
-                .HasMaxLength(400)
-                .HasColumnName("executive_id");
-            entity.Property(e => e.CampusId)
-                .HasMaxLength(2)
-                .HasColumnName("campus_id");
-            entity.Property(e => e.DeptId)
-                .HasMaxLength(3)
-                .HasColumnName("dept_id");
-            entity.Property(e => e.ExecutivePositionId)
-                .HasMaxLength(2)
-                .HasColumnName("executive_position_id");
-            entity.Property(e => e.FacId)
-                .HasMaxLength(2)
-                .HasColumnName("fac_id");
+                .HasColumnName("division_name_eng");
+            entity.Property(e => e.DivisionNameThai)
+                .HasMaxLength(200)
+                .HasColumnName("division_name_thai");
             entity.Property(e => e.Isactive)
                 .HasMaxLength(1)
                 .HasColumnName("isactive");
-            entity.Property(e => e.SectId)
-                .HasMaxLength(3)
-                .HasColumnName("sect_id");
-            entity.Property(e => e.StaffAdminTemp)
-                .HasMaxLength(20)
-                .HasColumnName("staff_admin_temp");
-            entity.Property(e => e.StaffId)
+            entity.Property(e => e.LocationId)
+                .HasMaxLength(2)
+                .HasColumnName("location_id");
+            entity.Property(e => e.MissionId)
+                .HasMaxLength(10)
+                .HasColumnName("mission_id");
+        });
+
+        modelBuilder.Entity<Employee>(entity =>
+        {
+            entity.HasKey(e => e.EmployeeId).HasName("employee_pkey");
+
+            entity.ToTable("employee", "person");
+
+            entity.Property(e => e.EmployeeId)
                 .HasMaxLength(7)
-                .HasColumnName("staff_id");
-            entity.Property(e => e.UnitId)
-                .HasMaxLength(3)
-                .HasColumnName("unit_id");
-        });
-
-        modelBuilder.Entity<ExecutivePosition>(entity =>
-        {
-            entity
-                .HasNoKey()
-                .ToTable("executive_position", "person");
-
-            entity.Property(e => e.Id)
-                .HasMaxLength(2)
-                .HasColumnName("id");
-            entity.Property(e => e.Level)
-                .HasDefaultValue(1)
-                .HasColumnName("level");
-            entity.Property(e => e.NameEng)
-                .HasMaxLength(400)
-                .HasColumnName("name_eng");
-            entity.Property(e => e.NameThai)
-                .HasMaxLength(400)
-                .HasColumnName("name_thai");
-        });
-
-        modelBuilder.Entity<ExecutiveStaff>(entity =>
-        {
-            entity
-                .HasNoKey()
-                .ToView("executive_staff", "person");
-
-            entity.Property(e => e.AdminId)
-                .HasMaxLength(2)
-                .HasColumnName("admin_id");
-            entity.Property(e => e.AdminLevel).HasColumnName("admin_level");
-            entity.Property(e => e.AdminNameEng)
-                .HasMaxLength(400)
-                .HasColumnName("admin_name_eng");
-            entity.Property(e => e.AdminNameThai)
-                .HasMaxLength(400)
-                .HasColumnName("admin_name_thai");
-            entity.Property(e => e.CampusId)
-                .HasMaxLength(2)
-                .HasColumnName("campus_id");
+                .HasColumnName("employee_id");
             entity.Property(e => e.CitizenId)
                 .HasMaxLength(13)
                 .HasColumnName("citizen_id");
             entity.Property(e => e.DeptId)
                 .HasMaxLength(3)
                 .HasColumnName("dept_id");
-            entity.Property(e => e.DivisionFull)
-                .HasMaxLength(200)
-                .HasColumnName("division_full");
-            entity.Property(e => e.ExecutiveName)
-                .HasMaxLength(401)
-                .HasColumnName("executive_name");
-            entity.Property(e => e.ExecutiveNameKey)
-                .HasMaxLength(400)
-                .HasColumnName("executive_name_key");
-            entity.Property(e => e.FacId)
+            entity.Property(e => e.DivisionId)
                 .HasMaxLength(2)
-                .HasColumnName("fac_id");
-            entity.Property(e => e.Isactive)
+                .HasColumnName("division_id");
+            entity.Property(e => e.Email)
+                .HasMaxLength(40)
+                .HasColumnName("email");
+            entity.Property(e => e.EmploymentStatus)
                 .HasMaxLength(1)
-                .HasColumnName("isactive");
-            entity.Property(e => e.Key)
+                .HasColumnName("employment_status");
+            entity.Property(e => e.EndDate)
+                .HasMaxLength(8)
+                .HasColumnName("end_date");
+            entity.Property(e => e.FirstNameEng)
+                .HasMaxLength(200)
+                .HasColumnName("first_name_eng");
+            entity.Property(e => e.FirstNameThai)
+                .HasMaxLength(200)
+                .HasColumnName("first_name_thai");
+            entity.Property(e => e.FullNameEng)
+                .HasMaxLength(401)
+                .HasColumnName("full_name_eng");
+            entity.Property(e => e.FullNameThai)
+                .HasMaxLength(401)
+                .HasColumnName("full_name_thai");
+            entity.Property(e => e.LastNameEng)
+                .HasMaxLength(200)
+                .HasColumnName("last_name_eng");
+            entity.Property(e => e.LastNameThai)
+                .HasMaxLength(200)
+                .HasColumnName("last_name_thai");
+            entity.Property(e => e.LocationId)
+                .HasMaxLength(2)
+                .HasColumnName("location_id");
+            entity.Property(e => e.Password)
                 .HasMaxLength(400)
-                .HasColumnName("key");
-            entity.Property(e => e.PosKey)
+                .HasColumnName("password");
+            entity.Property(e => e.PictureUrl)
+                .HasMaxLength(12)
+                .HasColumnName("picture_url");
+            entity.Property(e => e.Pincode)
+                .HasMaxLength(400)
+                .HasColumnName("pincode");
+            entity.Property(e => e.PositionId)
                 .HasMaxLength(4)
-                .HasColumnName("pos_key");
-            entity.Property(e => e.SectId)
+                .HasColumnName("position_id");
+            entity.Property(e => e.SecretCode)
+                .HasPrecision(6)
+                .HasColumnName("secret_code");
+            entity.Property(e => e.StartDate)
+                .HasMaxLength(8)
+                .HasColumnName("start_date");
+            entity.Property(e => e.TeamId)
                 .HasMaxLength(3)
-                .HasColumnName("sect_id");
-            entity.Property(e => e.StaffAdminTemp)
-                .HasMaxLength(20)
-                .HasColumnName("staff_admin_temp");
-            entity.Property(e => e.StaffDepart)
-                .HasMaxLength(1)
-                .HasColumnName("staff_depart");
-            entity.Property(e => e.StaffId)
-                .HasMaxLength(7)
-                .HasColumnName("staff_id");
-            entity.Property(e => e.StaffNameThai)
-                .HasMaxLength(200)
-                .HasColumnName("staff_name_thai");
-            entity.Property(e => e.StaffSnameThai)
-                .HasMaxLength(200)
-                .HasColumnName("staff_sname_thai");
+                .HasColumnName("team_id");
+            entity.Property(e => e.TerminationDate)
+                .HasMaxLength(8)
+                .HasColumnName("termination_date");
+            entity.Property(e => e.TitleId)
+                .HasMaxLength(2)
+                .HasColumnName("title_id");
             entity.Property(e => e.UnitId)
                 .HasMaxLength(3)
                 .HasColumnName("unit_id");
+            entity.Property(e => e.Username)
+                .HasMaxLength(100)
+                .HasColumnName("username");
         });
 
-        modelBuilder.Entity<Faculty>(entity =>
+        modelBuilder.Entity<EmployeeSession>(entity =>
         {
-            entity.HasKey(e => e.FacId).HasName("faculty_pkey");
+            entity.HasKey(e => e.Id).HasName("employee_session_pkey");
 
-            entity.ToTable("faculty", "person");
-
-            entity.Property(e => e.FacId)
-                .HasMaxLength(2)
-                .IsFixedLength()
-                .HasColumnName("fac_id");
-            entity.Property(e => e.CampId)
-                .HasMaxLength(2)
-                .HasColumnName("camp_id");
-            entity.Property(e => e.CentralId)
-                .HasMaxLength(10)
-                .HasColumnName("central_id");
-            entity.Property(e => e.EmpNumber)
-                .HasMaxLength(10)
-                .HasColumnName("emp_number");
-            entity.Property(e => e.ExternalDocNo)
-                .HasMaxLength(50)
-                .HasColumnName("external_doc_no");
-            entity.Property(e => e.FacDesc)
-                .HasMaxLength(60)
-                .HasColumnName("fac_desc");
-            entity.Property(e => e.FacGrpId)
-                .HasMaxLength(2)
-                .HasColumnName("fac_grp_id");
-            entity.Property(e => e.FacNameEng)
-                .HasMaxLength(200)
-                .HasColumnName("fac_name_eng");
-            entity.Property(e => e.FacNameThai)
-                .HasMaxLength(200)
-                .HasColumnName("fac_name_thai");
-            entity.Property(e => e.FacTelFax)
-                .HasMaxLength(50)
-                .HasColumnName("fac_tel_fax");
-            entity.Property(e => e.InternalDocNo)
-                .HasMaxLength(50)
-                .HasColumnName("internal_doc_no");
-            entity.Property(e => e.Isactive)
-                .HasMaxLength(1)
-                .HasColumnName("isactive");
-            entity.Property(e => e.IscedId)
-                .HasMaxLength(10)
-                .HasColumnName("isced_id");
-            entity.Property(e => e.MissionId)
-                .HasMaxLength(10)
-                .HasColumnName("mission_id");
-            entity.Property(e => e.NFacId)
-                .HasMaxLength(5)
-                .HasColumnName("n_fac_id");
-            entity.Property(e => e.NewFacId)
-                .HasMaxLength(10)
-                .HasColumnName("new_fac_id");
-            entity.Property(e => e.OldFac)
-                .HasMaxLength(2)
-                .HasColumnName("old_fac");
-            entity.Property(e => e.ShortNameThai)
-                .HasMaxLength(10)
-                .HasColumnName("short_name_thai");
-            entity.Property(e => e.StaffNumber)
-                .HasMaxLength(10)
-                .HasColumnName("staff_number");
-        });
-
-        modelBuilder.Entity<LoginSession>(entity =>
-        {
-            entity.ToTable("login_session", "person");
+            entity.ToTable("employee_session", "person");
 
             entity.Property(e => e.Id)
                 .HasDefaultValueSql("gen_random_uuid()")
@@ -353,15 +206,141 @@ public partial class Hrms_dbContext : DbContext
             entity.Property(e => e.DateExpired)
                 .HasColumnType("timestamp without time zone")
                 .HasColumnName("date_expired");
-            entity.Property(e => e.Ip).HasColumnName("ip");
-            entity.Property(e => e.StaffId)
+            entity.Property(e => e.EmployeeId)
                 .HasMaxLength(7)
                 .IsFixedLength()
-                .HasColumnName("staff_id");
+                .HasColumnName("employee_id");
+            entity.Property(e => e.Ip).HasColumnName("ip");
+        });
+
+        modelBuilder.Entity<EmployeeTitle>(entity =>
+        {
+            entity.HasKey(e => e.TitleId).HasName("employee_title_pkey");
+
+            entity.ToTable("employee_title", "person");
+
+            entity.Property(e => e.TitleId)
+                .HasMaxLength(2)
+                .HasColumnName("title_id");
+            entity.Property(e => e.TitleNameEng)
+                .HasMaxLength(200)
+                .HasColumnName("title_name_eng");
+            entity.Property(e => e.TitleNameThai)
+                .HasMaxLength(200)
+                .HasColumnName("title_name_thai");
+            entity.Property(e => e.TitleShortEng)
+                .HasMaxLength(200)
+                .HasColumnName("title_short_eng");
+            entity.Property(e => e.TitleShortThai)
+                .HasMaxLength(200)
+                .HasColumnName("title_short_thai");
+        });
+
+        modelBuilder.Entity<JobPosition>(entity =>
+        {
+            entity.HasKey(e => e.PositionId).HasName("job_position_pkey");
+
+            entity.ToTable("job_position", "person");
+
+            entity.Property(e => e.PositionId)
+                .HasMaxLength(4)
+                .HasColumnName("position_id");
+            entity.Property(e => e.PositionNameEng)
+                .HasMaxLength(400)
+                .HasColumnName("position_name_eng");
+            entity.Property(e => e.PositionNameThai)
+                .HasMaxLength(400)
+                .HasColumnName("position_name_thai");
+            entity.Property(e => e.PositionType)
+                .HasMaxLength(2)
+                .HasColumnName("position_type");
+        });
+
+        modelBuilder.Entity<Location>(entity =>
+        {
+            entity.HasKey(e => e.LocationId).HasName("location_pkey");
+
+            entity.ToTable("location", "person");
+
+            entity.Property(e => e.LocationId)
+                .HasMaxLength(2)
+                .HasColumnName("location_id");
+            entity.Property(e => e.LocationAddress)
+                .HasMaxLength(2000)
+                .HasColumnName("location_address");
+            entity.Property(e => e.LocationDesc)
+                .HasMaxLength(2000)
+                .HasColumnName("location_desc");
+            entity.Property(e => e.LocationNameEng)
+                .HasMaxLength(200)
+                .HasColumnName("location_name_eng");
+            entity.Property(e => e.LocationNameThai)
+                .HasMaxLength(200)
+                .HasColumnName("location_name_thai");
+        });
+
+        modelBuilder.Entity<Management>(entity =>
+        {
+            entity.HasKey(e => e.ManagementId).HasName("management_pkey");
+
+            entity.ToTable("management", "person");
+
+            entity.Property(e => e.ManagementId)
+                .HasMaxLength(400)
+                .HasColumnName("management_id");
+            entity.Property(e => e.DeptId)
+                .HasMaxLength(3)
+                .HasColumnName("dept_id");
+            entity.Property(e => e.DivisionId)
+                .HasMaxLength(2)
+                .HasColumnName("division_id");
+            entity.Property(e => e.EmployeeId)
+                .HasMaxLength(7)
+                .HasColumnName("employee_id");
+            entity.Property(e => e.Isactive)
+                .HasMaxLength(1)
+                .HasColumnName("isactive");
+            entity.Property(e => e.LocationId)
+                .HasMaxLength(2)
+                .HasColumnName("location_id");
+            entity.Property(e => e.ManagementPositionId)
+                .HasMaxLength(2)
+                .HasColumnName("management_position_id");
+            entity.Property(e => e.TeamId)
+                .HasMaxLength(3)
+                .HasColumnName("team_id");
+            entity.Property(e => e.TempAdminCode)
+                .HasMaxLength(20)
+                .HasColumnName("temp_admin_code");
+            entity.Property(e => e.UnitId)
+                .HasMaxLength(3)
+                .HasColumnName("unit_id");
+        });
+
+        modelBuilder.Entity<ManagementPosition>(entity =>
+        {
+            entity.HasKey(e => e.ManagementPositionId).HasName("management_position_pkey");
+
+            entity.ToTable("management_position", "person");
+
+            entity.Property(e => e.ManagementPositionId)
+                .HasMaxLength(2)
+                .HasColumnName("management_position_id");
+            entity.Property(e => e.PositionLevel)
+                .HasDefaultValue(1)
+                .HasColumnName("position_level");
+            entity.Property(e => e.PositionNameEng)
+                .HasMaxLength(400)
+                .HasColumnName("position_name_eng");
+            entity.Property(e => e.PositionNameThai)
+                .HasMaxLength(400)
+                .HasColumnName("position_name_thai");
         });
 
         modelBuilder.Entity<Mission>(entity =>
         {
+            entity.HasKey(e => e.MissionId).HasName("mission_pkey");
+
             entity.ToTable("mission", "person");
 
             entity.Property(e => e.MissionId)
@@ -375,74 +354,47 @@ public partial class Hrms_dbContext : DbContext
                 .HasColumnName("mission_name_thai");
         });
 
-        modelBuilder.Entity<Section>(entity =>
+        modelBuilder.Entity<Team>(entity =>
         {
-            entity.HasKey(e => e.SectId).HasName("section_pkey");
+            entity.HasKey(e => e.TeamId).HasName("team_pkey");
 
-            entity.ToTable("section", "person");
+            entity.ToTable("team", "person");
 
-            entity.Property(e => e.SectId)
+            entity.Property(e => e.TeamId)
                 .HasMaxLength(3)
-                .HasColumnName("sect_id");
-            entity.Property(e => e.CampusId)
-                .HasMaxLength(2)
-                .HasColumnName("campus_id");
-            entity.Property(e => e.CentralId)
-                .HasMaxLength(10)
-                .HasColumnName("central_id");
+                .HasColumnName("team_id");
             entity.Property(e => e.DeptId)
                 .HasMaxLength(3)
                 .HasColumnName("dept_id");
-            entity.Property(e => e.ExternalDocNo)
-                .HasMaxLength(100)
-                .HasColumnName("external_doc_no");
-            entity.Property(e => e.FacId)
+            entity.Property(e => e.DivisionId)
                 .HasMaxLength(2)
-                .HasColumnName("fac_id");
-            entity.Property(e => e.InternalDocNo)
-                .HasMaxLength(100)
-                .HasColumnName("internal_doc_no");
+                .HasColumnName("division_id");
             entity.Property(e => e.Isactive)
                 .HasMaxLength(1)
                 .HasColumnName("isactive");
+            entity.Property(e => e.LocationId)
+                .HasMaxLength(2)
+                .HasColumnName("location_id");
             entity.Property(e => e.MissionId)
                 .HasMaxLength(10)
                 .HasColumnName("mission_id");
-            entity.Property(e => e.NewSectionId)
-                .HasMaxLength(10)
-                .HasColumnName("new_section_id");
-            entity.Property(e => e.OldSect)
-                .HasMaxLength(3)
-                .HasColumnName("old_sect");
-            entity.Property(e => e.SectDesc)
-                .HasMaxLength(60)
-                .HasColumnName("sect_desc");
-            entity.Property(e => e.SectNameEng)
+            entity.Property(e => e.TeamNameEng)
                 .HasMaxLength(200)
-                .HasColumnName("sect_name_eng");
-            entity.Property(e => e.SectNameThai)
+                .HasColumnName("team_name_eng");
+            entity.Property(e => e.TeamNameThai)
                 .HasMaxLength(200)
-                .HasColumnName("sect_name_thai");
-            entity.Property(e => e.SectTelFax)
-                .HasMaxLength(50)
-                .HasColumnName("sect_tel_fax");
+                .HasColumnName("team_name_thai");
         });
 
-        modelBuilder.Entity<Staff>(entity =>
+        modelBuilder.Entity<VEmployeeDetail>(entity =>
         {
             entity
                 .HasNoKey()
-                .ToView("staff", "person");
+                .ToView("v_employee_details", "person");
 
-            entity.Property(e => e.CampNameEng)
-                .HasMaxLength(200)
-                .HasColumnName("camp_name_eng");
-            entity.Property(e => e.CampNameThai)
-                .HasMaxLength(200)
-                .HasColumnName("camp_name_thai");
-            entity.Property(e => e.CampusId)
-                .HasMaxLength(2)
-                .HasColumnName("campus_id");
+            entity.Property(e => e.CitizenId)
+                .HasMaxLength(13)
+                .HasColumnName("citizen_id");
             entity.Property(e => e.DeptId)
                 .HasMaxLength(3)
                 .HasColumnName("dept_id");
@@ -452,75 +404,84 @@ public partial class Hrms_dbContext : DbContext
             entity.Property(e => e.DeptNameThai)
                 .HasMaxLength(200)
                 .HasColumnName("dept_name_thai");
-            entity.Property(e => e.FacId)
+            entity.Property(e => e.DivisionId)
                 .HasMaxLength(2)
-                .HasColumnName("fac_id");
-            entity.Property(e => e.FacNameEng)
+                .HasColumnName("division_id");
+            entity.Property(e => e.DivisionNameEng)
                 .HasMaxLength(200)
-                .HasColumnName("fac_name_eng");
-            entity.Property(e => e.FacNameThai)
+                .HasColumnName("division_name_eng");
+            entity.Property(e => e.DivisionNameThai)
                 .HasMaxLength(200)
-                .HasColumnName("fac_name_thai");
+                .HasColumnName("division_name_thai");
+            entity.Property(e => e.Email)
+                .HasMaxLength(40)
+                .HasColumnName("email");
+            entity.Property(e => e.EmployeeId)
+                .HasMaxLength(7)
+                .HasColumnName("employee_id");
+            entity.Property(e => e.EmploymentStatus)
+                .HasMaxLength(1)
+                .HasColumnName("employment_status");
+            entity.Property(e => e.EndDate)
+                .HasMaxLength(8)
+                .HasColumnName("end_date");
+            entity.Property(e => e.FirstNameEng)
+                .HasMaxLength(200)
+                .HasColumnName("first_name_eng");
+            entity.Property(e => e.FirstNameThai)
+                .HasMaxLength(200)
+                .HasColumnName("first_name_thai");
             entity.Property(e => e.FullNameEng)
                 .HasMaxLength(401)
                 .HasColumnName("full_name_eng");
             entity.Property(e => e.FullNameThai)
                 .HasMaxLength(401)
                 .HasColumnName("full_name_thai");
-            entity.Property(e => e.PosId)
-                .HasMaxLength(4)
-                .HasColumnName("pos_id");
-            entity.Property(e => e.PosNameEng)
-                .HasMaxLength(400)
-                .HasColumnName("pos_name_eng");
-            entity.Property(e => e.PosNameThai)
-                .HasMaxLength(400)
-                .HasColumnName("pos_name_thai");
-            entity.Property(e => e.PosType)
+            entity.Property(e => e.LastNameEng)
+                .HasMaxLength(200)
+                .HasColumnName("last_name_eng");
+            entity.Property(e => e.LastNameThai)
+                .HasMaxLength(200)
+                .HasColumnName("last_name_thai");
+            entity.Property(e => e.LocationId)
                 .HasMaxLength(2)
-                .HasColumnName("pos_type");
-            entity.Property(e => e.SectId)
-                .HasMaxLength(3)
-                .HasColumnName("sect_id");
-            entity.Property(e => e.SectNameEng)
+                .HasColumnName("location_id");
+            entity.Property(e => e.LocationNameEng)
                 .HasMaxLength(200)
-                .HasColumnName("sect_name_eng");
-            entity.Property(e => e.SectNameThai)
+                .HasColumnName("location_name_eng");
+            entity.Property(e => e.LocationNameThai)
                 .HasMaxLength(200)
-                .HasColumnName("sect_name_thai");
-            entity.Property(e => e.StaffDateOut)
-                .HasMaxLength(8)
-                .HasColumnName("staff_date_out");
-            entity.Property(e => e.StaffDepart)
-                .HasMaxLength(1)
-                .HasColumnName("staff_depart");
-            entity.Property(e => e.StaffEmail)
-                .HasMaxLength(40)
-                .HasColumnName("staff_email");
-            entity.Property(e => e.StaffEnd)
-                .HasMaxLength(8)
-                .HasColumnName("staff_end");
-            entity.Property(e => e.StaffId)
-                .HasMaxLength(7)
-                .HasColumnName("staff_id");
-            entity.Property(e => e.StaffNameEng)
-                .HasMaxLength(200)
-                .HasColumnName("staff_name_eng");
-            entity.Property(e => e.StaffNameThai)
-                .HasMaxLength(200)
-                .HasColumnName("staff_name_thai");
-            entity.Property(e => e.StaffPersId)
-                .HasMaxLength(13)
-                .HasColumnName("staff_pers_id");
-            entity.Property(e => e.StaffPicture)
+                .HasColumnName("location_name_thai");
+            entity.Property(e => e.PictureUrl)
                 .HasMaxLength(12)
-                .HasColumnName("staff_picture");
-            entity.Property(e => e.StaffSnameEng)
+                .HasColumnName("picture_url");
+            entity.Property(e => e.PositionId)
+                .HasMaxLength(4)
+                .HasColumnName("position_id");
+            entity.Property(e => e.PositionNameEng)
+                .HasMaxLength(400)
+                .HasColumnName("position_name_eng");
+            entity.Property(e => e.PositionNameThai)
+                .HasMaxLength(400)
+                .HasColumnName("position_name_thai");
+            entity.Property(e => e.PositionType)
+                .HasMaxLength(2)
+                .HasColumnName("position_type");
+            entity.Property(e => e.StartDate)
+                .HasMaxLength(8)
+                .HasColumnName("start_date");
+            entity.Property(e => e.TeamId)
+                .HasMaxLength(3)
+                .HasColumnName("team_id");
+            entity.Property(e => e.TeamNameEng)
                 .HasMaxLength(200)
-                .HasColumnName("staff_sname_eng");
-            entity.Property(e => e.StaffSnameThai)
+                .HasColumnName("team_name_eng");
+            entity.Property(e => e.TeamNameThai)
                 .HasMaxLength(200)
-                .HasColumnName("staff_sname_thai");
+                .HasColumnName("team_name_thai");
+            entity.Property(e => e.TerminationDate)
+                .HasMaxLength(8)
+                .HasColumnName("termination_date");
             entity.Property(e => e.TitleId)
                 .HasMaxLength(2)
                 .HasColumnName("title_id");
@@ -545,196 +506,110 @@ public partial class Hrms_dbContext : DbContext
             entity.Property(e => e.UnitNameThai)
                 .HasMaxLength(70)
                 .HasColumnName("unit_name_thai");
-            entity.Property(e => e.WorkBegin)
-                .HasMaxLength(8)
-                .HasColumnName("work_begin");
-            entity.Property(e => e.WorkEnd)
-                .HasMaxLength(8)
-                .HasColumnName("work_end");
         });
 
-        modelBuilder.Entity<StaffDetail>(entity =>
+        modelBuilder.Entity<VManagementDetail>(entity =>
         {
-            entity.HasKey(e => e.StaffId).HasName("staff_detail_pkey");
+            entity
+                .HasNoKey()
+                .ToView("v_management_details", "person");
 
-            entity.ToTable("staff_detail", "person");
-
-            entity.Property(e => e.StaffId)
-                .HasMaxLength(7)
-                .HasColumnName("staff_id");
-            entity.Property(e => e.CampusId)
+            entity.Property(e => e.AdminId)
                 .HasMaxLength(2)
-                .HasColumnName("campus_id");
-            entity.Property(e => e.DeptId)
-                .HasMaxLength(3)
-                .HasColumnName("dept_id");
-            entity.Property(e => e.FacId)
-                .HasMaxLength(2)
-                .HasColumnName("fac_id");
-            entity.Property(e => e.FullNameEng)
-                .HasMaxLength(401)
-                .HasColumnName("full_name_eng");
-            entity.Property(e => e.FullNameThai)
-                .HasMaxLength(401)
-                .HasColumnName("full_name_thai");
-            entity.Property(e => e.Password)
+                .HasColumnName("admin_id");
+            entity.Property(e => e.AdminLevel).HasColumnName("admin_level");
+            entity.Property(e => e.AdminNameEng)
                 .HasMaxLength(400)
-                .HasColumnName("password");
-            entity.Property(e => e.Pincode)
+                .HasColumnName("admin_name_eng");
+            entity.Property(e => e.AdminNameThai)
                 .HasMaxLength(400)
-                .HasColumnName("pincode");
-            entity.Property(e => e.PosId)
-                .HasMaxLength(4)
-                .HasColumnName("pos_id");
-            entity.Property(e => e.SecretCode)
-                .HasPrecision(6)
-                .HasColumnName("secret_code");
-            entity.Property(e => e.SectId)
-                .HasMaxLength(3)
-                .HasColumnName("sect_id");
-            entity.Property(e => e.StaffDateOut)
-                .HasMaxLength(8)
-                .HasColumnName("staff_date_out");
-            entity.Property(e => e.StaffDepart)
-                .HasMaxLength(1)
-                .HasColumnName("staff_depart");
-            entity.Property(e => e.StaffEmail)
-                .HasMaxLength(40)
-                .HasColumnName("staff_email");
-            entity.Property(e => e.StaffEnd)
-                .HasMaxLength(8)
-                .HasColumnName("staff_end");
-            entity.Property(e => e.StaffNameEng)
-                .HasMaxLength(200)
-                .HasColumnName("staff_name_eng");
-            entity.Property(e => e.StaffNameThai)
-                .HasMaxLength(200)
-                .HasColumnName("staff_name_thai");
-            entity.Property(e => e.StaffPersId)
+                .HasColumnName("admin_name_thai");
+            entity.Property(e => e.CitizenId)
                 .HasMaxLength(13)
-                .HasColumnName("staff_pers_id");
-            entity.Property(e => e.StaffPicture)
-                .HasMaxLength(12)
-                .HasColumnName("staff_picture");
-            entity.Property(e => e.StaffSnameEng)
-                .HasMaxLength(200)
-                .HasColumnName("staff_sname_eng");
-            entity.Property(e => e.StaffSnameThai)
-                .HasMaxLength(200)
-                .HasColumnName("staff_sname_thai");
-            entity.Property(e => e.TitleId)
-                .HasMaxLength(2)
-                .HasColumnName("title_id");
-            entity.Property(e => e.UnitId)
-                .HasMaxLength(3)
-                .HasColumnName("unit_id");
-            entity.Property(e => e.Username)
-                .HasMaxLength(100)
-                .HasColumnName("username");
-            entity.Property(e => e.WorkBegin)
-                .HasMaxLength(8)
-                .HasColumnName("work_begin");
-            entity.Property(e => e.WorkEnd)
-                .HasMaxLength(8)
-                .HasColumnName("work_end");
-        });
-
-        modelBuilder.Entity<StaffPosition>(entity =>
-        {
-            entity
-                .HasNoKey()
-                .ToTable("staff_position", "person");
-
-            entity.Property(e => e.PosId)
-                .HasMaxLength(4)
-                .HasColumnName("pos_id");
-            entity.Property(e => e.PosNameEng)
-                .HasMaxLength(400)
-                .HasColumnName("pos_name_eng");
-            entity.Property(e => e.PosNameThai)
-                .HasMaxLength(400)
-                .HasColumnName("pos_name_thai");
-            entity.Property(e => e.PosType)
-                .HasMaxLength(2)
-                .HasColumnName("pos_type");
-        });
-
-        modelBuilder.Entity<StaffTitle>(entity =>
-        {
-            entity
-                .HasNoKey()
-                .ToTable("staff_title", "person");
-
-            entity.Property(e => e.TitleId)
-                .HasMaxLength(2)
-                .HasColumnName("title_id");
-            entity.Property(e => e.TitleNameEng)
-                .HasMaxLength(200)
-                .HasColumnName("title_name_eng");
-            entity.Property(e => e.TitleNameThai)
-                .HasMaxLength(200)
-                .HasColumnName("title_name_thai");
-            entity.Property(e => e.TitleShortEng)
-                .HasMaxLength(200)
-                .HasColumnName("title_short_eng");
-            entity.Property(e => e.TitleShortThai)
-                .HasMaxLength(200)
-                .HasColumnName("title_short_thai");
-        });
-
-        modelBuilder.Entity<Unit>(entity =>
-        {
-            entity.ToTable("unit", "person");
-
-            entity.Property(e => e.UnitId)
-                .HasMaxLength(3)
-                .HasColumnName("unit_id");
-            entity.Property(e => e.CampusId)
-                .HasMaxLength(2)
-                .HasColumnName("campus_id");
-            entity.Property(e => e.CentralId)
-                .HasMaxLength(10)
-                .HasColumnName("central_id");
+                .HasColumnName("citizen_id");
             entity.Property(e => e.DeptId)
                 .HasMaxLength(3)
                 .HasColumnName("dept_id");
-            entity.Property(e => e.ExternalDocNo)
-                .HasMaxLength(100)
-                .HasColumnName("external_doc_no");
-            entity.Property(e => e.FacId)
+            entity.Property(e => e.DivisionFull)
+                .HasMaxLength(200)
+                .HasColumnName("division_full");
+            entity.Property(e => e.DivisionId)
                 .HasMaxLength(2)
-                .HasColumnName("fac_id");
-            entity.Property(e => e.InternalDocNo)
-                .HasMaxLength(100)
-                .HasColumnName("internal_doc_no");
+                .HasColumnName("division_id");
+            entity.Property(e => e.ExecutiveName)
+                .HasMaxLength(401)
+                .HasColumnName("executive_name");
+            entity.Property(e => e.ExecutiveNameKey)
+                .HasMaxLength(400)
+                .HasColumnName("executive_name_key");
             entity.Property(e => e.Isactive)
                 .HasMaxLength(1)
                 .HasColumnName("isactive");
+            entity.Property(e => e.Key)
+                .HasMaxLength(400)
+                .HasColumnName("key");
+            entity.Property(e => e.LocationId)
+                .HasMaxLength(2)
+                .HasColumnName("location_id");
+            entity.Property(e => e.PosKey)
+                .HasMaxLength(4)
+                .HasColumnName("pos_key");
+            entity.Property(e => e.StaffAdminTemp)
+                .HasMaxLength(20)
+                .HasColumnName("staff_admin_temp");
+            entity.Property(e => e.StaffDepart)
+                .HasMaxLength(1)
+                .HasColumnName("staff_depart");
+            entity.Property(e => e.StaffId)
+                .HasMaxLength(7)
+                .HasColumnName("staff_id");
+            entity.Property(e => e.StaffNameThai)
+                .HasMaxLength(200)
+                .HasColumnName("staff_name_thai");
+            entity.Property(e => e.StaffSnameThai)
+                .HasMaxLength(200)
+                .HasColumnName("staff_sname_thai");
+            entity.Property(e => e.TeamId)
+                .HasMaxLength(3)
+                .HasColumnName("team_id");
+            entity.Property(e => e.UnitId)
+                .HasMaxLength(3)
+                .HasColumnName("unit_id");
+        });
+
+        modelBuilder.Entity<WorkUnit>(entity =>
+        {
+            entity.HasKey(e => e.UnitId).HasName("work_unit_pkey");
+
+            entity.ToTable("work_unit", "person");
+
+            entity.Property(e => e.UnitId)
+                .HasMaxLength(3)
+                .HasColumnName("unit_id");
+            entity.Property(e => e.DeptId)
+                .HasMaxLength(3)
+                .HasColumnName("dept_id");
+            entity.Property(e => e.DivisionId)
+                .HasMaxLength(2)
+                .HasColumnName("division_id");
+            entity.Property(e => e.Isactive)
+                .HasMaxLength(1)
+                .HasColumnName("isactive");
+            entity.Property(e => e.LocationId)
+                .HasMaxLength(2)
+                .HasColumnName("location_id");
             entity.Property(e => e.MissionId)
                 .HasMaxLength(10)
                 .HasColumnName("mission_id");
-            entity.Property(e => e.NewUnitId)
+            entity.Property(e => e.TeamId)
                 .HasMaxLength(3)
-                .HasColumnName("new_unit_id");
-            entity.Property(e => e.OldUnit)
-                .HasMaxLength(3)
-                .HasColumnName("old_unit");
-            entity.Property(e => e.Rowid).HasColumnName("rowid");
-            entity.Property(e => e.SectId)
-                .HasMaxLength(3)
-                .HasColumnName("sect_id");
-            entity.Property(e => e.UnitDesc)
-                .HasMaxLength(60)
-                .HasColumnName("unit_desc");
+                .HasColumnName("team_id");
             entity.Property(e => e.UnitNameEng)
                 .HasMaxLength(70)
                 .HasColumnName("unit_name_eng");
             entity.Property(e => e.UnitNameThai)
                 .HasMaxLength(70)
                 .HasColumnName("unit_name_thai");
-            entity.Property(e => e.UnitTelFax)
-                .HasMaxLength(50)
-                .HasColumnName("unit_tel_fax");
         });
 
         OnModelCreatingPartial(modelBuilder);

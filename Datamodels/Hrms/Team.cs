@@ -3,19 +3,19 @@ using System.Collections.Generic;
 
 namespace Datamodels.Hrms;
 
-public partial class Department
+public partial class Team
 {
-    public string DeptId { get; set; } = null!;
+    public string TeamId { get; set; } = null!;
 
     public string? LocationId { get; set; }
 
     public string? DivisionId { get; set; }
 
-    public string? DeptDesc { get; set; }
+    public string? DeptId { get; set; }
 
-    public string? DeptNameEng { get; set; }
+    public string? TeamNameEng { get; set; }
 
-    public string? DeptNameThai { get; set; }
+    public string? TeamNameThai { get; set; }
 
     public string? Isactive { get; set; }
 
