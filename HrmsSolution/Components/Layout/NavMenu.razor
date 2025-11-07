@@ -1,0 +1,100 @@
+﻿@using Microsoft.AspNetCore.Components.Routing
+@inject SweetAlertService Swal
+<!--
+    NavMenu.razor (Sidebar)
+    เราจะใช้ Sidebar นี้สำหรับเมนูที่เกี่ยวข้องกับการจัดการข้อมูล
+    ส่วนเมนูหลัก (หน้าแรก, รายงาน, ตั้งค่า) จะอยู่ใน Head.razor (Navbar ด้านบน)
+-->
+
+<div class="top-row ps-3">
+    <div class="container-fluid">
+        <span class="bi bi-people-fill" aria-hidden="true"></span> ระบบบริหารทรัพยากรบุคคล
+    </div>
+</div>
+
+<!--
+    ใช้ input/checkbox trick สำหรับการสลับเมนูบนมือถือ
+    (หาก CSS ของคุณรองรับ .navbar-toggler)
+-->
+
+<div class="nav-scrollable" onclick="document.querySelector('.navbar-toggler')?.click()">
+    <nav class="flex-column">
+
+        <!-- === ส่วนการจัดการ === -->
+        <div class="topic-menu">
+            <p>การจัดการ</p>
+        </div>
+        <div class="nav-item px-3">
+            <NavLink class="nav-link" href="employees">
+                <span class="bi bi-people-fill" aria-hidden="true"></span> ข้อมูลบุคลากร
+            </NavLink>
+        </div>
+        <div class="nav-item px-3">
+            <NavLink class="nav-link" href="executive">
+                <span class="bi bi-person-badge-fill" aria-hidden="true"></span> ข้อมูลผู้บริหาร
+            </NavLink>
+        </div>
+        <div class="nav-item px-3">
+            <NavLink class="nav-link" href="organization">
+                <span class="bi bi-buildings-fill" aria-hidden="true"></span> โครงสร้างองค์กร
+            </NavLink>
+        </div>
+
+        <div class="line-hr">
+            <hr />
+        </div>
+
+        <!-- === ส่วนข้อมูลส่วนตัว === -->
+        <div class="topic-menu">
+            <p>ข้อมูลส่วนตัว</p>
+        </div>
+        <div class="nav-item px-3">
+            <NavLink class="nav-link" href="profile">
+                <span class="bi bi-person-vcard-fill" aria-hidden="true"></span> ข้อมูลส่วนตัว
+            </NavLink>
+        </div>
+
+        <div class="line-hr">
+            <hr />
+        </div>
+
+        <!-- === ส่วนข้อมูลติดต่อ (Footer) === -->
+        <div class="detail-navmenu">
+            <div class="text-detail-navmenu">
+                <p>
+                    ภานุวัฒน์ บัวเพชร <br />
+                    พัฒนาระบบจัดการข้อมูลบุคลากร <br />
+                    Software Version : Demo
+                </p>
+            </div>
+        </div>
+    </nav>
+</div>
+
+<!--
+    เพิ่ม CSS เล็กน้อยสำหรับ .topic-menu และ .detail-navmenu
+    (คุณสามารถย้ายไปไว้ในไฟล์ CSS หลักของ NavMenu ได้)
+-->
+<style>
+    .topic-menu p {
+        padding: 5px 1.25rem;
+        font-size: 0.9rem;
+        font-weight: 600;
+        color: #8a99b1; /* สีเทาสำหรับหัวข้อ */
+        margin-top: 1rem;
+        margin-bottom: 0.25rem;
+        text-transform: uppercase;
+    }
+
+    .line-hr hr {
+        border-top: 1px solid rgba(255, 255, 255, 0.1);
+        margin: 0.5rem 1rem;
+    }
+
+    .detail-navmenu {
+        padding: 1rem 1.25rem;
+        font-size: 0.8rem;
+        color: #8a99b1;
+        line-height: 1.4;
+    }
+</style>

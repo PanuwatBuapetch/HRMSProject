@@ -1,0 +1,120 @@
+﻿@* @page "/employees"
+@using Datamodels.Hrms;
+@using AntDesign.TableModels
+@using System.ComponentModel.DataAnnotations
+@inject IJSRuntime JSRuntime
+@inject NavigationManager NavigationManager
+@using System.Globalization
+@inject SweetAlertService Swal
+@inject Microsoft.Extensions.Localization.IStringLocalizer<App> locallizer
+
+
+<PageTitle>@locallizer["ข้อมูลบุคลากร"]</PageTitle>
+
+<div class="container-fluid">
+    @if (IsLoading)
+    {
+        <div class="spinner-container">
+            <Spin size="large" />
+        </div>
+    }
+    else
+    {
+        <div class="d-flex justify-content-between">
+            <div class="employees-title">
+                <p>@locallizer["ข้อมูลบุคลากร"]</p>
+            </div>
+            <div class="addemployee-mobile">
+                <button class="btn btn-success btn-sm" @onclick="ToAddEmployee">
+                    <span class="bi bi-person-fill-add"></span> @locallizer["เพิ่มบุคลากร"]
+                </button>
+            </div>
+        </div>
+
+
+        <div class="card mb-5 mt-2" style="box-shadow: 0px 4px 4px 0px rgba(0, 0, 0, 0.25);">
+            <div class="card-body">
+                <div class="em-cards-head d-flex justify-content-between">
+                    <form @onsubmit="HandleSearch">
+                        <div class="pp p-2">
+                            <div class="input-group mb-3">
+                                <input class="form-control" placeholder="@locallizer["ค้นหาชื่อ-สกุล อีเมล"]" aria-describedby="button-addon2" @bind-value="searchTerm" />
+                                <div class="input-group-append">
+                                    <button class="btn btn-success" type="button" id="button-addon2">
+                                        <span class="bi bi-search" @onclick="HandleSearch"></span>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                    <div class="button-add ml-auto p-2">
+                        <NavLink href="addemployee" type="button" class="btn btn-success">
+                            <span class="bi bi-person-fill-add"></span>@locallizer["เพิ่มบุคลากร"]
+                        </NavLink>
+                    </div>
+                </div>
+                <div class="employee-table mt-2">
+                    <Table TItem="staff" DataSource="@showstaff" PageSize="10" ScrollX="1000" ScrollBarWidth="10px" Responsive>
+                        <Column Title="@locallizer["ชื่อ-สกุล (ภาษาไทย)"]" @bind-Field="@context.FullNameThai" Sortable />
+                        <Column Title="@locallizer["ชื่อ-สกุล (ภาษาอังกฤษ)"]" @bind-Field="@context.FullNameEng" Sortable />
+                        <Column Title="@locallizer["อีเมล"]" @bind-Field="@context.StaffEmail" Sortable Width="15%" />
+                        <Column Title="@locallizer["เทศบาล"]" @bind-Field="@context.CampNameThai" Sortable />
+                        <Column Title="@locallizer["สำนัก/กอง"]" @bind-Field="@context.FacNameThai" Sortable />
+                        <PropertyColumn Title="@locallizer["สถานะการทำงาน"]" Property="c => c.StaffDepart" Width="10%" Sortable>
+                            @{
+                                string staffDepartString = string.Empty;
+
+                                if (@context.StaffDepart != null)
+                                {
+                                    // ตรวจสอบและแปลงค่าตามที่คุณต้องการ
+                                    switch (@context.StaffDepart)
+                                    {
+                                        case "e":
+                                            staffDepartString = @locallizer["ไม่ทำงาน"];
+                                            break;
+                                        case "3":
+                                            staffDepartString = @locallizer["ทำงาน"];
+                                            break;
+                                        default:
+                                            staffDepartString = @locallizer["ไม่ทราบสถานะ"];
+                                            break;
+                                    }
+                                }
+                            }
+                            <Tag Color="@(staffDepartString == @locallizer["ทำงาน"] ? "green" : staffDepartString == @locallizer["ไม่ทำงาน"] ? "orange" : staffDepartString == @locallizer["ไม่ทราบสถานะ"] ? "geekblue" : "geekblue")">@staffDepartString</Tag>
+                        </PropertyColumn>
+                        <PropertyColumn Title="@locallizer["จัดการสถานะ"]" Property="c => c.StaffDepart" Width="10%">
+                            <Switch Checked="@(@context.StaffDepart == "3")" CheckedChildren="@locallizer["ทำงาน"]" UnCheckedChildren="@locallizer["ไม่ทำงาน"]" OnClick="@(() => { Onswitch(@context.StaffId); })" />
+                        </PropertyColumn>
+                        <ActionColumn Title="@locallizer["การจัดการ"]" Fixed="right">
+                            <Space>
+                                <SpaceItem>
+                                    <Tooltip Placement="@Placement.Top" Title="@locallizer["รายละเอียดข้อมูลบุคลากร"]">
+                                        <Button Class="btn btn-primary btn-sm" OnClick="@(() => { Topage(1, @context.StaffId); })"><span class="bi bi-info-circle-fill"></span></Button>
+                                    </Tooltip>
+                                </SpaceItem>
+                                <SpaceItem>
+                                    <Tooltip Placement="@Placement.Top" Title="@locallizer["แก้ไขข้อมูลบุคลากร"]">
+                                        <Button Class="btn btn-warning btn-sm" OnClick="@(() => { Topage(2, @context.StaffId); })"><span class="bi bi-pencil-square"></span></Button>
+                                    </Tooltip>
+                                </SpaceItem>
+                                <SpaceItem>
+                                    <Tooltip Placement="@Placement.Top" Title="@locallizer["รีเช็ตรหัสผ่าน"]">
+                                        <Button Class="btn btn-warning btn-sm" OnClick="@(() => { ResetPassword(@context.StaffId); })"><span class="bi bi-file-lock2-fill"></span></Button>
+                                    </Tooltip>
+                                </SpaceItem>
+                                <SpaceItem>
+                                    <Tooltip Placement="@Placement.Top" Title="@locallizer["ลบข้อมูลบุคลากร"]">
+                                        <Button Class="btn btn-danger btn-sm" @onclick="@(e => Delete(@context.StaffId))"><span class="bi bi bi-trash3-fill"></span></Button>
+                                    </Tooltip>
+                                </SpaceItem>
+                            </Space>
+                        </ActionColumn>
+                    </Table>
+                </div>
+            </div>
+        </div>
+    }
+</div>
+
+ *@

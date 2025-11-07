@@ -1,0 +1,552 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <!-- 
+    Microsoft ResX Schema 
+    
+    Version 2.0
+    
+    The primary goals of this format is to allow a simple XML format 
+    that is mostly human readable. The generation and parsing of the 
+    various data types are done through the TypeConverter classes 
+    associated with the data types.
+    
+    Example:
+    
+    ... ado.net/XML headers & schema ...
+    <resheader name="resmimetype">text/microsoft-resx</resheader>
+    <resheader name="version">2.0</resheader>
+    <resheader name="reader">System.Resources.ResXResourceReader, System.Windows.Forms, ...</resheader>
+    <resheader name="writer">System.Resources.ResXResourceWriter, System.Windows.Forms, ...</resheader>
+    <data name="Name1"><value>this is my long string</value><comment>this is a comment</comment></data>
+    <data name="Color1" type="System.Drawing.Color, System.Drawing">Blue</data>
+    <data name="Bitmap1" mimetype="application/x-microsoft.net.object.binary.base64">
+        <value>[base64 mime encoded serialized .NET Framework object]</value>
+    </data>
+    <data name="Icon1" type="System.Drawing.Icon, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
+        <value>[base64 mime encoded string representing a byte array form of the .NET Framework object]</value>
+        <comment>This is a comment</comment>
+    </data>
+                
+    There are any number of "resheader" rows that contain simple 
+    name/value pairs.
+    
+    Each data row contains a name, and value. The row also contains a 
+    type or mimetype. Type corresponds to a .NET class that support 
+    text/value conversion through the TypeConverter architecture. 
+    Classes that don't support this are serialized and stored with the 
+    mimetype set.
+    
+    The mimetype is used for serialized objects, and tells the 
+    ResXResourceReader how to depersist the object. This is currently not 
+    extensible. For a given mimetype the value must be set accordingly:
+    
+    Note - application/x-microsoft.net.object.binary.base64 is the format 
+    that the ResXResourceWriter will generate, however the reader can 
+    read any of the formats listed below.
+    
+    mimetype: application/x-microsoft.net.object.binary.base64
+    value   : The object must be serialized with 
+            : System.Runtime.Serialization.Formatters.Binary.BinaryFormatter
+            : and then encoded with base64 encoding.
+    
+    mimetype: application/x-microsoft.net.object.soap.base64
+    value   : The object must be serialized with 
+            : System.Runtime.Serialization.Formatters.Soap.SoapFormatter
+            : and then encoded with base64 encoding.
+
+    mimetype: application/x-microsoft.net.object.bytearray.base64
+    value   : The object must be serialized into a byte array 
+            : using a System.ComponentModel.TypeConverter
+            : and then encoded with base64 encoding.
+    -->
+  <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
+    <xsd:import namespace="http://www.w3.org/XML/1998/namespace" />
+    <xsd:element name="root" msdata:IsDataSet="true">
+      <xsd:complexType>
+        <xsd:choice maxOccurs="unbounded">
+          <xsd:element name="metadata">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" />
+              </xsd:sequence>
+              <xsd:attribute name="name" use="required" type="xsd:string" />
+              <xsd:attribute name="type" type="xsd:string" />
+              <xsd:attribute name="mimetype" type="xsd:string" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="assembly">
+            <xsd:complexType>
+              <xsd:attribute name="alias" type="xsd:string" />
+              <xsd:attribute name="name" type="xsd:string" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="data">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+                <xsd:element name="comment" type="xsd:string" minOccurs="0" msdata:Ordinal="2" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" msdata:Ordinal="1" />
+              <xsd:attribute name="type" type="xsd:string" msdata:Ordinal="3" />
+              <xsd:attribute name="mimetype" type="xsd:string" msdata:Ordinal="4" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="resheader">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" />
+            </xsd:complexType>
+          </xsd:element>
+        </xsd:choice>
+      </xsd:complexType>
+    </xsd:element>
+  </xsd:schema>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <data name="LangCode" xml:space="preserve">
+    <value>TH</value>
+  </data>
+  <data name="test" xml:space="preserve">
+    <value>TestEng</value>
+  </data>
+  <data name="กรุณากรอกข้อมูลเป็นรูปแบบอีเมล" xml:space="preserve">
+    <value>กรุณากรอกข้อมูลเป็นรูปแบบอีเมล</value>
+  </data>
+  <data name="กรุณากรอกชื่อ-สกุลให้มีความยาวมากกว่า 3 ตัวอักษร" xml:space="preserve">
+    <value>กรุณากรอกชื่อ-สกุลให้มีความยาวมากกว่า 3 ตัวอักษร</value>
+  </data>
+  <data name="กรุณากรอกชื่อภาษาอังกฤษ" xml:space="preserve">
+    <value>กรุณากรอกชื่อภาษาอังกฤษ</value>
+  </data>
+  <data name="กรุณากรอกชื่อภาษาไทย" xml:space="preserve">
+    <value>กรุณากรอกชื่อภาษาไทย</value>
+  </data>
+  <data name="กรุณากรอกชื่อภาษาไทย1" xml:space="preserve">
+    <value>กรุณากรอกชื่อภาษาไทย1</value>
+  </data>
+  <data name="กรุณากรอกนามสกุลภาษาอังกฤษ" xml:space="preserve">
+    <value>กรุณากรอกนามสกุลภาษาอังกฤษ</value>
+  </data>
+  <data name="กรุณากรอกนามสกุลภาษาไทย" xml:space="preserve">
+    <value>กรุณากรอกนามสกุลภาษาไทย</value>
+  </data>
+  <data name="กรุณากรอกอีเมล" xml:space="preserve">
+    <value>กรุณากรอกอีเมล</value>
+  </data>
+  <data name="กรุณากรอกเลขบัตรประชาชน 13 หลัก / เลขที่หนังสือเดินทาง" xml:space="preserve">
+    <value>กรุณากรอกเลขบัตรประชาชน 13 หลัก / เลขที่หนังสือเดินทาง</value>
+  </data>
+  <data name="กรุณากรอกเลขบัตรประชาชน 13 หลัก / เลขที่หนังสือเดินทาง1" xml:space="preserve">
+    <value>กรุณากรอกเลขบัตรประชาชน 13 หลัก / เลขที่หนังสือเดินทาง1</value>
+  </data>
+  <data name="กรุณาพิมพ์ชื่อ-สกุลที่ต้องการ" xml:space="preserve">
+    <value>กรุณาพิมพ์ชื่อ-สกุลที่ต้องการ</value>
+  </data>
+  <data name="กรุณาพิมพ์ชื่อตำแหน่ง" xml:space="preserve">
+    <value>กรุณาพิมพ์ชื่อตำแหน่ง</value>
+  </data>
+  <data name="กรุณารอสักครู่" xml:space="preserve">
+    <value>กรุณารอสักครู่</value>
+  </data>
+  <data name="กรุณาเลือกคำนำหน้า" xml:space="preserve">
+    <value>กรุณาเลือกคำนำหน้า</value>
+  </data>
+  <data name="กรุณาเลือกคำนำหน้า1" xml:space="preserve">
+    <value>กรุณาเลือกคำนำหน้า1</value>
+  </data>
+  <data name="กรุณาเลือกงาน" xml:space="preserve">
+    <value>กรุณาเลือกงาน</value>
+  </data>
+  <data name="กรุณาเลือกตำแหน่ง" xml:space="preserve">
+    <value>กรุณาเลือกตำแหน่ง</value>
+  </data>
+  <data name="กรุณาเลือกฝ่าย" xml:space="preserve">
+    <value>กรุณาเลือกฝ่าย</value>
+  </data>
+  <data name="กรุณาเลือกวันที่บรรจุราชการ" xml:space="preserve">
+    <value>กรุณาเลือกวันที่บรรจุราชการ</value>
+  </data>
+  <data name="กรุณาเลือกวันเกษียณอายุราชการ" xml:space="preserve">
+    <value>กรุณาเลือกวันเกษียณอายุราชการ</value>
+  </data>
+  <data name="กรุณาเลือกสำนัก / กอง" xml:space="preserve">
+    <value>กรุณาเลือกสำนัก / กอง</value>
+  </data>
+  <data name="กรุณาเลือกหน่วย" xml:space="preserve">
+    <value>กรุณาเลือกหน่วย</value>
+  </data>
+  <data name="กรุณาเลือกเทศบาล" xml:space="preserve">
+    <value>กรุณาเลือกเทศบาล</value>
+  </data>
+  <data name="กลับไปยังหน้าข้อมูลบุคลากร" xml:space="preserve">
+    <value>กลับไปยังหน้าข้อมูลบุคลากร</value>
+  </data>
+  <data name="กลับไปยังหน้าข้อมูลผู้บริหาร" xml:space="preserve">
+    <value>กลับไปยังหน้าข้อมูลผู้บริหาร</value>
+  </data>
+  <data name="การจัดการ" xml:space="preserve">
+    <value>การจัดการ</value>
+  </data>
+  <data name="กำลังดำเนินการรีเช็ตรหัสผ่าน กรุณารอสักครู่" xml:space="preserve">
+    <value>กำลังดำเนินการรีเช็ตรหัสผ่าน กรุณารอสักครู่</value>
+  </data>
+  <data name="กำลังดำเนินการเพิ่มข้อมูล กรุณารอสักครู่" xml:space="preserve">
+    <value>กำลังดำเนินการเพิ่มข้อมูล กรุณารอสักครู่</value>
+  </data>
+  <data name="ข้อมูลการทำงาน" xml:space="preserve">
+    <value>ข้อมูลการทำงาน</value>
+  </data>
+  <data name="ข้อมูลบัญชีผู้ใช้งาน" xml:space="preserve">
+    <value>ข้อมูลบัญชีผู้ใช้งาน</value>
+  </data>
+  <data name="ข้อมูลบุคลากร" xml:space="preserve">
+    <value>ข้อมูลบุคลากร</value>
+  </data>
+  <data name="ข้อมูลผู้บริหาร" xml:space="preserve">
+    <value>ข้อมูลผู้บริหาร</value>
+  </data>
+  <data name="ข้อมูลส่วนตัว" xml:space="preserve">
+    <value>ข้อมูลส่วนตัว</value>
+  </data>
+  <data name="คลิก" xml:space="preserve">
+    <value>คลิก</value>
+  </data>
+  <data name="คำนำหน้า" xml:space="preserve">
+    <value>คำนำหน้า</value>
+  </data>
+  <data name="คุณกรอกเลขบัตรประชาชนซ้ำ กรุณากรอกใหม่อีกครั้ง" xml:space="preserve">
+    <value>คุณกรอกเลขบัตรประชาชนซ้ำ กรุณากรอกใหม่อีกครั้ง</value>
+  </data>
+  <data name="คุณต้องการรีเช็ตรหัสผ่านหรือไม่ ?" xml:space="preserve">
+    <value>คุณต้องการรีเช็ตรหัสผ่านหรือไม่ ?</value>
+  </data>
+  <data name="คุณต้องการลบข้อมูล คุณ" xml:space="preserve">
+    <value>คุณต้องการลบข้อมูล คุณ</value>
+  </data>
+  <data name="คุณต้องการลบข้อมูลหรือไม่ ?" xml:space="preserve">
+    <value>คุณต้องการลบข้อมูลหรือไม่ ?</value>
+  </data>
+  <data name="คุณต้องการเปลี่ยนสถานะใช่หรือไม่ ?" xml:space="preserve">
+    <value>คุณต้องการเปลี่ยนสถานะใช่หรือไม่ ?</value>
+  </data>
+  <data name="คุณลบข้อมูลบุคลากรเสร็จสิ้น" xml:space="preserve">
+    <value>คุณลบข้อมูลบุคลากรเสร็จสิ้น</value>
+  </data>
+  <data name="คุณเปลี่ยนสถานะบุคลากรสำเร็จ" xml:space="preserve">
+    <value>คุณเปลี่ยนสถานะบุคลากรสำเร็จ</value>
+  </data>
+  <data name="คุณเปลี่ยนสถานะผู้บริหารสำเร็จ" xml:space="preserve">
+    <value>คุณเปลี่ยนสถานะผู้บริหารสำเร็จ</value>
+  </data>
+  <data name="คู่มือการใช้งาน" xml:space="preserve">
+    <value>คู่มือการใช้งาน</value>
+  </data>
+  <data name="ค้นหาชื่อ สำนัก/กอง" xml:space="preserve">
+    <value>ค้นหาชื่อ สำนัก/กอง</value>
+  </data>
+  <data name="ค้นหาชื่อ สำนัก/กอง ฝ่าย" xml:space="preserve">
+    <value>ค้นหาชื่อ สำนัก/กอง ฝ่าย</value>
+  </data>
+  <data name="ค้นหาชื่อ-สกุล" xml:space="preserve">
+    <value>ค้นหาชื่อ-สกุล</value>
+  </data>
+  <data name="ค้นหาบุคลากร" xml:space="preserve">
+    <value>ค้นหาบุคลากร</value>
+  </data>
+  <data name="งาน" xml:space="preserve">
+    <value>งาน</value>
+  </data>
+  <data name="จัดการสถานะ" xml:space="preserve">
+    <value>จัดการสถานะ</value>
+  </data>
+  <data name="จำนวนบุคลากร" xml:space="preserve">
+    <value>จำนวนบุคลากร</value>
+  </data>
+  <data name="จำนวนบุคลากรแต่ละสำนักงาน" xml:space="preserve">
+    <value>จำนวนบุคลากรแต่ละสำนักงาน</value>
+  </data>
+  <data name="จำนวนบุคลากรแต่ละหน่วยงาน" xml:space="preserve">
+    <value>จำนวนบุคลากรแต่ละหน่วยงาน</value>
+  </data>
+  <data name="จำนวนผู้บริหาร" xml:space="preserve">
+    <value>จำนวนผู้บริหาร</value>
+  </data>
+  <data name="จำนวนฝ่าย" xml:space="preserve">
+    <value>จำนวนฝ่าย</value>
+  </data>
+  <data name="จำนวนสำนัก/กอง" xml:space="preserve">
+    <value>จำนวนสำนัก/กอง</value>
+  </data>
+  <data name="ชื่อ" xml:space="preserve">
+    <value>ชื่อ</value>
+  </data>
+  <data name="ชื่อ (ภาษาอังกฤษ)" xml:space="preserve">
+    <value>ชื่อ (ภาษาอังกฤษ)</value>
+  </data>
+  <data name="ชื่อ-สกุล (ภาษาอังกฤษ)" xml:space="preserve">
+    <value>ชื่อ-สกุล (ภาษาอังกฤษ)</value>
+  </data>
+  <data name="ชื่อ-สกุล (ภาษาไทย)" xml:space="preserve">
+    <value>ชื่อ-สกุล (ภาษาไทย)</value>
+  </data>
+  <data name="ชื่อ-สกุล ซ้ำ" xml:space="preserve">
+    <value>ชื่อ-สกุล ซ้ำ</value>
+  </data>
+  <data name="ชื่อ-สกุล สั้นเกินไป" xml:space="preserve">
+    <value>ชื่อ-สกุล สั้นเกินไป</value>
+  </data>
+  <data name="ชื่อผู้ใช้งาน" xml:space="preserve">
+    <value>ชื่อผู้ใช้งาน</value>
+  </data>
+  <data name="ดำรงตำแหน่ง" xml:space="preserve">
+    <value>ดำรงตำแหน่ง</value>
+  </data>
+  <data name="ตกลง" xml:space="preserve">
+    <value>ตกลง</value>
+  </data>
+  <data name="ตรวจสอบข้อมูล" xml:space="preserve">
+    <value>ตรวจสอบข้อมูล</value>
+  </data>
+  <data name="ตั้งค่า" xml:space="preserve">
+    <value>ตั้งค่า</value>
+  </data>
+  <data name="ตำแหน่ง" xml:space="preserve">
+    <value>ตำแหน่ง</value>
+  </data>
+  <data name="ถัดไป" xml:space="preserve">
+    <value>ถัดไป</value>
+  </data>
+  <data name="ทดสอบฐานข้อมูล" xml:space="preserve">
+    <value>ทดสอบฐานข้อมูล</value>
+  </data>
+  <data name="ทำงาน" xml:space="preserve">
+    <value>ทำงาน</value>
+  </data>
+  <data name="นามสกุล" xml:space="preserve">
+    <value>นามสกุล</value>
+  </data>
+  <data name="นามสกุล (ภาษาอังกฤษ)" xml:space="preserve">
+    <value>นามสกุล (ภาษาอังกฤษ)</value>
+  </data>
+  <data name="บันทึกข้อมูล" xml:space="preserve">
+    <value>บันทึกข้อมูล</value>
+  </data>
+  <data name="ผู้ดูแลระบบ" xml:space="preserve">
+    <value>ผู้ดูแลระบบ</value>
+  </data>
+  <data name="ฝ่าย" xml:space="preserve">
+    <value>ฝ่าย</value>
+  </data>
+  <data name="ยกเลิก" xml:space="preserve">
+    <value>ยกเลิก</value>
+  </data>
+  <data name="ยืนยันข้อมูล" xml:space="preserve">
+    <value>ยืนยันข้อมูล</value>
+  </data>
+  <data name="ยืนยันเปลี่ยนสถานะ ?" xml:space="preserve">
+    <value>ยืนยันเปลี่ยนสถานะ ?</value>
+  </data>
+  <data name="ย้อนกลับ" xml:space="preserve">
+    <value>ย้อนกลับ</value>
+  </data>
+  <data name="ย้อนกลับของเทศบาล" xml:space="preserve">
+    <value>ย้อนกลับของเทศบาล</value>
+  </data>
+  <data name="รหัสพิสูจน์ตัวตน" xml:space="preserve">
+    <value>รหัสพิสูจน์ตัวตน</value>
+  </data>
+  <data name="ระบบ" xml:space="preserve">
+    <value>ระบบ</value>
+  </data>
+  <data name="ระบบจัดการข้อมูลบุคลากร" xml:space="preserve">
+    <value>ระบบจัดการข้อมูลบุคลากร</value>
+  </data>
+  <data name="รายงาน" xml:space="preserve">
+    <value>รายงาน</value>
+  </data>
+  <data name="รายละเอียดข้อมูลบุคลากร" xml:space="preserve">
+    <value>รายละเอียดข้อมูลบุคลากร</value>
+  </data>
+  <data name="รายละเอียดข้อมูลผู้บริหาร" xml:space="preserve">
+    <value>รายละเอียดข้อมูลผู้บริหาร</value>
+  </data>
+  <data name="รีเช็ต" xml:space="preserve">
+    <value>รีเช็ต</value>
+  </data>
+  <data name="รีเช็ตรหัสผ่าน" xml:space="preserve">
+    <value>รีเช็ตรหัสผ่าน</value>
+  </data>
+  <data name="รีเช็ตรหัสผ่าน ?" xml:space="preserve">
+    <value>รีเช็ตรหัสผ่าน ?</value>
+  </data>
+  <data name="รีเช็ตรหัสผ่านเสร็จสิ้น" xml:space="preserve">
+    <value>รีเช็ตรหัสผ่านเสร็จสิ้น</value>
+  </data>
+  <data name="ลบ" xml:space="preserve">
+    <value>ลบ</value>
+  </data>
+  <data name="ลบข้อมูล" xml:space="preserve">
+    <value>ลบข้อมูล</value>
+  </data>
+  <data name="ลบข้อมูล ?" xml:space="preserve">
+    <value>ลบข้อมูล ?</value>
+  </data>
+  <data name="ลบข้อมูลบุคลากร" xml:space="preserve">
+    <value>ลบข้อมูลบุคลากร</value>
+  </data>
+  <data name="ลบข้อมูลผู้บริหาร" xml:space="preserve">
+    <value>ลบข้อมูลผู้บริหาร</value>
+  </data>
+  <data name="ล้างข้อมูล" xml:space="preserve">
+    <value>ล้างข้อมูล</value>
+  </data>
+  <data name="วัน/เดือน/ปี สิ้นสุดการทำงาน (เกษียณราชการ)" xml:space="preserve">
+    <value>วัน/เดือน/ปี สิ้นสุดการทำงาน (เกษียณราชการ)</value>
+  </data>
+  <data name="วัน/เดือน/ปี เริ่มต้นการทำงาน (บรรจุราชการ)" xml:space="preserve">
+    <value>วัน/เดือน/ปี เริ่มต้นการทำงาน (บรรจุราชการ)</value>
+  </data>
+  <data name="วันที่บรรจุราชการ" xml:space="preserve">
+    <value>วันที่บรรจุราชการ</value>
+  </data>
+  <data name="วันที่บรรจุราชการ / วันที่เริ่มทำงาน" xml:space="preserve">
+    <value>วันที่บรรจุราชการ / วันที่เริ่มทำงาน</value>
+  </data>
+  <data name="วันที่เกษียณอายุราชการ" xml:space="preserve">
+    <value>วันที่เกษียณอายุราชการ</value>
+  </data>
+  <data name="สถานที่ดำรงตำแหน่ง" xml:space="preserve">
+    <value>สถานที่ดำรงตำแหน่ง</value>
+  </data>
+  <data name="สถานะ" xml:space="preserve">
+    <value>สถานะ</value>
+  </data>
+  <data name="สถานะการทำงาน" xml:space="preserve">
+    <value>สถานะการทำงาน</value>
+  </data>
+  <data name="สอบถามการใช้งานระบบ" xml:space="preserve">
+    <value>สอบถามการใช้งานระบบ</value>
+  </data>
+  <data name="สำนัก / กอง" xml:space="preserve">
+    <value>สำนัก / กอง</value>
+  </data>
+  <data name="สำนัก/กอง" xml:space="preserve">
+    <value>สำนัก/กอง</value>
+  </data>
+  <data name="หน่วย" xml:space="preserve">
+    <value>หน่วย</value>
+  </data>
+  <data name="หน่วยงาน" xml:space="preserve">
+    <value>หน่วยงาน</value>
+  </data>
+  <data name="หน้าต่อไปของเทศบาล" xml:space="preserve">
+    <value>หน้าต่อไปของเทศบาล</value>
+  </data>
+  <data name="หน้าแรก" xml:space="preserve">
+    <value>หน้าแรก</value>
+  </data>
+  <data name="หมดวาระ" xml:space="preserve">
+    <value>หมดวาระ</value>
+  </data>
+  <data name="ออกจากระบบ" xml:space="preserve">
+    <value>ออกจากระบบ</value>
+  </data>
+  <data name="อีเมล" xml:space="preserve">
+    <value>อีเมล</value>
+  </data>
+  <data name="อีเมล : support@psu.ac.th" xml:space="preserve">
+    <value>อีเมล : support@psu.ac.th</value>
+  </data>
+  <data name="เกิดข้อผิดพลาด" xml:space="preserve">
+    <value>เกิดข้อผิดพลาด</value>
+  </data>
+  <data name="เกิดข้อผิดพลาดทางระบบ กรุณาติดต่อกับเจ้าหน้าที่" xml:space="preserve">
+    <value>เกิดข้อผิดพลาดทางระบบ กรุณาติดต่อกับเจ้าหน้าที่</value>
+  </data>
+  <data name="เทศบาล" xml:space="preserve">
+    <value>เทศบาล</value>
+  </data>
+  <data name="เปลี่ยน" xml:space="preserve">
+    <value>เปลี่ยน</value>
+  </data>
+  <data name="เปลี่ยนรหัสผ่าน/PIN" xml:space="preserve">
+    <value>เปลี่ยนรหัสผ่าน/PIN</value>
+  </data>
+  <data name="เปลี่ยนสถานะสำเร็จ" xml:space="preserve">
+    <value>เปลี่ยนสถานะสำเร็จ</value>
+  </data>
+  <data name="เพิ่มข้อมูลบุคลากรเสร็จสิ้น" xml:space="preserve">
+    <value>เพิ่มข้อมูลบุคลากรเสร็จสิ้น</value>
+  </data>
+  <data name="เพิ่มข้อมูลเทศบาลเสร็จสิ้น" xml:space="preserve">
+    <value>เพิ่มข้อมูลเทศบาลเสร็จสิ้น</value>
+  </data>
+  <data name="เพิ่มบุคลากร" xml:space="preserve">
+    <value>เพิ่มบุคลากร</value>
+  </data>
+  <data name="เพิ่มผู้บริหาร" xml:space="preserve">
+    <value>เพิ่มผู้บริหาร</value>
+  </data>
+  <data name="เพิ่มเทศบาล" xml:space="preserve">
+    <value>เพิ่มเทศบาล</value>
+  </data>
+  <data name="เมนู" xml:space="preserve">
+    <value>เมนู</value>
+  </data>
+  <data name="เลขบัตรประจำตัวประชาชน" xml:space="preserve">
+    <value>เลขบัตรประจำตัวประชาชน</value>
+  </data>
+  <data name="เลขบัตรประชาชน / เลขที่หนังสือเดินทาง" xml:space="preserve">
+    <value>เลขบัตรประชาชน / เลขที่หนังสือเดินทาง</value>
+  </data>
+  <data name="เลขบัตรประชาชนซ้ำ" xml:space="preserve">
+    <value>เลขบัตรประชาชนซ้ำ ?</value>
+  </data>
+  <data name="เลือก" xml:space="preserve">
+    <value>เลือก</value>
+  </data>
+  <data name="เลือกสถานที่ดำรงตำแหน่ง" xml:space="preserve">
+    <value>เลือกสถานที่ดำรงตำแหน่ง</value>
+  </data>
+  <data name="เสร็จสิ้น" xml:space="preserve">
+    <value>เสร็จสิ้น</value>
+  </data>
+  <data name="แก้ไขข้อมูล" xml:space="preserve">
+    <value>แก้ไขข้อมูล</value>
+  </data>
+  <data name="แก้ไขข้อมูลบุคลากร" xml:space="preserve">
+    <value>แก้ไขข้อมูลบุคลากร</value>
+  </data>
+  <data name="แดชบอร์ด" xml:space="preserve">
+    <value>แดชบอร์ด</value>
+  </data>
+  <data name="โครงสร้างองค์กร" xml:space="preserve">
+    <value>โครงสร้างองค์กร</value>
+  </data>
+  <data name="โทร 9091" xml:space="preserve">
+    <value>โทร 9091</value>
+  </data>
+  <data name="ใช่หรือไม่ ?" xml:space="preserve">
+    <value>ใช่หรือไม่ ?</value>
+  </data>
+  <data name="ไม่ทราบสถานะ" xml:space="preserve">
+    <value>ไม่ทราบสถานะ</value>
+  </data>
+  <data name="ไม่ทำงาน" xml:space="preserve">
+    <value>ไม่ทำงาน</value>
+  </data>
+</root>
