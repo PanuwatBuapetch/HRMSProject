@@ -1,0 +1,260 @@
+﻿@page "/organization"
+
+<style>
+    /* Styling for the overall page and structure */
+    .organization-container {
+        padding: 20px;
+        background-color: #f8f9fa; /* Light gray background for the content area */
+        font-family: Arial, sans-serif;
+    }
+
+    .org-chart-title {
+        color: #007bff; /* Blue color for title */
+        font-size: 1.5rem;
+        margin-bottom: 20px;
+        border-bottom: 3px solid #007bff;
+        padding-bottom: 10px;
+    }
+
+    /* Basic box styling for organization units */
+    .org-unit-box {
+        border: 1px solid #ccc;
+        padding: 10px;
+        margin: 5px;
+        text-align: center;
+        background-color: white;
+        min-width: 150px;
+        height: auto;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 0.9rem;
+        cursor: pointer;
+        transition: background-color 0.2s;
+        border-radius: 5px;
+    }
+
+        .org-unit-box:hover {
+            background-color: #e9ecef;
+        }
+
+    /* Styling for the main organizational chart layout (uses Flexbox for simplicity) */
+    .org-chart-main {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+    }
+
+    /* Styling for the main levels */
+    .org-level {
+        display: flex;
+        justify-content: center;
+        width: 100%;
+        margin-top: 30px;
+        position: relative; /* For drawing connecting lines/pseudo-elements later */
+    }
+
+    .org-level-row {
+        display: flex;
+        justify-content: center;
+        width: 100%;
+    }
+
+    .org-column {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        padding: 0 10px;
+    }
+
+    /* Utility for simple 'connector' line appearance */
+    .connector-line {
+        height: 30px;
+        width: 1px;
+        background-color: #000;
+        margin: 0 auto;
+    }
+
+    /* Specific styling for the top box (อธิการบดี) */
+    .org-top-box {
+        font-weight: bold;
+        background-color: #d1ecf1; /* Light blue/teal background */
+    }
+
+    /* Styling for the 'สำนักงานอธิการบดี' section (the dense middle part) */
+    .office-of-president {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        margin: 20px 0;
+    }
+
+    .office-section-row {
+        display: flex;
+        justify-content: center;
+        align-items: flex-start;
+    }
+
+    .office-column-group {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        margin: 0 10px;
+    }
+
+    .office-sub-unit {
+        margin-top: 10px;
+    }
+
+    .office-label {
+        margin-top: 5px;
+        font-size: 0.8rem;
+        color: #6c757d;
+    }
+
+    /* Style for the 'หมายเหตุ' box */
+    .note-box {
+        border: 1px solid #ffc107;
+        padding: 5px 10px;
+        background-color: #fff3cd;
+        color: #856404;
+        font-size: 0.8rem;
+        margin-top: 10px;
+        border-radius: 3px;
+    }
+
+</style>
+
+<div class="organization-container">
+    <div class="org-chart-title">โครงสร้างองค์กร</div>
+
+    <div class="org-chart-main">
+
+        <div class="org-level">
+            <div class="org-unit-box org-top-box">อธิการบดี/คณะกรรมการ</div>
+        </div>
+
+        <div class="connector-line"></div>
+
+        <div class="org-level org-level-row">
+            <div class="org-unit-box">โรงพยาบาล ม.อ.</div>
+            <div class="org-unit-box">กรรมการตรวจสอบ (ม.อ.)</div>
+            <div class="org-unit-box">กรรมการนโยบาย...</div>
+            <div class="org-unit-box">กรรมการเงิน... (อ.ส.ท.)</div>
+            <div class="org-unit-box">กรรมการบริหาร...</div>
+            <div class="org-unit-box">กรรมการบริหารเงิน...</div>
+            <div class="org-unit-box">กรรมการบริหารกองทุน...</div>
+            <div class="org-unit-box">กรรมการบริหาร...</div>
+            <div class="org-unit-box">กรรมการบริหาร...</div>
+            <div class="org-unit-box">กรรมการบริหาร...</div>
+            <div class="org-unit-box">กรรมการวิสามัญ...</div>
+        </div>
+
+        <div class="connector-line" style="height: 50px;"></div>
+
+        <div class="org-level org-level-row">
+            <div class="office-column-group" style="margin-right: 50px;">
+                <div class="org-unit-box">กองบริหารวิชาการ</div>
+                <div class="office-sub-unit">
+                    <div class="org-unit-box">กองบริหารงานวิจัย...</div>
+                </div>
+                <div class="office-sub-unit">
+                    <div class="org-unit-box">ศูนย์นวัตกรรม</div>
+                </div>
+                <div class="office-sub-unit">
+                    <div class="org-unit-box">ศูนย์บริการวิชาการ...</div>
+                </div>
+            </div>
+
+            <div class="office-column-group">
+                <div class="org-unit-box org-top-box">สำนักงานอธิการบดี</div>
+                <div class="note-box">หมายเหตุ</div>
+                <div class="office-sub-unit">
+                    <div class="org-unit-box">กองการเจ้าหน้าที่</div>
+                </div>
+                <div class="office-sub-unit">
+                    <div class="org-unit-box">กองนโยบายและแผน</div>
+                </div>
+                <div class="office-sub-unit">
+                    <div class="org-unit-box">กองส่งเสริมชีวิตและ...</div>
+                </div>
+                <div class="office-sub-unit">
+                    <div class="org-unit-box">ศูนย์ปฏิบัติการและ...</div>
+                </div>
+                <div class="office-sub-unit">
+                    <div class="org-unit-box">ศูนย์ข้อมูลสารสนเทศ...</div>
+                </div>
+            </div>
+
+            <div class="office-column-group" style="margin-left: 50px;">
+                <div class="org-unit-box">กองคลัง</div>
+                <div class="office-sub-unit">
+                    <div class="org-unit-box">สำนักงานตรวจสอบ 1</div>
+                </div>
+                <div class="office-sub-unit">
+                    <div class="org-unit-box">สำนักงานตรวจสอบ 2</div>
+                </div>
+                <div class="office-sub-unit">
+                    <div class="org-unit-box">สำนักงานตรวจสอบ 3</div>
+                </div>
+                <div class="office-sub-unit">
+                    <div class="org-unit-box">สำนักงานตรวจสอบ 4</div>
+                </div>
+                <div class="office-sub-unit">
+                    <div class="org-unit-box">สำนักงานตรวจสอบ 5</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="connector-line" style="height: 50px;"></div>
+
+        <div class="org-level org-level-row">
+            <div class="org-column">
+                <div class="org-unit-box">วิทยาเขต มหาวิทยาลัยสงขลานครินทร์</div>
+                <div class="office-sub-unit">
+                    <div class="org-unit-box">กองกลางมหาวิทยาลัย</div>
+                </div>
+                <div class="office-sub-unit">
+                    <div class="org-unit-box">กองบริหารมหาวิทยาลัย</div>
+                </div>
+            </div>
+
+            <div class="org-column">
+                <div class="org-unit-box">สถาบันวิจัย...</div>
+                <div class="office-sub-unit">
+                    <div class="org-unit-box">ศูนย์อินเดียศึกษา</div>
+                </div>
+            </div>
+
+            <div class="org-column">
+                <div class="org-unit-box">ศูนย์เครื่องมือแพทย์...</div>
+            </div>
+
+            <div class="org-column">
+                <div class="org-unit-box">ส.บ.พ. มหาวิทยาลัย...</div>
+            </div>
+
+            <div class="org-column">
+                <div class="org-unit-box">สำนักงานการเงิน...</div>
+            </div>
+
+            <div class="org-column">
+                <div class="org-unit-box">สำนักงาน ธ.น.ก.</div>
+            </div>
+
+            <div class="org-column">
+                <div class="org-unit-box">สถาบันภาษา</div>
+            </div>
+
+            <div class="org-column">
+                <div class="org-unit-box">สำนักงานกองทุน...</div>
+            </div>
+        </div>
+
+    </div>
+
+</div>
+
+@code {
+    // No C# code needed for this static display
+}

@@ -1,198 +1,399 @@
 ﻿@page "/personnel"
 @using System.ComponentModel.DataAnnotations
 
-<PageTitle>จัดการข้อมูลบุคลากร</PageTitle>
+<PageTitle>ข้อมูลบุคลากร</PageTitle>
 
-<div class="container-fluid">
-    <div class="row mb-3">
-        <div class="col">
-            <h3><i class="bi bi-people-fill"></i> จัดการข้อมูลบุคลากร</h3>
-            <p class="text-muted">บริหารจัดการข้อมูลพนักงานทั้งหมดในองค์กร</p>
-        </div>
-        <div class="col-auto">
-            <button class="btn btn-primary" @onclick="ShowAddModal">
-                <i class="bi bi-plus-circle"></i> เพิ่มบุคลากร
-            </button>
-        </div>
+<div class="personnel-container">
+    <div class="page-header">
+        <h4 class="page-title">ข้อมูลบุคลากร</h4>
     </div>
 
-    <!-- Search and Filter Section -->
-    <div class="card mb-3">
-        <div class="card-body">
-            <div class="row g-3">
+    <div class="content-card">
+        <!-- Search and Filter Section -->
+        <div class="filter-section">
+            <div class="row g-3 align-items-end">
                 <div class="col-md-3">
-                    <label class="form-label">ค้นหา</label>
-                    <input type="text" class="form-control" placeholder="ชื่อ, รหัส, อีเมล..." @bind="searchText" @bind:event="oninput" />
-                </div>
-                <div class="col-md-2">
-                    <label class="form-label">แผนก</label>
-                    <select class="form-select" @bind="filterDepartment">
-                        <option value="">ทั้งหมด</option>
-                        <option value="IT">IT</option>
-                        <option value="HR">HR</option>
-                        <option value="Finance">Finance</option>
-                        <option value="Sales">Sales</option>
-                        <option value="Marketing">Marketing</option>
-                        <option value="Production">Production</option>
-                    </select>
-                </div>
-                <div class="col-md-2">
-                    <label class="form-label">ประเภทพนักงาน</label>
-                    <select class="form-select" @bind="filterEmployeeType">
-                        <option value="">ทั้งหมด</option>
-                        <option value="ประจำ">ประจำ</option>
-                        <option value="สัญญาจ้าง">สัญญาจ้าง</option>
-                        <option value="พาร์ทไทม์">พาร์ทไทม์</option>
-                    </select>
-                </div>
-                <div class="col-md-2">
-                    <label class="form-label">สถานะ</label>
-                    <select class="form-select" @bind="filterStatus">
-                        <option value="">ทั้งหมด</option>
-                        <option value="Active">ทำงานอยู่</option>
-                        <option value="Probation">ทดลองงาน</option>
-                        <option value="Inactive">พ้นสภาพ</option>
-                    </select>
-                </div>
-                <div class="col-md-3">
-                    <label class="form-label">&nbsp;</label>
-                    <div>
-                        <button class="btn btn-outline-secondary" @onclick="ExportToExcel">
-                            <i class="bi bi-file-earmark-excel"></i> Export Excel
-                        </button>
-                        <button class="btn btn-outline-primary ms-2" @onclick="PrintReport">
-                            <i class="bi bi-printer"></i> พิมพ์
+                    <div class="search-box">
+                        <input type="text" class="form-control" placeholder="ค้นหาชื่อ-สกุล อีเมล" @bind="searchText" @bind:event="oninput" />
+                        <button class="search-btn">
+                            <i class="bi bi-search"></i>
                         </button>
                     </div>
                 </div>
+                <div class="col-md-auto ms-auto">
+                    <button class="btn btn-success" @onclick="ShowAddModal">
+                        <i class="bi bi-plus-circle"></i> เพิ่มบุคลากร
+                    </button>
+                </div>
+            </div>
+
+            <div class="row g-3 mt-2">
+                <div class="col-md-2">
+                    <select class="form-select form-select-sm" @bind="filterFirstName">
+                        <option value="">ชื่อ-สกุล (ภาษาไทย)</option>
+                        <option value="สมชาย">สมชาย</option>
+                        <option value="สมหญิง">สมหญิง</option>
+                    </select>
+                </div>
+                <div class="col-md-2">
+                    <select class="form-select form-select-sm" @bind="filterLastName">
+                        <option value="">ชื่อ-สกุล (ภาษาอังกฤษ)</option>
+                        <option value="Admin">Admin</option>
+                        <option value="Manager">Manager</option>
+                    </select>
+                </div>
+                <div class="col-md-2">
+                    <select class="form-select form-select-sm" @bind="filterEmail">
+                        <option value="">อีเมล</option>
+                        <option value="company.com">company.com</option>
+                        <option value="gmail.com">gmail.com</option>
+                    </select>
+                </div>
+                <div class="col-md-2">
+                    <select class="form-select form-select-sm" @bind="filterDivision1">
+                        <option value="">หน่วยงานระดับ 1</option>
+                        <option value="มหาวิทยาลัยสงขลานครินทร์">มหาวิทยาลัยสงขลานครินทร์</option>
+                    </select>
+                </div>
+                <div class="col-md-2">
+                    <select class="form-select form-select-sm" @bind="filterDivision2">
+                        <option value="">หน่วยงานระดับ 2</option>
+                        <option value="คณะวิทยาการจัดการ">คณะวิทยาการจัดการ</option>
+                    </select>
+                </div>
+                <div class="col-md-2">
+                    <select class="form-select form-select-sm" @bind="filterPosition">
+                        <option value="">สายงานสร้างงาน</option>
+                        <option value="กรรมการสภา">กรรมการสภา</option>
+                    </select>
+                </div>
+                <div class="col-md-2">
+                    <select class="form-select form-select-sm" @bind="filterStatus">
+                        <option value="">จัดการสถานะ</option>
+                        <option value="Active">กิจกรรม</option>
+                        <option value="Inactive">ไม่กิจกรรม</option>
+                    </select>
+                </div>
+                <div class="col-md-2">
+                    <select class="form-select form-select-sm" @bind="filterAction">
+                        <option value="">การจัดการ</option>
+                    </select>
+                </div>
             </div>
         </div>
-    </div>
 
-    <!-- Personnel Table -->
-    <div class="card">
-        <div class="card-body">
-            <div class="table-responsive">
-                <table class="table table-hover">
-                    <thead class="table-light">
+        <!-- Personnel Table -->
+        <div class="table-container">
+            <table class="personnel-table">
+                <thead>
+                    <tr>
+                        <th>ผู้บุคลากร</th>
+                        <th>ชื่อ-สกุล (ภาษาไทย)</th>
+                        <th>ชื่อ-สกุล (ภาษาอังกฤษ)</th>
+                        <th>อีเมล</th>
+                        <th>หน่วยงานระดับ 1</th>
+                        <th>หน่วยงานระดับ 2</th>
+                        <th>สายงานสร้างงาน</th>
+                        <th>จัดการสถานะ</th>
+                        <th>การจัดการ</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var person in FilteredPersonnel)
+                    {
                         <tr>
-                            <th>รูปภาพ</th>
-                            <th>รหัส</th>
-                            <th>ชื่อ-นามสกุล</th>
-                            <th>แผนก</th>
-                            <th>ตำแหน่ง</th>
-                            <th>ประเภท</th>
-                            <th>วันที่เริ่มงาน</th>
-                            <th>เบอร์โทร</th>
-                            <th>อีเมล</th>
-                            <th>สถานะ</th>
-                            <th>จัดการ</th>
+                            <td>@person.EmployeeCode</td>
+                            <td>@person.FullNameThai</td>
+                            <td>@person.FullNameEnglish</td>
+                            <td>@person.Email</td>
+                            <td>
+                                @person.Division1
+                                @if (!string.IsNullOrEmpty(person.Division1Note))
+                                {
+                                    <span class="badge bg-secondary ms-1">@person.Division1Note</span>
+                                }
+                            </td>
+                            <td>@person.Division2</td>
+                            <td>@person.CareerPath</td>
+                            <td>
+                                <label class="status-switch">
+                                    <input type="checkbox" checked="@person.IsActive" />
+                                    <span class="slider"></span>
+                                </label>
+                                <span class="badge bg-@(person.IsActive ? "info" : "secondary") ms-2">
+                                    @(person.IsActive ? "กิจกรรม" : "ไม่กิจกรรม")
+                                </span>
+                            </td>
+                            <td>
+                                <div class="action-buttons">
+                                    <button class="btn-action btn-info" @onclick="() => ViewDetails(person)" title="ดู">
+                                        <i class="bi bi-eye-fill"></i>
+                                    </button>
+                                    <button class="btn-action btn-warning" @onclick="() => EditPerson(person)" title="แก้ไข">
+                                        <i class="bi bi-pencil-fill"></i>
+                                    </button>
+                                    <button class="btn-action btn-dark" @onclick="() => ManageDivision(person)" title="จัดการ">
+                                        <i class="bi bi-building"></i>
+                                    </button>
+                                    <button class="btn-action btn-danger" @onclick="() => DeletePerson(person)" title="ลบ">
+                                        <i class="bi bi-trash-fill"></i>
+                                    </button>
+                                </div>
+                            </td>
                         </tr>
-                    </thead>
-                    <tbody>
-                        @foreach (var person in FilteredPersonnel)
-                        {
-                            <tr>
-                                <td>
-                                    <img src="@person.ProfileImage" alt="Profile" class="rounded-circle" style="width: 40px; height: 40px; object-fit: cover;" />
-                                </td>
-                                <td>@person.EmployeeCode</td>
-                                <td><strong>@person.FullName</strong></td>
-                                <td>@person.Department</td>
-                                <td>@person.Position</td>
-                                <td>
-                                    <span class="badge bg-@GetEmployeeTypeBadgeColor(person.EmployeeType)">
-                                        @person.EmployeeType
-                                    </span>
-                                </td>
-                                <td>@person.StartDate.ToString("dd/MM/yyyy")</td>
-                                <td>@person.Phone</td>
-                                <td>@person.Email</td>
-                                <td>
-                                    <span class="badge bg-@GetStatusBadgeColor(person.Status)">
-                                        @GetStatusText(person.Status)
-                                    </span>
-                                </td>
-                                <td>
-                                    <div class="btn-group btn-group-sm">
-                                        <button class="btn btn-outline-info" @onclick="() => ViewDetails(person)" title="ดูรายละเอียด">
-                                            <i class="bi bi-eye"></i>
-                                        </button>
-                                        <button class="btn btn-outline-warning" @onclick="() => EditPerson(person)" title="แก้ไข">
-                                            <i class="bi bi-pencil"></i>
-                                        </button>
-                                        <button class="btn btn-outline-danger" @onclick="() => DeletePerson(person)" title="ลบ">
-                                            <i class="bi bi-trash"></i>
-                                        </button>
-                                    </div>
-                                </td>
-                            </tr>
-                        }
-                    </tbody>
-                </table>
-            </div>
+                    }
+                </tbody>
+            </table>
+        </div>
 
-            <!-- Pagination -->
-            <div class="d-flex justify-content-between align-items-center mt-3">
-                <div>
-                    แสดง @FilteredPersonnel.Count() จาก @personnel.Count รายการ
-                </div>
-                <nav>
-                    <ul class="pagination pagination-sm mb-0">
-                        <li class="page-item disabled"><a class="page-link" href="#">ก่อนหน้า</a></li>
-                        <li class="page-item active"><a class="page-link" href="#">1</a></li>
-                        <li class="page-item"><a class="page-link" href="#">2</a></li>
-                        <li class="page-item"><a class="page-link" href="#">3</a></li>
-                        <li class="page-item"><a class="page-link" href="#">ถัดไป</a></li>
-                    </ul>
-                </nav>
-            </div>
-        </div>
-    </div>
-
-    <!-- Statistics Cards -->
-    <div class="row mt-4">
-        <div class="col-md-3">
-            <div class="card bg-primary text-white">
-                <div class="card-body">
-                    <h6>จำนวนบุคลากรทั้งหมด</h6>
-                    <h2>@personnel.Count</h2>
-                </div>
-            </div>
-        </div>
-        <div class="col-md-3">
-            <div class="card bg-success text-white">
-                <div class="card-body">
-                    <h6>ทำงานอยู่</h6>
-                    <h2>@personnel.Count(p => p.Status == "Active")</h2>
-                </div>
-            </div>
-        </div>
-        <div class="col-md-3">
-            <div class="card bg-warning text-white">
-                <div class="card-body">
-                    <h6>ทดลองงาน</h6>
-                    <h2>@personnel.Count(p => p.Status == "Probation")</h2>
-                </div>
-            </div>
-        </div>
-        <div class="col-md-3">
-            <div class="card bg-secondary text-white">
-                <div class="card-body">
-                    <h6>พ้นสภาพ</h6>
-                    <h2>@personnel.Count(p => p.Status == "Inactive")</h2>
-                </div>
+        <!-- Pagination -->
+        <div class="pagination-section">
+            <nav>
+                <ul class="pagination pagination-sm mb-0">
+                    <li class="page-item disabled">
+                        <a class="page-link" href="#">‹</a>
+                    </li>
+                    <li class="page-item active"><a class="page-link" href="#">1</a></li>
+                    <li class="page-item"><a class="page-link" href="#">2</a></li>
+                    <li class="page-item"><a class="page-link" href="#">3</a></li>
+                    <li class="page-item"><a class="page-link" href="#">4</a></li>
+                    <li class="page-item"><a class="page-link" href="#">5</a></li>
+                    <li class="page-item disabled"><a class="page-link" href="#">...</a></li>
+                    <li class="page-item"><a class="page-link" href="#">14</a></li>
+                    <li class="page-item">
+                        <a class="page-link" href="#">›</a>
+                    </li>
+                </ul>
+            </nav>
+            <div class="pagination-info">
+                10 / 140 หน้า
             </div>
         </div>
     </div>
 </div>
 
+<style>
+    .personnel-container {
+        background: #f5f7fa;
+        min-height: 100vh;
+        padding: 20px;
+    }
+
+    .page-header {
+        background: white;
+        padding: 20px;
+        margin-bottom: 20px;
+        border-radius: 8px;
+        box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    }
+
+    .page-title {
+        margin: 0;
+        font-size: 20px;
+        font-weight: 600;
+        color: #333;
+    }
+
+    .content-card {
+        background: white;
+        border-radius: 8px;
+        padding: 20px;
+        box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    }
+
+    .filter-section {
+        margin-bottom: 20px;
+    }
+
+    .search-box {
+        position: relative;
+    }
+
+        .search-box input {
+            padding-right: 45px;
+        }
+
+    .search-btn {
+        position: absolute;
+        right: 5px;
+        top: 50%;
+        transform: translateY(-50%);
+        background: #28a745;
+        color: white;
+        border: none;
+        padding: 6px 12px;
+        border-radius: 4px;
+        cursor: pointer;
+    }
+
+        .search-btn:hover {
+            background: #218838;
+        }
+
+    .table-container {
+        overflow-x: auto;
+        margin: 20px 0;
+    }
+
+    .personnel-table {
+        width: 100%;
+        border-collapse: separate;
+        border-spacing: 0;
+        font-size: 14px;
+    }
+
+        .personnel-table thead th {
+            background: #f8f9fa;
+            padding: 12px 10px;
+            text-align: left;
+            font-weight: 600;
+            color: #495057;
+            border-bottom: 2px solid #dee2e6;
+            white-space: nowrap;
+        }
+
+        .personnel-table tbody td {
+            padding: 12px 10px;
+            border-bottom: 1px solid #dee2e6;
+            vertical-align: middle;
+        }
+
+        .personnel-table tbody tr:hover {
+            background: #f8f9fa;
+        }
+
+    .status-switch {
+        position: relative;
+        display: inline-block;
+        width: 44px;
+        height: 22px;
+        vertical-align: middle;
+    }
+
+        .status-switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+    .slider {
+        position: absolute;
+        cursor: pointer;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background-color: #ccc;
+        transition: .4s;
+        border-radius: 22px;
+    }
+
+        .slider:before {
+            position: absolute;
+            content: "";
+            height: 16px;
+            width: 16px;
+            left: 3px;
+            bottom: 3px;
+            background-color: white;
+            transition: .4s;
+            border-radius: 50%;
+        }
+
+    input:checked + .slider {
+        background-color: #17a2b8;
+    }
+
+        input:checked + .slider:before {
+            transform: translateX(22px);
+        }
+
+    .action-buttons {
+        display: flex;
+        gap: 5px;
+    }
+
+    .btn-action {
+        width: 32px;
+        height: 32px;
+        padding: 0;
+        border: none;
+        border-radius: 4px;
+        color: white;
+        cursor: pointer;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        transition: all 0.2s;
+    }
+
+        .btn-action:hover {
+            opacity: 0.8;
+            transform: translateY(-1px);
+        }
+
+    .btn-info {
+        background: #17a2b8;
+    }
+
+    .btn-warning {
+        background: #ffc107;
+    }
+
+    .btn-dark {
+        background: #343a40;
+    }
+
+    .btn-danger {
+        background: #dc3545;
+    }
+
+    .pagination-section {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding-top: 15px;
+        border-top: 1px solid #dee2e6;
+    }
+
+    .pagination-info {
+        color: #6c757d;
+        font-size: 14px;
+    }
+
+    .badge {
+        font-size: 11px;
+        padding: 3px 8px;
+    }
+
+    .form-select-sm {
+        font-size: 13px;
+        padding: 5px 10px;
+    }
+
+    .btn-success {
+        background: #28a745;
+        border: none;
+        padding: 8px 16px;
+        font-size: 14px;
+    }
+
+        .btn-success:hover {
+            background: #218838;
+        }
+</style>
+
 @code {
     private List<Personnel> personnel = new();
     private string searchText = "";
-    private string filterDepartment = "";
-    private string filterEmployeeType = "";
+    private string filterFirstName = "";
+    private string filterLastName = "";
+    private string filterEmail = "";
+    private string filterDivision1 = "";
+    private string filterDivision2 = "";
+    private string filterPosition = "";
     private string filterStatus = "";
+    private string filterAction = "";
 
     protected override void OnInitialized()
     {
@@ -205,73 +406,124 @@
         {
             new Personnel
             {
-                EmployeeCode = "P001",
-                FirstName = "สมชาย",
-                LastName = "ใจดี",
-                Department = "IT",
-                Position = "Senior Developer",
-                EmployeeType = "ประจำ",
-                StartDate = new DateTime(2020, 1, 15),
-                Phone = "081-234-5678",
-                Email = "somchai@company.com",
-                Status = "Active",
-                ProfileImage = "https://ui-avatars.com/api/?name=Somchai+Jaidee&background=0D8ABC&color=fff"
+                EmployeeCode = "ผู้บุคลากร",
+                FirstNameThai = "สมชาย",
+                LastNameThai = "ใจดี",
+                FullNameEnglish = "Admin",
+                Email = "psu.edocument@gmail.com",
+                Division1 = "มหาวิทยาลัยสงขลานครินทร์",
+                Division2 = "",
+                CareerPath = "กิจกรรม",
+                IsActive = true
             },
             new Personnel
             {
-                EmployeeCode = "P002",
-                FirstName = "สมหญิง",
-                LastName = "รักงาน",
-                Department = "HR",
-                Position = "HR Manager",
-                EmployeeType = "ประจำ",
-                StartDate = new DateTime(2019, 5, 1),
-                Phone = "082-345-6789",
-                Email = "somying@company.com",
-                Status = "Active",
-                ProfileImage = "https://ui-avatars.com/api/?name=Somying+Rakngan&background=F44336&color=fff"
+                EmployeeCode = "ผู้บุคลากร",
+                FirstNameThai = "วัลลภ",
+                LastNameThai = "สายนาค",
+                FullNameEnglish = "CHEERASAK SAYNAK",
+                Email = "cheerasak.s@psu.ac.th",
+                Division1 = "มหาวิทยาลัยสงขลานครินทร์",
+                Division2 = "คณะวิทยาการจัดการ",
+                CareerPath = "กิจกรรม",
+                IsActive = true
             },
             new Personnel
             {
-                EmployeeCode = "P003",
-                FirstName = "ประยุทธ",
-                LastName = "ขยัน",
-                Department = "Finance",
-                Position = "Accountant",
-                EmployeeType = "ประจำ",
-                StartDate = new DateTime(2021, 3, 10),
-                Phone = "083-456-7890",
-                Email = "prayut@company.com",
-                Status = "Active",
-                ProfileImage = "https://ui-avatars.com/api/?name=Prayut+Kayan&background=4CAF50&color=fff"
+                EmployeeCode = "ผู้บุคลากร",
+                FirstNameThai = "จักรกฤษณ์",
+                LastNameThai = "โชติเสถียรกุล",
+                FullNameEnglish = "JAKKRIT CHOTISETTHAKUNZ",
+                Email = "jakkrit.ch@psu.ac.th",
+                Division1 = "มหาวิทยาลัยสงขลานครินทร์",
+                Division2 = "",
+                CareerPath = "กิจกรรม",
+                IsActive = true
             },
             new Personnel
             {
-                EmployeeCode = "P004",
-                FirstName = "มานี",
-                LastName = "กิจดี",
-                Department = "Sales",
-                Position = "Sales Executive",
-                EmployeeType = "สัญญาจ้าง",
-                StartDate = new DateTime(2023, 9, 1),
-                Phone = "084-567-8901",
-                Email = "manee@company.com",
-                Status = "Probation",
-                ProfileImage = "https://ui-avatars.com/api/?name=Manee+Kitdee&background=FF9800&color=fff"
+                EmployeeCode = "ผู้บุคลากร",
+                FirstNameThai = "นภาลัย",
+                LastNameThai = "หอธง",
+                FullNameEnglish = "NAPARAT HORTHONG",
+                Email = "naparat.h@psu.ac.th",
+                Division1 = "มหาวิทยาลัยสงขลานครินทร์",
+                Division1Note = "Momsintud",
+                Division2 = "",
+                CareerPath = "กิจกรรม",
+                IsActive = true
             },
             new Personnel
             {
-                EmployeeCode = "P005",
-                FirstName = "สมศรี",
-                LastName = "มีชัย",
-                Department = "Marketing",
-                Position = "Marketing Specialist",
-                EmployeeType = "ประจำ",
-                StartDate = new DateTime(2018, 7, 20),
-                Phone = "085-678-9012",
-                Email = "somsri@company.com",
-                Status = "Inactive",
-                ProfileImage = "https://ui-avatars.com/api/?name=Somsri+Meechai&background=9C27B0&color=fff"
+                EmployeeCode = "ผู้บุคลากร",
+                FirstNameThai = "วชิรวิทย์",
+                LastNameThai = "จิวานันท์",
+                FullNameEnglish = "WACHIRAWIT JIWANIT",
+                Email = "wachirawit.j@psu.ac.th",
+                Division1 = "มหาวิทยาลัยสงขลานครินทร์",
+                Division2 = "",
+                CareerPath = "กิจกรรม",
+                IsActive = true
+            },
+            new Personnel
+            {
+                EmployeeCode = "ผู้บุคลากร",
+                FirstNameThai = "เอกลักษณ์",
+                LastNameThai = "อิ่มธุรกรรม",
+                FullNameEnglish = "AERKAST AISUMAN",
+                Email = "6110110546@email.psu.ac.th",
+                Division1 = "มหาวิทยาลัยสงขลานครินทร์",
+                Division2 = "คณะวิทยาการจัดการ",
+                CareerPath = "กิจกรรม",
+                IsActive = true
+            },
+            new Personnel
+            {
+                EmployeeCode = "ผู้บุคลากร",
+                FirstNameThai = "ธุชกาล",
+                LastNameThai = "หนูเอียด",
+                FullNameEnglish = "Thichalom Noo-eid",
+                Email = "6510210459@email.psu.ac.th",
+                Division1 = "มหาวิทยาลัยสงขลานครินทร์",
+                Division2 = "",
+                CareerPath = "กิจกรรม",
+                IsActive = true
+            },
+            new Personnel
+            {
+                EmployeeCode = "ผู้บุคลากร",
+                FirstNameThai = "ดวงธิดา",
+                LastNameThai = "ชุมหลี",
+                FullNameEnglish = "DUANGTHIDA CHOOMLEE",
+                Email = "duangthida.c@psu.ac.th",
+                Division1 = "มหาวิทยาลัยสงขลานครินทร์",
+                Division2 = "คณะวิทยาการจัดการ",
+                CareerPath = "กิจกรรม",
+                IsActive = true
+            },
+            new Personnel
+            {
+                EmployeeCode = "ผู้บุคลากร",
+                FirstNameThai = "โชติ",
+                LastNameThai = "ดีจ๊ะ",
+                FullNameEnglish = "Jasdee Deejal",
+                Email = "naparat.h@psu.ac.th",
+                Division1 = "มหาวิทยาลัยสงขลานครินทร์",
+                Division2 = "",
+                CareerPath = "กิจกรรม",
+                IsActive = true
+            },
+            new Personnel
+            {
+                EmployeeCode = "ผู้บุคลากร",
+                FirstNameThai = "มนทน",
+                LastNameThai = "ทองมี",
+                FullNameEnglish = "monton thongme",
+                Email = "chompoothchl1@gmail.com",
+                Division1 = "กรรมการสภา",
+                Division2 = "",
+                CareerPath = "ไม่กิจกรรม",
+                IsActive = false
             }
         };
     }
@@ -285,61 +537,19 @@
             if (!string.IsNullOrWhiteSpace(searchText))
             {
                 filtered = filtered.Where(p =>
-                    p.FullName.Contains(searchText, StringComparison.OrdinalIgnoreCase) ||
-                    p.EmployeeCode.Contains(searchText, StringComparison.OrdinalIgnoreCase) ||
+                    p.FullNameThai.Contains(searchText, StringComparison.OrdinalIgnoreCase) ||
+                    p.FullNameEnglish.Contains(searchText, StringComparison.OrdinalIgnoreCase) ||
                     p.Email.Contains(searchText, StringComparison.OrdinalIgnoreCase));
-            }
-
-            if (!string.IsNullOrWhiteSpace(filterDepartment))
-            {
-                filtered = filtered.Where(p => p.Department == filterDepartment);
-            }
-
-            if (!string.IsNullOrWhiteSpace(filterEmployeeType))
-            {
-                filtered = filtered.Where(p => p.EmployeeType == filterEmployeeType);
             }
 
             if (!string.IsNullOrWhiteSpace(filterStatus))
             {
-                filtered = filtered.Where(p => p.Status == filterStatus);
+                bool isActive = filterStatus == "Active";
+                filtered = filtered.Where(p => p.IsActive == isActive);
             }
 
             return filtered;
         }
-    }
-
-    private string GetEmployeeTypeBadgeColor(string type)
-    {
-        return type switch
-        {
-            "ประจำ" => "primary",
-            "สัญญาจ้าง" => "info",
-            "พาร์ทไทม์" => "secondary",
-            _ => "secondary"
-        };
-    }
-
-    private string GetStatusBadgeColor(string status)
-    {
-        return status switch
-        {
-            "Active" => "success",
-            "Probation" => "warning",
-            "Inactive" => "secondary",
-            _ => "secondary"
-        };
-    }
-
-    private string GetStatusText(string status)
-    {
-        return status switch
-        {
-            "Active" => "ทำงานอยู่",
-            "Probation" => "ทดลองงาน",
-            "Inactive" => "พ้นสภาพ",
-            _ => status
-        };
     }
 
     private void ShowAddModal()
@@ -349,42 +559,36 @@
 
     private void ViewDetails(Personnel person)
     {
-        // TODO: Navigate to detail page
+        // TODO: View details
     }
 
     private void EditPerson(Personnel person)
     {
-        // TODO: Show edit modal
+        // TODO: Edit person
+    }
+
+    private void ManageDivision(Personnel person)
+    {
+        // TODO: Manage division
     }
 
     private void DeletePerson(Personnel person)
     {
-        // TODO: Confirm and delete
-    }
-
-    private void ExportToExcel()
-    {
-        // TODO: Export to Excel
-    }
-
-    private void PrintReport()
-    {
-        // TODO: Print report
+        // TODO: Delete person
     }
 
     public class Personnel
     {
         public string EmployeeCode { get; set; }
-        public string FirstName { get; set; }
-        public string LastName { get; set; }
-        public string FullName => $"{FirstName} {LastName}";
-        public string Department { get; set; }
-        public string Position { get; set; }
-        public string EmployeeType { get; set; }
-        public DateTime StartDate { get; set; }
-        public string Phone { get; set; }
+        public string FirstNameThai { get; set; }
+        public string LastNameThai { get; set; }
+        public string FullNameThai => $"{FirstNameThai} {LastNameThai}";
+        public string FullNameEnglish { get; set; }
         public string Email { get; set; }
-        public string Status { get; set; }
-        public string ProfileImage { get; set; }
+        public string Division1 { get; set; }
+        public string Division1Note { get; set; }
+        public string Division2 { get; set; }
+        public string CareerPath { get; set; }
+        public bool IsActive { get; set; }
     }
 }

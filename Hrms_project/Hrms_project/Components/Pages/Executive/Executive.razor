@@ -1,0 +1,379 @@
+﻿@page "/executive"
+<style>
+    /* Global Styles for HRMS feel (based on the image) */
+    .hrms-container {
+        padding: 20px;
+        background-color: #f8f9fa;
+        font-family: Arial, sans-serif;
+    }
+
+    .content-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 20px;
+    }
+
+    .search-bar-main {
+        display: flex;
+        gap: 10px;
+        width: 400px;
+    }
+
+    .btn-add-executive {
+        background-color: #28a745; /* Green color for 'เพิ่มผู้บริหาร' */
+        color: white;
+        padding: 8px 15px;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+        font-weight: bold;
+    }
+
+        .btn-add-executive:hover {
+            background-color: #218838;
+        }
+
+    /* Table Styling */
+    .data-table {
+        width: 100%;
+        border-collapse: collapse;
+        background-color: white;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    }
+
+        .data-table th, .data-table td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #dee2e6;
+        }
+
+        .data-table th {
+            background-color: #e9ecef;
+            font-weight: bold;
+            color: #495057;
+            cursor: pointer; /* To indicate sorting possibility */
+        }
+
+    /* Badge/Status Styling */
+    .badge-status {
+        padding: 5px 10px;
+        border-radius: 20px;
+        font-size: 0.8rem;
+        font-weight: bold;
+        display: inline-block;
+    }
+
+    .badge-active {
+        background-color: #d4edda;
+        color: #155724;
+    }
+
+    .badge-inactive {
+        background-color: #f8d7da;
+        color: #721c24;
+    }
+
+    /* Action Buttons (Icons) */
+    .action-btn-group {
+        display: flex;
+        gap: 5px;
+    }
+
+    .action-btn {
+        width: 30px;
+        height: 30px;
+        border: none;
+        border-radius: 50%;
+        color: white;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1rem;
+    }
+
+    .btn-edit {
+        background-color: #007bff;
+    }
+    /* Blue for Edit */
+    .btn-delete {
+        background-color: #dc3545;
+    }
+    /* Red for Delete */
+
+    /* Paging Styling */
+    .pagination-controls {
+        display: flex;
+        justify-content: flex-start;
+        align-items: center;
+        margin-top: 20px;
+        gap: 5px;
+    }
+
+    .page-link {
+        padding: 5px 10px;
+        border: 1px solid #dee2e6;
+        background-color: white;
+        color: #007bff;
+        text-decoration: none;
+        border-radius: 3px;
+        cursor: pointer;
+    }
+
+        .page-link.active {
+            background-color: #007bff;
+            color: white;
+            border-color: #007bff;
+        }
+
+    /* --- Modal Styles (Select Executive) --- */
+    .modal-backdrop {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0, 0, 0, 0.5);
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        z-index: 1050;
+    }
+
+    .modal-content {
+        background: white;
+        padding: 20px;
+        border-radius: 8px;
+        width: 80%;
+        max-width: 900px;
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+    }
+
+    .modal-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        border-bottom: 1px solid #dee2e6;
+        padding-bottom: 10px;
+        margin-bottom: 15px;
+    }
+
+        .modal-header h4 {
+            margin: 0;
+            color: #007bff;
+        }
+
+    .modal-close-btn {
+        background: none;
+        border: none;
+        font-size: 1.5rem;
+        cursor: pointer;
+        line-height: 1;
+    }
+
+    .modal-search-bar {
+        display: flex;
+        gap: 5px;
+        margin-bottom: 15px;
+    }
+
+    .modal-table-select-btn {
+        background-color: #28a745;
+        color: white;
+        padding: 5px 10px;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+    }
+
+    .modal-footer {
+        display: flex;
+        justify-content: flex-end;
+        gap: 10px;
+        border-top: 1px solid #dee2e6;
+        padding-top: 15px;
+        margin-top: 15px;
+    }
+</style>
+
+<div class="hrms-container">
+    <h3>ข้อมูลผู้บริหาร</h3>
+
+    <div class="content-header">
+        <div class="search-bar-main">
+            <input type="text" placeholder="ค้นหาชื่อ-สกุล" class="form-control" />
+            <button class="btn btn-primary">ค้นหา</button>
+        </div>
+        <button class="btn-add-executive" @onclick="OpenModal">
+            <span class="oi oi-plus" aria-hidden="true"></span> เพิ่มผู้บริหาร
+        </button>
+    </div>
+
+    <table class="data-table">
+        <thead>
+            <tr>
+                <th>ชื่อ-สกุล (ตำแหน่ง)</th>
+                <th>ตำแหน่ง</th>
+                <th>หน่วยงาน</th>
+                <th>สถานะ</th>
+                <th>จัดการสถานะ</th>
+                <th>การจัดการ</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var executive in Executives_data)
+            {
+                <tr>
+                    <td>@executive.Name</td>
+                    <td>@executive.Position</td>
+                    <td>@executive.Organization</td>
+                    <td>
+                        <span class="badge-status @(executive.IsActive ? "badge-active" : "badge-inactive")">
+                            @(executive.IsActive ? "ทำงาน" : "ไม่ทำงาน")
+                        </span>
+                    </td>
+                    <td>
+                        <button class="page-link" @onclick="() => ToggleStatus(executive)">
+                            @((executive.IsActive ? "ตั้งค่าไม่ทำงาน" : "ตั้งค่าทำงาน"))
+                        </button>
+                    </td>
+                    <td>
+                        <div class="action-btn-group">
+                            <button class="action-btn btn-edit">
+                                <span class="oi oi-pencil"></span>
+                            </button>
+                            <button class="action-btn btn-delete">
+                                <span class="oi oi-trash"></span>
+                            </button>
+                        </div>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+
+    <div class="pagination-controls">
+        <a href="#" class="page-link">1</a>
+        <a href="#" class="page-link active">2</a>
+        <a href="#" class="page-link">3</a>
+        <span style="margin: 0 5px;">...</span>
+        <a href="#" class="page-link">10 / หน้า</a>
+    </div>
+</div>
+
+@if (ShowModal)
+{
+    <div class="modal-backdrop">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4>ค้นหาบุคลากร</h4>
+                <button class="modal-close-btn" @onclick="CloseModal">&times;</button>
+            </div>
+
+            <div class="modal-search-bar">
+                <input type="text" placeholder="ค้นหาชื่อ-นามสกุล / รหัสพนักงาน" class="form-control" style="flex-grow: 1;" />
+                <button class="btn btn-primary">ค้นหา</button>
+            </div>
+
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th>ชื่อ-สกุล (ภาษาไทย)</th>
+                        <th>ชื่อ-สกุล (ภาษาอังกฤษ)</th>
+                        <th>หน่วยงาน</th>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var person in PersonnelList)
+                    {
+                        <tr>
+                            <td>@person.ThaiName</td>
+                            <td>@person.EngName</td>
+                            <td>@person.OrgUnit</td>
+                            <td>
+                                <button class="modal-table-select-btn" @onclick="() => SelectPerson(person)">เลือก</button>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+
+            <div class="pagination-controls" style="justify-content: center;">
+                <a href="#" class="page-link">1</a>
+                <a href="#" class="page-link active">2</a>
+                <a href="#" class="page-link">3</a>
+                <span style="margin: 0 5px;">...</span>
+                <a href="#" class="page-link">5.1 หน้า</a>
+            </div>
+
+            <div class="modal-footer">
+                <button class="btn btn-secondary" @onclick="CloseModal">ยกเลิก</button>
+            </div>
+        </div>
+    </div>
+}
+
+@code {
+    // Models (Define your data structure)
+    public class Executives
+    {
+        public string Name { get; set; } = string.Empty;
+        public string Position { get; set; } = string.Empty;
+        public string Organization { get; set; } = string.Empty;
+        public bool IsActive { get; set; }
+    }
+
+    public class Personnel
+    {
+        public string ThaiName { get; set; } = string.Empty;
+        public string EngName { get; set; } = string.Empty;
+        public string OrgUnit { get; set; } = string.Empty;
+    }
+
+    // Data Mockup
+    private List<Executives> Executives_data = new List<Executives>
+    {
+        new Executives { Name = "ชื่อ-สกุล (ตำแหน่ง)", Position = "ผู้บริหาร", Organization = "สำนักงาน... มหาวิทยาลัยสงขลานครินทร์", IsActive = true },
+        new Executives { Name = "ชื่อ-สกุล (ตำแหน่ง)", Position = "ผู้บริหาร", Organization = "คณะนิติธรรมศาสตร์", IsActive = false },
+        new Executives { Name = "ชื่อ-สกุล (ตำแหน่ง)", Position = "ผู้บริหาร", Organization = "สถาบันเทคโนโลยีนิวเคลียร์ (องค์การมหาชน)", IsActive = true },
+        // ... Add more mocked data here
+    };
+
+    private List<Personnel> PersonnelList = new List<Personnel>
+    {
+        new Personnel { ThaiName = "ชื่อ-สกุล (ไทย)", EngName = "ENG-NAME (ENGLIS)", OrgUnit = "พนักงาน" },
+        new Personnel { ThaiName = "รหัส พ. (ชื่อ-สกุล)", EngName = "CHEERASAK SAYNAK", OrgUnit = "ผอ. วิทยาเขต/กอง" },
+        new Personnel { ThaiName = "ชื่อ-สกุล (ตำแหน่ง)", EngName = "JAWARITZ CHUKTRINULNZ", OrgUnit = "ฝ่ายบริหาร" },
+        new Personnel { ThaiName = "เลขที่อ้างอิง", EngName = "NAPARAT NORTHONG", OrgUnit = "Admin" },
+        // ... Add more mocked data here
+    };
+
+    // Modal State Management
+    private bool ShowModal { get; set; } = false;
+
+    private void OpenModal()
+    {
+        ShowModal = true;
+        StateHasChanged();
+    }
+
+    private void CloseModal()
+    {
+        ShowModal = false;
+    }
+
+    private void SelectPerson(Personnel person)
+    {
+        // Logic to handle the selected person (e.g., populate a form or add to the executive list)
+        Console.WriteLine($"Selected: {person.ThaiName}");
+        // CloseModal(); // Uncomment this line if the modal should close immediately after selection
+    }
+
+    private void ToggleStatus(Executives executive)
+    {
+        executive.IsActive = !executive.IsActive;
+        // In a real application, you would call an API here to update the status in the database.
+    }
+}

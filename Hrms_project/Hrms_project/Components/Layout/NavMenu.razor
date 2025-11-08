@@ -1,80 +1,295 @@
-﻿<div class="top-row ps-3 navbar navbar-dark">
-    <div class="container-fluid">
-        <a class="navbar-brand" href="">PSU e-Document</a>
+﻿@* NavMenu.razor - Modern HRMS Navigation Menu *@
+
+<div class="sidebar">
+    <div class="sidebar-header">
+        <div class="logo-container">
+            <div class="logo-box">
+                <span class="logo-text">H</span>
+            </div>
+            <span class="logo-title">RMS</span>
+        </div>
+    </div>
+
+    <nav class="sidebar-nav">
+        <!-- การจัดการ Section -->
+        <div class="nav-section">
+            <div class="nav-section-title">การจัดการ</div>
+
+            <NavLink class="nav-item" href="/organization">
+                <i class="bi bi-buildings-fill icon-purple"></i>
+                <span>โครงสร้างองค์กร</span>
+            </NavLink>
+
+            <NavLink class="nav-item" href="/personnel">
+                <i class="bi bi-people-fill icon-gray"></i>
+                <span>ข้อมูลบุคลากร</span>
+            </NavLink>
+
+            <NavLink class="nav-item" href="/executive">
+                <i class="bi bi-person-badge-fill icon-orange"></i>
+                <span>ข้อมูลผู้บริหาร</span>
+            </NavLink>
+
+            <NavLink class="nav-item" href="/profile">
+                <i class="bi bi-award-fill icon-blue"></i>
+                <span>โปรไฟล์องค์กร</span>
+            </NavLink>
+
+            <NavLink class="nav-item" href="/sync">
+                <i class="bi bi-cloud-arrow-down icon-gray"></i>
+                <span>ซิงค์ข้อมูล</span>
+            </NavLink>
+        </div>
+
+        <!-- ข้อมูลส่วนตัว Section -->
+        <div class="nav-section">
+            <div class="nav-section-title">ข้อมูลส่วนตัว</div>
+
+            <NavLink class="nav-item" href="/mydata">
+                <i class="bi bi-person-vcard-fill icon-blue"></i>
+                <span>ข้อมูลส่วนตัว</span>
+            </NavLink>
+
+            <NavLink class="nav-item" href="/guide">
+                <i class="bi bi-book-fill icon-gray"></i>
+                <span>คู่มือการใช้งาน</span>
+            </NavLink>
+        </div>
+
+        <!-- จัดทำโดย Footer -->
+        <div class="nav-section nav-footer-section">
+            <div class="nav-footer-title">จัดทำโดย</div>
+            <div class="nav-footer-text">
+                สำนักบริหารทรัพยากรดิจิทัลและระบบ<br />
+                สงวนลิขสิทธิ์<br />
+                มหาวิทยาลัยสงขลานครินทร์
+            </div>
+        </div>
+    </nav>
+
+    <div class="sidebar-footer">
+        <small class="text-muted">© 2024 PSU HRMS</small>
     </div>
 </div>
 
-<input type="checkbox" title="Navigation menu" class="navbar-toggler" />
+<style>
+    .sidebar {
+        width: 250px;
+        height: 100vh;
+        background: #ffffff;
+        border-right: 1px solid #e0e0e0;
+        display: flex;
+        flex-direction: column;
+        position: fixed;
+        left: 0;
+        top: 0;
+        overflow-y: auto;
+        box-shadow: 2px 0 10px rgba(0,0,0,0.05);
+    }
 
-<div class="nav-scrollable" onclick="document.querySelector('.navbar-toggler').click()">
-    <nav class="flex-column custom-nav-menu">
+    .sidebar-header {
+        padding: 20px;
+        border-bottom: 1px solid #e0e0e0;
+    }
 
-        <div class="menu-heading">ระบบ</div>
+    .logo-container {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+    }
 
-        <div class="nav-item px-3">
-            <NavLink class="nav-link" href="">
-                <img src="favicon.png" alt="PSU Icon" style="width: 20px; height: 20px; margin-right: 10px;" />
-                <span>PSU e-Document</span>
-            </NavLink>
-        </div>
+    .logo-box {
+        width: 40px;
+        height: 40px;
+        background: linear-gradient(135deg, #2196F3 0%, #1976D2 100%);
+        border-radius: 8px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        box-shadow: 0 2px 8px rgba(33, 150, 243, 0.3);
+    }
 
-        <hr class="nav-divider" />
+    .logo-text {
+        color: white;
+        font-size: 24px;
+        font-weight: bold;
+    }
 
-        <div class="menu-heading">การจัดการ</div>
+    .logo-title {
+        font-size: 20px;
+        font-weight: bold;
+        color: #1976D2;
+    }
 
-        <div class="nav-item px-3">
-            <NavLink class="nav-link" href="organization">
-                <span class="bi bi-building" aria-hidden="true"></span> โครงสร้างองค์กร
-            </NavLink>
-        </div>
+    .sidebar-nav {
+        flex: 1;
+        padding: 10px 0;
+    }
 
-        <div class="nav-item px-3">
-            <NavLink class="nav-link" href="personnel">
-                <span class="bi bi-people" aria-hidden="true"></span> ข้อมูลบุคลากร
-            </NavLink>
-        </div>
+    .nav-section {
+        margin-bottom: 20px;
+    }
 
-        <div class="nav-item px-3">
-            <NavLink class="nav-link" href="executives">
-                <span class="bi bi-person-badge" aria-hidden="true"></span> ข้อมูลผู้บริหาร
-            </NavLink>
-        </div>
+    .nav-section-title {
+        padding: 8px 20px;
+        font-size: 12px;
+        font-weight: 600;
+        color: #2196F3;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        margin-top: 10px;
+    }
 
-        <div class="nav-item px-3">
-            <NavLink class="nav-link" href="certificate">
-                <span class="bi bi-award" aria-hidden="true"></span> ใบรับรองดิจิทัล
-            </NavLink>
-        </div>
+    .nav-item {
+        display: flex;
+        align-items: center;
+        padding: 12px 20px;
+        color: #333;
+        text-decoration: none;
+        transition: all 0.3s ease;
+        border-left: 3px solid transparent;
+        gap: 12px;
+    }
 
-        <div class="nav-item px-3">
-            <NavLink class="nav-link" href="sync">
-                <span class="bi bi-arrow-clockwise" aria-hidden="true"></span> ซิงค์ข้อมูล
-            </NavLink>
-        </div>
+        .nav-item i {
+            font-size: 20px;
+            width: 28px;
+            color: #666;
+            transition: all 0.3s ease;
+        }
 
-        <hr class="nav-divider" />
+    /* Icon Colors */
+    .icon-purple {
+        color: #9C27B0 !important;
+    }
 
-        <div class="menu-heading">ข้อมูลส่วนตัว</div>
+    .icon-orange {
+        color: #FF9800 !important;
+    }
 
-        <div class="nav-item px-3">
-            <NavLink class="nav-link" href="profile">
-                <span class="bi bi-person-vcard" aria-hidden="true"></span> ข้อมูลส่วนตัว
-            </NavLink>
-        </div>
+    .icon-blue {
+        color: #2196F3 !important;
+    }
 
-        <hr class="nav-divider" />
+    .icon-gray {
+        color: #757575 !important;
+    }
 
-        <div class="nav-item px-3">
-            <NavLink class="nav-link manual-link" href="manual">
-                <span class="bi bi-journal-text" aria-hidden="true"></span> คู่มือการใช้งาน
-            </NavLink>
-        </div>
+    .nav-item:hover .icon-purple {
+        color: #7B1FA2 !important;
+    }
 
-        <div class="nav-footer">
-            <div class="footer-heading">จัดทำโดย</div>
-            <div>สำนักนวัตกรรมดิจิทัลและระบบอัจฉริยะ</div>
-            <div>มหาวิทยาลัยสงขลานครินทร์</div>
-        </div>
+    .nav-item:hover .icon-orange {
+        color: #F57C00 !important;
+    }
 
-    </nav>
-</div>
+    .nav-item:hover .icon-blue {
+        color: #1976D2 !important;
+    }
+
+    .nav-item:hover .icon-gray {
+        color: #616161 !important;
+    }
+
+    .nav-item span {
+        font-size: 14px;
+    }
+
+    .nav-item:hover {
+        background: #f5f5f5;
+        color: #2196F3;
+        border-left-color: #2196F3;
+    }
+
+        .nav-item:hover i {
+            color: #2196F3;
+        }
+
+    .nav-item.active {
+        background: linear-gradient(90deg, rgba(33, 150, 243, 0.1) 0%, rgba(33, 150, 243, 0.05) 100%);
+        color: #2196F3;
+        border-left-color: #2196F3;
+        font-weight: 500;
+    }
+
+        .nav-item.active i {
+            color: #2196F3;
+        }
+
+    .nav-subsection {
+        padding-left: 20px;
+    }
+
+    .nav-subitem {
+        display: block;
+        padding: 8px 20px;
+        color: #666;
+        text-decoration: none;
+        font-size: 13px;
+        transition: all 0.2s ease;
+        border-left: 2px solid transparent;
+    }
+
+        .nav-subitem:hover {
+            color: #2196F3;
+            background: #f9f9f9;
+            border-left-color: #2196F3;
+            padding-left: 25px;
+        }
+
+    .sidebar-footer {
+        padding: 20px;
+        text-align: center;
+        border-top: 1px solid #e0e0e0;
+    }
+
+    /* Footer in navigation */
+    .nav-footer-section {
+        margin-top: auto;
+        padding: 20px;
+        background: #f8f9fa;
+        border-top: 1px solid #e0e0e0;
+    }
+
+    .nav-footer-title {
+        font-size: 13px;
+        font-weight: 600;
+        color: #2196F3;
+        margin-bottom: 10px;
+        text-align: center;
+    }
+
+    .nav-footer-text {
+        font-size: 11px;
+        color: #666;
+        line-height: 1.6;
+        text-align: center;
+    }
+
+    /* Scrollbar styling */
+    .sidebar::-webkit-scrollbar {
+        width: 6px;
+    }
+
+    .sidebar::-webkit-scrollbar-track {
+        background: #f1f1f1;
+    }
+
+    .sidebar::-webkit-scrollbar-thumb {
+        background: #c1c1c1;
+        border-radius: 3px;
+    }
+
+        .sidebar::-webkit-scrollbar-thumb:hover {
+            background: #a8a8a8;
+        }
+</style>
+
+@code {
+    private bool collapseNavMenu = false;
+
+    private void ToggleNavMenu()
+    {
+        collapseNavMenu = !collapseNavMenu;
+    }
+}

@@ -1,81 +1,41 @@
-﻿@page "/dashboard"
-@page "/"
+﻿@page "/"
 
-<PageTitle>Dashboard - HRMS</PageTitle>
+<div class="dashboard-container">
+    <h2 class="mb-4">แดชบอร์ด</h2>
 
-<div class="container-fluid">
-    <div class="row mb-3">
-        <div class="col">
-            <h3>Dashboard</h3>
-            <p class="text-muted">ภาพรวมระบบทรัพยากรบุคคล</p>
-        </div>
-    </div>
+    <div class="row">
 
-    <!-- Summary Cards -->
-    <div class="row mb-4">
-        <div class="col-md-3">
-            <div class="card text-white bg-primary">
-                <div class="card-body">
-                    <div class="d-flex justify-content-between align-items-center">
-                        <div>
-                            <h6 class="card-title">จำนวนพนักงาน</h6>
-                            <h2 class="mb-0">245</h2>
-                            <small>+5 จากเดือนที่แล้ว</small>
-                        </div>
-                        <div>
-                            <i class="bi bi-people-fill" style="font-size: 3rem; opacity: 0.3;"></i>
-                        </div>
+        <div class="col-md-4 mb-4">
+            <div class="card dashboard-card bg-white p-3">
+                <div class="d-flex align-items-center">
+                    <span class="bi bi-person-lines-fill me-3 p-3 bg-success-subtle text-success fs-3 rounded"></span>
+                    <div>
+                        <h3 class="card-title fw-bold mb-0">24</h3>
+                        <p class="card-text text-muted mb-0">จำนวนผู้บริหาร</p>
                     </div>
                 </div>
             </div>
         </div>
 
-        <div class="col-md-3">
-            <div class="card text-white bg-success">
-                <div class="card-body">
-                    <div class="d-flex justify-content-between align-items-center">
-                        <div>
-                            <h6 class="card-title">มาทำงานวันนี้</h6>
-                            <h2 class="mb-0">238</h2>
-                            <small>97.1% Attendance</small>
-                        </div>
-                        <div>
-                            <i class="bi bi-check-circle-fill" style="font-size: 3rem; opacity: 0.3;"></i>
-                        </div>
+        <div class="col-md-4 mb-4">
+            <div class="card dashboard-card bg-white p-3">
+                <div class="d-flex align-items-center">
+                    <span class="bi bi-people-fill me-3 p-3 bg-warning-subtle text-warning fs-3 rounded"></span>
+                    <div>
+                        <h3 class="card-title fw-bold mb-0">134</h3>
+                        <p class="card-text text-muted mb-0">จำนวนบุคลากร</p>
                     </div>
                 </div>
             </div>
         </div>
 
-        <div class="col-md-3">
-            <div class="card text-white bg-warning">
-                <div class="card-body">
-                    <div class="d-flex justify-content-between align-items-center">
-                        <div>
-                            <h6 class="card-title">รออนุมัติการลา</h6>
-                            <h2 class="mb-0">12</h2>
-                            <small>ต้องดำเนินการ</small>
-                        </div>
-                        <div>
-                            <i class="bi bi-calendar-x-fill" style="font-size: 3rem; opacity: 0.3;"></i>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <div class="col-md-3">
-            <div class="card text-white bg-info">
-                <div class="card-body">
-                    <div class="d-flex justify-content-between align-items-center">
-                        <div>
-                            <h6 class="card-title">ตำแหน่งว่าง</h6>
-                            <h2 class="mb-0">8</h2>
-                            <small>ประกาศรับสมัคร</small>
-                        </div>
-                        <div>
-                            <i class="bi bi-briefcase-fill" style="font-size: 3rem; opacity: 0.3;"></i>
-                        </div>
+        <div class="col-md-4 mb-4">
+            <div class="card dashboard-card bg-white p-3">
+                <div class="d-flex align-items-center">
+                    <span class="bi bi-building-fill me-3 p-3 bg-info-subtle text-info fs-3 rounded"></span>
+                    <div>
+                        <h3 class="card-title fw-bold mb-0">14</h3>
+                        <p class="card-text text-muted mb-0">จำนวนหน่วยงานระดับ 3</p>
                     </div>
                 </div>
             </div>
@@ -83,199 +43,33 @@
     </div>
 
     <div class="row">
-        <!-- Recent Activities -->
-        <div class="col-md-8">
-            <div class="card mb-4">
-                <div class="card-header bg-white">
-                    <h5 class="mb-0">กิจกรรมล่าสุด</h5>
-                </div>
-                <div class="card-body">
-                    <div class="list-group list-group-flush">
-                        @foreach (var activity in recentActivities)
-                        {
-                            <div class="list-group-item">
-                                <div class="d-flex w-100 justify-content-between">
-                                    <h6 class="mb-1">@activity.Title</h6>
-                                    <small class="text-muted">@activity.Time</small>
-                                </div>
-                                <p class="mb-1">@activity.Description</p>
-                                <small class="text-muted">โดย @activity.User</small>
-                            </div>
-                        }
-                    </div>
-                </div>
-            </div>
 
-            <div class="card">
-                <div class="card-header bg-white">
-                    <h5 class="mb-0">การกระจายพนักงานตามแผนก</h5>
-                </div>
-                <div class="card-body">
-                    <table class="table table-hover">
-                        <thead>
-                            <tr>
-                                <th>แผนก</th>
-                                <th>จำนวน</th>
-                                <th>เปอร์เซ็นต์</th>
-                                <th></th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            @foreach (var dept in departments)
-                            {
-                                <tr>
-                                    <td>@dept.Name</td>
-                                    <td>@dept.Count คน</td>
-                                    <td>@dept.Percentage%</td>
-                                    <td>
-                                        <div class="progress" style="height: 10px;">
-                                            <div class="progress-bar bg-primary" style="width: @dept.Percentage%"></div>
-                                        </div>
-                                    </td>
-                                </tr>
-                            }
-                        </tbody>
-                    </table>
+        <div class="col-md-4 mb-4">
+            <div class="card chart-card p-3 shadow-sm">
+                <p class="fw-bold">จำนวนบุคลากรต่อหน่วยงานระดับ 1</p>
+                <div class="chart-placeholder" style="height: 300px;">
+
+
+                    [Image of a colorful pie chart]
+
                 </div>
             </div>
         </div>
 
-        <!-- Side Panel -->
-        <div class="col-md-4">
-            <div class="card mb-4">
-                <div class="card-header bg-danger text-white">
-                    <h6 class="mb-0">การลาวันนี้</h6>
-                </div>
-                <div class="card-body">
-                    <div class="list-group">
-                        @foreach (var leave in todayLeaves)
-                        {
-                            <div class="list-group-item">
-                                <div class="d-flex justify-content-between">
-                                    <strong>@leave.Name</strong>
-                                    <span class="badge bg-secondary">@leave.Type</span>
-                                </div>
-                                <small class="text-muted">@leave.Department</small>
-                            </div>
-                        }
-                    </div>
+        <div class="col-md-4 mb-4">
+            <div class="card chart-card p-3 shadow-sm">
+                <p class="fw-bold">จำนวนบุคลากรต่อหน่วยงานระดับ 2</p>
+                <div class="chart-placeholder" style="height: 300px;">
                 </div>
             </div>
+        </div>
 
-            <div class="card mb-4">
-                <div class="card-header bg-info text-white">
-                    <h6 class="mb-0">วันเกิดเดือนนี้</h6>
-                </div>
-                <div class="card-body">
-                    @foreach (var birthday in birthdays)
-                    {
-                        <div class="d-flex align-items-center mb-3">
-                            <div class="me-3">
-                                <i class="bi bi-cake2-fill text-warning" style="font-size: 2rem;"></i>
-                            </div>
-                            <div>
-                                <strong>@birthday.Name</strong><br>
-                                <small class="text-muted">@birthday.Date</small>
-                            </div>
-                        </div>
-                    }
-                </div>
-            </div>
-
-            <div class="card">
-                <div class="card-header bg-warning">
-                    <h6 class="mb-0">เตือนความจำ</h6>
-                </div>
-                <div class="card-body">
-                    <ul class="list-unstyled mb-0">
-                        <li class="mb-2">
-                            <i class="bi bi-circle-fill text-danger" style="font-size: 0.5rem;"></i>
-                            <span class="ms-2">ครบกำหนดประเมินผล 5 คน</span>
-                        </li>
-                        <li class="mb-2">
-                            <i class="bi bi-circle-fill text-warning" style="font-size: 0.5rem;"></i>
-                            <span class="ms-2">สัญญาจะหมดอายุ 3 คน</span>
-                        </li>
-                        <li>
-                            <i class="bi bi-circle-fill text-info" style="font-size: 0.5rem;"></i>
-                            <span class="ms-2">อบรมความปลอดภัยประจำปี</span>
-                        </li>
-                    </ul>
+        <div class="col-md-4 mb-4">
+            <div class="card chart-card p-3 shadow-sm">
+                <p class="fw-bold">จำนวนบุคลากรต่อหน่วยงานระดับ 3</p>
+                <div class="chart-placeholder" style="height: 300px;">
                 </div>
             </div>
         </div>
     </div>
 </div>
-
-@code {
-    private List<Activity> recentActivities = new();
-    private List<Department> departments = new();
-    private List<LeaveToday> todayLeaves = new();
-    private List<Birthday> birthdays = new();
-
-    protected override void OnInitialized()
-    {
-        LoadData();
-    }
-
-    private void LoadData()
-    {
-        recentActivities = new List<Activity>
-        {
-            new Activity { Title = "พนักงานใหม่เข้าทำงาน", Description = "นายสมชาย ใจดี เริ่มงานแผนก IT", User = "ฝ่าย HR", Time = "10 นาทีที่แล้ว" },
-            new Activity { Title = "อนุมัติการลา", Description = "อนุมัติการลาพักร้อนของ นางสาวสมหญิง", User = "ผู้จัดการ HR", Time = "1 ชั่วโมงที่แล้ว" },
-            new Activity { Title = "ประกาศรับสมัครงาน", Description = "เปิดรับ Senior Developer 2 อัตรา", User = "ฝ่าย HR", Time = "3 ชั่วโมงที่แล้ว" }
-        };
-
-        departments = new List<Department>
-        {
-            new Department { Name = "IT", Count = 45, Percentage = 18 },
-            new Department { Name = "Sales", Count = 60, Percentage = 24 },
-            new Department { Name = "Production", Count = 80, Percentage = 33 },
-            new Department { Name = "HR", Count = 20, Percentage = 8 },
-            new Department { Name = "Finance", Count = 40, Percentage = 17 }
-        };
-
-        todayLeaves = new List<LeaveToday>
-        {
-            new LeaveToday { Name = "นายประยุทธ์ ขยัน", Department = "Sales", Type = "ลาป่วย" },
-            new LeaveToday { Name = "นางสาวมานี กิจดี", Department = "HR", Type = "ลากิจ" },
-            new LeaveToday { Name = "นายสมศักดิ์ มีสุข", Department = "IT", Type = "ลาพักร้อน" }
-        };
-
-        birthdays = new List<Birthday>
-        {
-            new Birthday { Name = "นายสมชาย ใจดี", Date = "15 พ.ย." },
-            new Birthday { Name = "นางสาวสมหญิง รักงาน", Date = "20 พ.ย." },
-            new Birthday { Name = "นายประยุทธ์ ขยัน", Date = "25 พ.ย." }
-        };
-    }
-
-    public class Activity
-    {
-        public string Title { get; set; }
-        public string Description { get; set; }
-        public string User { get; set; }
-        public string Time { get; set; }
-    }
-
-    public class Department
-    {
-        public string Name { get; set; }
-        public int Count { get; set; }
-        public int Percentage { get; set; }
-    }
-
-    public class LeaveToday
-    {
-        public string Name { get; set; }
-        public string Department { get; set; }
-        public string Type { get; set; }
-    }
-
-    public class Birthday
-    {
-        public string Name { get; set; }
-        public string Date { get; set; }
-    }
-}

@@ -1,47 +1,96 @@
-﻿/* --- CSS สำหรับ NavMenu.razor --- */
-
-/* เส้นคั่นแนวนอน */
-.nav-divider {
-    border: 0;
-    border-top: 1px solid #ccc; /* ปรับสีเส้นคั่นให้เหมาะสม */
-    margin: 10px 10px;
-    opacity: 0.6;
+﻿.page {
+    position: relative;
+    display: flex;
+    flex-direction: column;
 }
 
-/* ส่วนหัวเมนู (เช่น ระบบ, การจัดการ, ข้อมูลส่วนตัว) */
-.menu-heading {
-    color: #007bff; /* สีฟ้าตามภาพ (Bootstrap Primary) */
-    font-weight: bold;
-    padding: 10px 15px 5px 15px; /* เพิ่มพื้นที่ด้านบนและล่าง */
-    font-size: 1.1em;
-    text-transform: uppercase; /* ทำให้ตัวพิมพ์ใหญ่ (ถ้าต้องการ) */
+main {
+    flex: 1;
 }
 
-/* ลิงก์เมนูทั่วไป */
-.nav-link {
-    color: #333 !important; /* เปลี่ยนสีลิงก์เป็นสีดำหรือสีเข้ม */
-    font-size: 0.95em;
+.sidebar {
+    background-image: linear-gradient(180deg, rgb(5, 39, 103) 0%, #3a0647 70%);
 }
 
-/* ไอคอนในเมนู */
-.nav-link > span {
-    margin-right: 15px;
-    font-size: 1.2em; /* เพิ่มขนาดไอคอนเล็กน้อย */
-    width: 20px; /* กำหนดความกว้างคงที่เพื่อการจัดเรียงที่สวยงาม */
-    text-align: center;
+.top-row {
+    background-color: #f7f7f7;
+    border-bottom: 1px solid #d6d5d5;
+    justify-content: flex-end;
+    height: 3.5rem;
+    display: flex;
+    align-items: center;
 }
 
-/* ส่วนท้าย (ผู้จัดทำ) */
-.nav-footer {
-    padding: 15px;
-    font-size: 0.85em;
-    color: #6c757d; /* สีเทาอ่อน */
-    text-align: center;
-    line-height: 1.5;
+    .top-row ::deep a, .top-row ::deep .btn-link {
+        white-space: nowrap;
+        margin-left: 1.5rem;
+        text-decoration: none;
+    }
+
+    .top-row ::deep a:hover, .top-row ::deep .btn-link:hover {
+        text-decoration: underline;
+    }
+
+    .top-row ::deep a:first-child {
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
+@media (max-width: 640.98px) {
+    .top-row {
+        justify-content: space-between;
+    }
+
+    .top-row ::deep a, .top-row ::deep .btn-link {
+        margin-left: 0;
+    }
 }
 
-.nav-footer .footer-heading {
-    font-weight: bold;
-    margin-bottom: 5px;
-    color: #333;
+@media (min-width: 641px) {
+    .page {
+        flex-direction: row;
+    }
+
+    .sidebar {
+        width: 250px;
+        height: 100vh;
+        position: sticky;
+        top: 0;
+    }
+
+    .top-row {
+        position: sticky;
+        top: 0;
+        z-index: 1;
+    }
+
+    .top-row.auth ::deep a:first-child {
+        flex: 1;
+        text-align: right;
+        width: 0;
+    }
+
+    .top-row, article {
+        padding-left: 2rem !important;
+        padding-right: 1.5rem !important;
+    }
 }
+
+#blazor-error-ui {
+    background: lightyellow;
+    bottom: 0;
+    box-shadow: 0 -1px 2px rgba(0, 0, 0, 0.2);
+    display: none;
+    left: 0;
+    padding: 0.6rem 1.25rem 0.7rem 1.25rem;
+    position: fixed;
+    width: 100%;
+    z-index: 1000;
+}
+
+    #blazor-error-ui .dismiss {
+        cursor: pointer;
+        position: absolute;
+        right: 0.75rem;
+        top: 0.5rem;
+    }
