@@ -7,8 +7,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\Datamodels\Datamodels.csproj" />
-    <ProjectReference Include="..\..\HRMS_API\HRMS_API.csproj" />
+    <ProjectReference Include="..\Datamodels\Datamodels.csproj" />
     <ProjectReference Include="..\Hrms_project.Client\Hrms_project.Client.csproj" />
     <PackageReference Include="AntDesign" Version="1.5.0" />
     <PackageReference Include="CurrieTechnologies.Razor.SweetAlert2" Version="5.6.0" />
