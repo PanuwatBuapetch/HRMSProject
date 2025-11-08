@@ -1,0 +1,65 @@
+﻿.navbar {
+    background-color: #38A2FF;
+}
+
+.form-check-input {
+    width: 60px;
+    height: 32px;
+}
+
+.nav-role {
+    font-weight: 500;
+    margin-top: 6px;
+    color: white;
+}
+
+.nav-link {
+    color: black;
+}
+
+.nav-item {
+    font-size: 16px;
+}
+
+    .nav-item ::deep a {
+        padding-left: 1rem;
+        color: #000000;
+        border-radius: 4px;
+        height: 2.5rem;
+        display: flex;
+        align-items: center;
+        line-height: 3rem;
+        color: white;
+    }
+
+        .nav-item ::deep a.active {
+            background-color: rgba(255,255,255,0.25);
+            color: black;
+        }
+
+        .nav-item ::deep a:hover {
+            background-color: rgba(0, 136, 215, 0.7);
+            color: white;
+        }
+
+.bi-arrow-left-circle-fill {
+    color: #FF0000;
+}
+
+@media (max-width: 1100px) {
+    .navbar:not(.auth) {
+        display: none;
+    }
+
+    .top-row:not(.auth) {
+        display: none;
+    }
+
+    .top-row.auth {
+        justify-content: space-between;
+    }
+
+    .top-row a, .top-row .btn-link {
+        margin-left: 0;
+    }
+}

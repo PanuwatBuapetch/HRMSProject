@@ -1,0 +1,80 @@
+﻿<div class="top-row ps-3 navbar navbar-dark">
+    <div class="container-fluid">
+        <a class="navbar-brand" href="">PSU e-Document</a>
+    </div>
+</div>
+
+<input type="checkbox" title="Navigation menu" class="navbar-toggler" />
+
+<div class="nav-scrollable" onclick="document.querySelector('.navbar-toggler').click()">
+    <nav class="flex-column custom-nav-menu">
+
+        <div class="menu-heading">ระบบ</div>
+
+        <div class="nav-item px-3">
+            <NavLink class="nav-link" href="">
+                <img src="favicon.png" alt="PSU Icon" style="width: 20px; height: 20px; margin-right: 10px;" />
+                <span>PSU e-Document</span>
+            </NavLink>
+        </div>
+
+        <hr class="nav-divider" />
+
+        <div class="menu-heading">การจัดการ</div>
+
+        <div class="nav-item px-3">
+            <NavLink class="nav-link" href="organization">
+                <span class="bi bi-building" aria-hidden="true"></span> โครงสร้างองค์กร
+            </NavLink>
+        </div>
+
+        <div class="nav-item px-3">
+            <NavLink class="nav-link" href="personnel">
+                <span class="bi bi-people" aria-hidden="true"></span> ข้อมูลบุคลากร
+            </NavLink>
+        </div>
+
+        <div class="nav-item px-3">
+            <NavLink class="nav-link" href="executives">
+                <span class="bi bi-person-badge" aria-hidden="true"></span> ข้อมูลผู้บริหาร
+            </NavLink>
+        </div>
+
+        <div class="nav-item px-3">
+            <NavLink class="nav-link" href="certificate">
+                <span class="bi bi-award" aria-hidden="true"></span> ใบรับรองดิจิทัล
+            </NavLink>
+        </div>
+
+        <div class="nav-item px-3">
+            <NavLink class="nav-link" href="sync">
+                <span class="bi bi-arrow-clockwise" aria-hidden="true"></span> ซิงค์ข้อมูล
+            </NavLink>
+        </div>
+
+        <hr class="nav-divider" />
+
+        <div class="menu-heading">ข้อมูลส่วนตัว</div>
+
+        <div class="nav-item px-3">
+            <NavLink class="nav-link" href="profile">
+                <span class="bi bi-person-vcard" aria-hidden="true"></span> ข้อมูลส่วนตัว
+            </NavLink>
+        </div>
+
+        <hr class="nav-divider" />
+
+        <div class="nav-item px-3">
+            <NavLink class="nav-link manual-link" href="manual">
+                <span class="bi bi-journal-text" aria-hidden="true"></span> คู่มือการใช้งาน
+            </NavLink>
+        </div>
+
+        <div class="nav-footer">
+            <div class="footer-heading">จัดทำโดย</div>
+            <div>สำนักนวัตกรรมดิจิทัลและระบบอัจฉริยะ</div>
+            <div>มหาวิทยาลัยสงขลานครินทร์</div>
+        </div>
+
+    </nav>
+</div>

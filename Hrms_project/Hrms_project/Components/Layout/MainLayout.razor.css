@@ -1,0 +1,47 @@
+﻿/* --- CSS สำหรับ NavMenu.razor --- */
+
+/* เส้นคั่นแนวนอน */
+.nav-divider {
+    border: 0;
+    border-top: 1px solid #ccc; /* ปรับสีเส้นคั่นให้เหมาะสม */
+    margin: 10px 10px;
+    opacity: 0.6;
+}
+
+/* ส่วนหัวเมนู (เช่น ระบบ, การจัดการ, ข้อมูลส่วนตัว) */
+.menu-heading {
+    color: #007bff; /* สีฟ้าตามภาพ (Bootstrap Primary) */
+    font-weight: bold;
+    padding: 10px 15px 5px 15px; /* เพิ่มพื้นที่ด้านบนและล่าง */
+    font-size: 1.1em;
+    text-transform: uppercase; /* ทำให้ตัวพิมพ์ใหญ่ (ถ้าต้องการ) */
+}
+
+/* ลิงก์เมนูทั่วไป */
+.nav-link {
+    color: #333 !important; /* เปลี่ยนสีลิงก์เป็นสีดำหรือสีเข้ม */
+    font-size: 0.95em;
+}
+
+/* ไอคอนในเมนู */
+.nav-link > span {
+    margin-right: 15px;
+    font-size: 1.2em; /* เพิ่มขนาดไอคอนเล็กน้อย */
+    width: 20px; /* กำหนดความกว้างคงที่เพื่อการจัดเรียงที่สวยงาม */
+    text-align: center;
+}
+
+/* ส่วนท้าย (ผู้จัดทำ) */
+.nav-footer {
+    padding: 15px;
+    font-size: 0.85em;
+    color: #6c757d; /* สีเทาอ่อน */
+    text-align: center;
+    line-height: 1.5;
+}
+
+.nav-footer .footer-heading {
+    font-weight: bold;
+    margin-bottom: 5px;
+    color: #333;
+}

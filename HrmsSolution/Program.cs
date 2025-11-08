@@ -16,7 +16,6 @@ builder.Services.AddRazorComponents()
 // --- 1. เพิ่ม Services ที่จำเป็น ---
 builder.Services.AddSweetAlert2();
 builder.Services.AddAntDesign();
-builder.Services.AddLocalization(options => options.ResourcesPath = "Resources");
 
 
 // --- (แก้ไขจุดนี้ครับ) ---

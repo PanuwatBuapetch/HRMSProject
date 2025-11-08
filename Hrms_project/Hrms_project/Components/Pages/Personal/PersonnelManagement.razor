@@ -1,0 +1,390 @@
+﻿@page "/personnel"
+@using System.ComponentModel.DataAnnotations
+
+<PageTitle>จัดการข้อมูลบุคลากร</PageTitle>
+
+<div class="container-fluid">
+    <div class="row mb-3">
+        <div class="col">
+            <h3><i class="bi bi-people-fill"></i> จัดการข้อมูลบุคลากร</h3>
+            <p class="text-muted">บริหารจัดการข้อมูลพนักงานทั้งหมดในองค์กร</p>
+        </div>
+        <div class="col-auto">
+            <button class="btn btn-primary" @onclick="ShowAddModal">
+                <i class="bi bi-plus-circle"></i> เพิ่มบุคลากร
+            </button>
+        </div>
+    </div>
+
+    <!-- Search and Filter Section -->
+    <div class="card mb-3">
+        <div class="card-body">
+            <div class="row g-3">
+                <div class="col-md-3">
+                    <label class="form-label">ค้นหา</label>
+                    <input type="text" class="form-control" placeholder="ชื่อ, รหัส, อีเมล..." @bind="searchText" @bind:event="oninput" />
+                </div>
+                <div class="col-md-2">
+                    <label class="form-label">แผนก</label>
+                    <select class="form-select" @bind="filterDepartment">
+                        <option value="">ทั้งหมด</option>
+                        <option value="IT">IT</option>
+                        <option value="HR">HR</option>
+                        <option value="Finance">Finance</option>
+                        <option value="Sales">Sales</option>
+                        <option value="Marketing">Marketing</option>
+                        <option value="Production">Production</option>
+                    </select>
+                </div>
+                <div class="col-md-2">
+                    <label class="form-label">ประเภทพนักงาน</label>
+                    <select class="form-select" @bind="filterEmployeeType">
+                        <option value="">ทั้งหมด</option>
+                        <option value="ประจำ">ประจำ</option>
+                        <option value="สัญญาจ้าง">สัญญาจ้าง</option>
+                        <option value="พาร์ทไทม์">พาร์ทไทม์</option>
+                    </select>
+                </div>
+                <div class="col-md-2">
+                    <label class="form-label">สถานะ</label>
+                    <select class="form-select" @bind="filterStatus">
+                        <option value="">ทั้งหมด</option>
+                        <option value="Active">ทำงานอยู่</option>
+                        <option value="Probation">ทดลองงาน</option>
+                        <option value="Inactive">พ้นสภาพ</option>
+                    </select>
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label">&nbsp;</label>
+                    <div>
+                        <button class="btn btn-outline-secondary" @onclick="ExportToExcel">
+                            <i class="bi bi-file-earmark-excel"></i> Export Excel
+                        </button>
+                        <button class="btn btn-outline-primary ms-2" @onclick="PrintReport">
+                            <i class="bi bi-printer"></i> พิมพ์
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Personnel Table -->
+    <div class="card">
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-hover">
+                    <thead class="table-light">
+                        <tr>
+                            <th>รูปภาพ</th>
+                            <th>รหัส</th>
+                            <th>ชื่อ-นามสกุล</th>
+                            <th>แผนก</th>
+                            <th>ตำแหน่ง</th>
+                            <th>ประเภท</th>
+                            <th>วันที่เริ่มงาน</th>
+                            <th>เบอร์โทร</th>
+                            <th>อีเมล</th>
+                            <th>สถานะ</th>
+                            <th>จัดการ</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var person in FilteredPersonnel)
+                        {
+                            <tr>
+                                <td>
+                                    <img src="@person.ProfileImage" alt="Profile" class="rounded-circle" style="width: 40px; height: 40px; object-fit: cover;" />
+                                </td>
+                                <td>@person.EmployeeCode</td>
+                                <td><strong>@person.FullName</strong></td>
+                                <td>@person.Department</td>
+                                <td>@person.Position</td>
+                                <td>
+                                    <span class="badge bg-@GetEmployeeTypeBadgeColor(person.EmployeeType)">
+                                        @person.EmployeeType
+                                    </span>
+                                </td>
+                                <td>@person.StartDate.ToString("dd/MM/yyyy")</td>
+                                <td>@person.Phone</td>
+                                <td>@person.Email</td>
+                                <td>
+                                    <span class="badge bg-@GetStatusBadgeColor(person.Status)">
+                                        @GetStatusText(person.Status)
+                                    </span>
+                                </td>
+                                <td>
+                                    <div class="btn-group btn-group-sm">
+                                        <button class="btn btn-outline-info" @onclick="() => ViewDetails(person)" title="ดูรายละเอียด">
+                                            <i class="bi bi-eye"></i>
+                                        </button>
+                                        <button class="btn btn-outline-warning" @onclick="() => EditPerson(person)" title="แก้ไข">
+                                            <i class="bi bi-pencil"></i>
+                                        </button>
+                                        <button class="btn btn-outline-danger" @onclick="() => DeletePerson(person)" title="ลบ">
+                                            <i class="bi bi-trash"></i>
+                                        </button>
+                                    </div>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Pagination -->
+            <div class="d-flex justify-content-between align-items-center mt-3">
+                <div>
+                    แสดง @FilteredPersonnel.Count() จาก @personnel.Count รายการ
+                </div>
+                <nav>
+                    <ul class="pagination pagination-sm mb-0">
+                        <li class="page-item disabled"><a class="page-link" href="#">ก่อนหน้า</a></li>
+                        <li class="page-item active"><a class="page-link" href="#">1</a></li>
+                        <li class="page-item"><a class="page-link" href="#">2</a></li>
+                        <li class="page-item"><a class="page-link" href="#">3</a></li>
+                        <li class="page-item"><a class="page-link" href="#">ถัดไป</a></li>
+                    </ul>
+                </nav>
+            </div>
+        </div>
+    </div>
+
+    <!-- Statistics Cards -->
+    <div class="row mt-4">
+        <div class="col-md-3">
+            <div class="card bg-primary text-white">
+                <div class="card-body">
+                    <h6>จำนวนบุคลากรทั้งหมด</h6>
+                    <h2>@personnel.Count</h2>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card bg-success text-white">
+                <div class="card-body">
+                    <h6>ทำงานอยู่</h6>
+                    <h2>@personnel.Count(p => p.Status == "Active")</h2>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card bg-warning text-white">
+                <div class="card-body">
+                    <h6>ทดลองงาน</h6>
+                    <h2>@personnel.Count(p => p.Status == "Probation")</h2>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card bg-secondary text-white">
+                <div class="card-body">
+                    <h6>พ้นสภาพ</h6>
+                    <h2>@personnel.Count(p => p.Status == "Inactive")</h2>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@code {
+    private List<Personnel> personnel = new();
+    private string searchText = "";
+    private string filterDepartment = "";
+    private string filterEmployeeType = "";
+    private string filterStatus = "";
+
+    protected override void OnInitialized()
+    {
+        LoadPersonnel();
+    }
+
+    private void LoadPersonnel()
+    {
+        personnel = new List<Personnel>
+        {
+            new Personnel
+            {
+                EmployeeCode = "P001",
+                FirstName = "สมชาย",
+                LastName = "ใจดี",
+                Department = "IT",
+                Position = "Senior Developer",
+                EmployeeType = "ประจำ",
+                StartDate = new DateTime(2020, 1, 15),
+                Phone = "081-234-5678",
+                Email = "somchai@company.com",
+                Status = "Active",
+                ProfileImage = "https://ui-avatars.com/api/?name=Somchai+Jaidee&background=0D8ABC&color=fff"
+            },
+            new Personnel
+            {
+                EmployeeCode = "P002",
+                FirstName = "สมหญิง",
+                LastName = "รักงาน",
+                Department = "HR",
+                Position = "HR Manager",
+                EmployeeType = "ประจำ",
+                StartDate = new DateTime(2019, 5, 1),
+                Phone = "082-345-6789",
+                Email = "somying@company.com",
+                Status = "Active",
+                ProfileImage = "https://ui-avatars.com/api/?name=Somying+Rakngan&background=F44336&color=fff"
+            },
+            new Personnel
+            {
+                EmployeeCode = "P003",
+                FirstName = "ประยุทธ",
+                LastName = "ขยัน",
+                Department = "Finance",
+                Position = "Accountant",
+                EmployeeType = "ประจำ",
+                StartDate = new DateTime(2021, 3, 10),
+                Phone = "083-456-7890",
+                Email = "prayut@company.com",
+                Status = "Active",
+                ProfileImage = "https://ui-avatars.com/api/?name=Prayut+Kayan&background=4CAF50&color=fff"
+            },
+            new Personnel
+            {
+                EmployeeCode = "P004",
+                FirstName = "มานี",
+                LastName = "กิจดี",
+                Department = "Sales",
+                Position = "Sales Executive",
+                EmployeeType = "สัญญาจ้าง",
+                StartDate = new DateTime(2023, 9, 1),
+                Phone = "084-567-8901",
+                Email = "manee@company.com",
+                Status = "Probation",
+                ProfileImage = "https://ui-avatars.com/api/?name=Manee+Kitdee&background=FF9800&color=fff"
+            },
+            new Personnel
+            {
+                EmployeeCode = "P005",
+                FirstName = "สมศรี",
+                LastName = "มีชัย",
+                Department = "Marketing",
+                Position = "Marketing Specialist",
+                EmployeeType = "ประจำ",
+                StartDate = new DateTime(2018, 7, 20),
+                Phone = "085-678-9012",
+                Email = "somsri@company.com",
+                Status = "Inactive",
+                ProfileImage = "https://ui-avatars.com/api/?name=Somsri+Meechai&background=9C27B0&color=fff"
+            }
+        };
+    }
+
+    private IEnumerable<Personnel> FilteredPersonnel
+    {
+        get
+        {
+            var filtered = personnel.AsEnumerable();
+
+            if (!string.IsNullOrWhiteSpace(searchText))
+            {
+                filtered = filtered.Where(p =>
+                    p.FullName.Contains(searchText, StringComparison.OrdinalIgnoreCase) ||
+                    p.EmployeeCode.Contains(searchText, StringComparison.OrdinalIgnoreCase) ||
+                    p.Email.Contains(searchText, StringComparison.OrdinalIgnoreCase));
+            }
+
+            if (!string.IsNullOrWhiteSpace(filterDepartment))
+            {
+                filtered = filtered.Where(p => p.Department == filterDepartment);
+            }
+
+            if (!string.IsNullOrWhiteSpace(filterEmployeeType))
+            {
+                filtered = filtered.Where(p => p.EmployeeType == filterEmployeeType);
+            }
+
+            if (!string.IsNullOrWhiteSpace(filterStatus))
+            {
+                filtered = filtered.Where(p => p.Status == filterStatus);
+            }
+
+            return filtered;
+        }
+    }
+
+    private string GetEmployeeTypeBadgeColor(string type)
+    {
+        return type switch
+        {
+            "ประจำ" => "primary",
+            "สัญญาจ้าง" => "info",
+            "พาร์ทไทม์" => "secondary",
+            _ => "secondary"
+        };
+    }
+
+    private string GetStatusBadgeColor(string status)
+    {
+        return status switch
+        {
+            "Active" => "success",
+            "Probation" => "warning",
+            "Inactive" => "secondary",
+            _ => "secondary"
+        };
+    }
+
+    private string GetStatusText(string status)
+    {
+        return status switch
+        {
+            "Active" => "ทำงานอยู่",
+            "Probation" => "ทดลองงาน",
+            "Inactive" => "พ้นสภาพ",
+            _ => status
+        };
+    }
+
+    private void ShowAddModal()
+    {
+        // TODO: Show add personnel modal
+    }
+
+    private void ViewDetails(Personnel person)
+    {
+        // TODO: Navigate to detail page
+    }
+
+    private void EditPerson(Personnel person)
+    {
+        // TODO: Show edit modal
+    }
+
+    private void DeletePerson(Personnel person)
+    {
+        // TODO: Confirm and delete
+    }
+
+    private void ExportToExcel()
+    {
+        // TODO: Export to Excel
+    }
+
+    private void PrintReport()
+    {
+        // TODO: Print report
+    }
+
+    public class Personnel
+    {
+        public string EmployeeCode { get; set; }
+        public string FirstName { get; set; }
+        public string LastName { get; set; }
+        public string FullName => $"{FirstName} {LastName}";
+        public string Department { get; set; }
+        public string Position { get; set; }
+        public string EmployeeType { get; set; }
+        public DateTime StartDate { get; set; }
+        public string Phone { get; set; }
+        public string Email { get; set; }
+        public string Status { get; set; }
+        public string ProfileImage { get; set; }
+    }
+}

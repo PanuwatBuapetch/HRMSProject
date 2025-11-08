@@ -1,0 +1,146 @@
+﻿@page "/employees"
+@using System.ComponentModel.DataAnnotations
+
+<PageTitle>จัดการพนักงาน</PageTitle>
+
+<div class="container-fluid">
+    <div class="row mb-3">
+        <div class="col">
+            <h3>รายชื่อพนักงาน</h3>
+        </div>
+        <div class="col-auto">
+            <button class="btn btn-primary" @onclick="ShowAddModal">
+                <i class="bi bi-plus-circle"></i> เพิ่มพนักงาน
+            </button>
+        </div>
+    </div>
+
+    <div class="card">
+        <div class="card-body">
+            <div class="row mb-3">
+                <div class="col-md-4">
+                    <input type="text" class="form-control" placeholder="ค้นหา..." @bind="searchText" @bind:event="oninput" />
+                </div>
+                <div class="col-md-3">
+                    <select class="form-select" @bind="filterDepartment">
+                        <option value="">ทุกแผนก</option>
+                        <option value="IT">IT</option>
+                        <option value="HR">HR</option>
+                        <option value="Finance">Finance</option>
+                        <option value="Sales">Sales</option>
+                    </select>
+                </div>
+            </div>
+
+            <table class="table table-hover">
+                <thead>
+                    <tr>
+                        <th>รหัสพนักงาน</th>
+                        <th>ชื่อ-นามสกุล</th>
+                        <th>แผนก</th>
+                        <th>ตำแหน่ง</th>
+                        <th>อีเมล</th>
+                        <th>สถานะ</th>
+                        <th>จัดการ</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var emp in FilteredEmployees)
+                    {
+                        <tr>
+                            <td>@emp.EmployeeCode</td>
+                            <td>@emp.FullName</td>
+                            <td>@emp.Department</td>
+                            <td>@emp.Position</td>
+                            <td>@emp.Email</td>
+                            <td>
+                                <span class="badge bg-@(emp.IsActive ? "success" : "secondary")">
+                                    @(emp.IsActive ? "ทำงาน" : "พ้นสภาพ")
+                                </span>
+                            </td>
+                            <td>
+                                <button class="btn btn-sm btn-info" @onclick="() => ViewEmployee(emp)">
+                                    <i class="bi bi-eye"></i>
+                                </button>
+                                <button class="btn btn-sm btn-warning" @onclick="() => EditEmployee(emp)">
+                                    <i class="bi bi-pencil"></i>
+                                </button>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+@code {
+    private List<Employees> employees = new();
+    private string searchText = "";
+    private string filterDepartment = "";
+
+    protected override void OnInitialized()
+    {
+        LoadEmployees();
+    }
+
+    private void LoadEmployees()
+    {
+        employees = new List<Employees>
+        {
+            new Employees { EmployeeCode = "E001", FirstName = "สมชาย", LastName = "ใจดี", Department = "IT", Position = "Developer", Email = "somchai@company.com", IsActive = true },
+            new Employees { EmployeeCode = "E002", FirstName = "สมหญิง", LastName = "รักงาน", Department = "HR", Position = "HR Manager", Email = "somying@company.com", IsActive = true },
+            new Employees { EmployeeCode = "E003", FirstName = "ประยุทธ", LastName = "ขยัน", Department = "Finance", Position = "Accountant", Email = "prayut@company.com", IsActive = true },
+            new Employees { EmployeeCode = "E004", FirstName = "สมศรี", LastName = "มีชัย", Department = "Sales", Position = "Sales Executive", Email = "somsri@company.com", IsActive = false },
+        };
+    }
+
+    private IEnumerable<Employees> FilteredEmployees
+    {
+        get
+        {
+            var filtered = employees.AsEnumerable();
+
+            if (!string.IsNullOrWhiteSpace(searchText))
+            {
+                filtered = filtered.Where(e => 
+                    e.FullName.Contains(searchText, StringComparison.OrdinalIgnoreCase) ||
+                    e.EmployeeCode.Contains(searchText, StringComparison.OrdinalIgnoreCase));
+            }
+
+            if (!string.IsNullOrWhiteSpace(filterDepartment))
+            {
+                filtered = filtered.Where(e => e.Department == filterDepartment);
+            }
+
+            return filtered;
+        }
+    }
+
+    private void ShowAddModal()
+    {
+        // TODO: Show add employee modal
+    }
+
+    private void ViewEmployee(Employees emp)
+    {
+        // TODO: Navigate to employee detail page
+    }
+
+    private void EditEmployee(Employees emp)
+    {
+        // TODO: Show edit employee modal
+    }
+
+    public class Employees
+    {
+        public string EmployeeCode { get; set; }
+        public string FirstName { get; set; }
+        public string LastName { get; set; }
+        public string FullName => $"{FirstName} {LastName}";
+        public string Department { get; set; }
+        public string Position { get; set; }
+        public string Email { get; set; }
+        public bool IsActive { get; set; }
+    }
+}
