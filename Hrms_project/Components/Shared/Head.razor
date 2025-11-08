@@ -1,18 +1,10 @@
 ﻿@using AntDesign
 @using CurrieTechnologies.Razor.SweetAlert2
-@using Hrms_project 
-@using Hrms_project.Components
-
-@* 2. ฉีด Services ที่ต้องใช้ *@
 @inject SweetAlertService Swal
-@inject NavigationManager NavManager
-
 
 <nav class="navbar navbar-expand-sm navbar-dark px-4">
     <div class="container-fluid">
         <div class="collapse navbar-collapse" id="mynavbar">
-            
-            @* 3. เมนูด้านซ้าย *@
             <ul class="navbar-nav me-auto">
                 <li class="nav-item">
                     <a class="nav-link text-white" href="">
@@ -30,11 +22,7 @@
                     </a>
                 </li>
             </ul>
-            
-            @* 4. เมนูด้านขวา (User + Language) *@
-            <div class="d-flex align-items-center">
-                
-                @* Dropdown ของผู้ใช้ *@
+            <div class="d-flex">
                 <Dropdown Trigger="@(new Trigger[] { Trigger.Click })" Placement="Placement.BottomRight">
                     <Overlay>
                         <Menu Style="width: 12rem;">
@@ -53,13 +41,10 @@
                         </div>
                     </ChildContent>
                 </Dropdown>
-                
-                @* ตัวเปลี่ยนภาษา *@
                 <div class="nav-role">
                     <ChangeLanguae />
-                </div>                
+                </div>                 
             </div>
-            
         </div>
     </div>
 </nav>
@@ -67,23 +52,13 @@
 @code {
     private async Task ShowLogoutConfirmation()
     {
-        // ใช้ locallizer กับ SweetAlert ด้วยเลยครับ
-        await Swal.FireAsync(new SweetAlertOptions
+        SweetAlertResult result = await Swal.FireAsync(new SweetAlertOptions
         {
-            Title = "ออกจากระบบ",
-            Text = "ขอบคุณที่ใช้บริการ กำลังเข้าสู่หน้าเข้าสู่ระบบ",
-            Icon = SweetAlertIcon.Success,
-            Timer = 3000,
-            ShowConfirmButton = false
+                Title = "ออกจากระบบ",
+                Text = "ขอบคุณที่ใช้บริการ กำลังเข้าสู่หน้าเข้าสู่ระบบ",
+                Icon = SweetAlertIcon.Success,
+                Timer = 3000,
+                ShowConfirmButton = false
         });
-
-        //
-        // หลังจาก SweetAlert แสดงผล (3 วินาที)
-        // คุณควรจะสั่งให้ไปยังหน้า Logout จริงๆ ที่นี่
-        //
-        // ตัวอย่าง (ถ้าคุณใช้ Identity):
-        // NavManager.NavigateTo("Identity/Account/Logout", true); 
-        //
-        // (อย่าลืมเพิ่ม @inject NavigationManager NavManager ด้านบน)
     }
 }

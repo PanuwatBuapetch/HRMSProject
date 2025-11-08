@@ -6,6 +6,10 @@ namespace Datamodels.Hrms;
 
 public partial class Hrms_dbContext : DbContext
 {
+    public Hrms_dbContext()
+    {
+    }
+
     public Hrms_dbContext(DbContextOptions<Hrms_dbContext> options)
         : base(options)
     {
@@ -38,6 +42,10 @@ public partial class Hrms_dbContext : DbContext
     public virtual DbSet<VManagementDetail> VManagementDetails { get; set; }
 
     public virtual DbSet<WorkUnit> WorkUnits { get; set; }
+
+    protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+#warning To protect potentially sensitive information in your connection string, you should move it out of source code. You can avoid scaffolding the connection string by using the Name= syntax to read it from configuration - see https://go.microsoft.com/fwlink/?linkid=2131148. For more guidance on storing connection strings, see https://go.microsoft.com/fwlink/?LinkId=723263.
+        => optionsBuilder.UseNpgsql("Host=localhost;Port=5432;Database=HRMS;Username=postgres;Password=1234;SearchPath=person");
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -115,22 +123,22 @@ public partial class Hrms_dbContext : DbContext
             entity.ToTable("employee", "person");
 
             entity.Property(e => e.EmployeeId)
-                .HasMaxLength(7)
+                .HasMaxLength(200)
                 .HasColumnName("employee_id");
             entity.Property(e => e.CitizenId)
                 .HasMaxLength(13)
                 .HasColumnName("citizen_id");
             entity.Property(e => e.DeptId)
-                .HasMaxLength(3)
+                .HasMaxLength(50)
                 .HasColumnName("dept_id");
             entity.Property(e => e.DivisionId)
-                .HasMaxLength(2)
+                .HasMaxLength(50)
                 .HasColumnName("division_id");
             entity.Property(e => e.Email)
                 .HasMaxLength(40)
                 .HasColumnName("email");
             entity.Property(e => e.EmploymentStatus)
-                .HasMaxLength(1)
+                .HasMaxLength(50)
                 .HasColumnName("employment_status");
             entity.Property(e => e.EndDate)
                 .HasMaxLength(8)
@@ -154,7 +162,7 @@ public partial class Hrms_dbContext : DbContext
                 .HasMaxLength(200)
                 .HasColumnName("last_name_thai");
             entity.Property(e => e.LocationId)
-                .HasMaxLength(2)
+                .HasMaxLength(50)
                 .HasColumnName("location_id");
             entity.Property(e => e.Password)
                 .HasMaxLength(400)
@@ -166,7 +174,7 @@ public partial class Hrms_dbContext : DbContext
                 .HasMaxLength(400)
                 .HasColumnName("pincode");
             entity.Property(e => e.PositionId)
-                .HasMaxLength(4)
+                .HasMaxLength(50)
                 .HasColumnName("position_id");
             entity.Property(e => e.SecretCode)
                 .HasPrecision(6)
@@ -175,16 +183,16 @@ public partial class Hrms_dbContext : DbContext
                 .HasMaxLength(8)
                 .HasColumnName("start_date");
             entity.Property(e => e.TeamId)
-                .HasMaxLength(3)
+                .HasMaxLength(50)
                 .HasColumnName("team_id");
             entity.Property(e => e.TerminationDate)
                 .HasMaxLength(8)
                 .HasColumnName("termination_date");
             entity.Property(e => e.TitleId)
-                .HasMaxLength(2)
+                .HasMaxLength(50)
                 .HasColumnName("title_id");
             entity.Property(e => e.UnitId)
-                .HasMaxLength(3)
+                .HasMaxLength(50)
                 .HasColumnName("unit_id");
             entity.Property(e => e.Username)
                 .HasMaxLength(100)
@@ -207,8 +215,7 @@ public partial class Hrms_dbContext : DbContext
                 .HasColumnType("timestamp without time zone")
                 .HasColumnName("date_expired");
             entity.Property(e => e.EmployeeId)
-                .HasMaxLength(7)
-                .IsFixedLength()
+                .HasMaxLength(200)
                 .HasColumnName("employee_id");
             entity.Property(e => e.Ip).HasColumnName("ip");
         });
@@ -289,31 +296,31 @@ public partial class Hrms_dbContext : DbContext
                 .HasMaxLength(400)
                 .HasColumnName("management_id");
             entity.Property(e => e.DeptId)
-                .HasMaxLength(3)
+                .HasMaxLength(50)
                 .HasColumnName("dept_id");
             entity.Property(e => e.DivisionId)
-                .HasMaxLength(2)
+                .HasMaxLength(50)
                 .HasColumnName("division_id");
             entity.Property(e => e.EmployeeId)
-                .HasMaxLength(7)
+                .HasMaxLength(200)
                 .HasColumnName("employee_id");
             entity.Property(e => e.Isactive)
                 .HasMaxLength(1)
                 .HasColumnName("isactive");
             entity.Property(e => e.LocationId)
-                .HasMaxLength(2)
+                .HasMaxLength(50)
                 .HasColumnName("location_id");
             entity.Property(e => e.ManagementPositionId)
-                .HasMaxLength(2)
+                .HasMaxLength(50)
                 .HasColumnName("management_position_id");
             entity.Property(e => e.TeamId)
-                .HasMaxLength(3)
+                .HasMaxLength(50)
                 .HasColumnName("team_id");
             entity.Property(e => e.TempAdminCode)
                 .HasMaxLength(20)
                 .HasColumnName("temp_admin_code");
             entity.Property(e => e.UnitId)
-                .HasMaxLength(3)
+                .HasMaxLength(50)
                 .HasColumnName("unit_id");
         });
 
@@ -396,7 +403,7 @@ public partial class Hrms_dbContext : DbContext
                 .HasMaxLength(13)
                 .HasColumnName("citizen_id");
             entity.Property(e => e.DeptId)
-                .HasMaxLength(3)
+                .HasMaxLength(50)
                 .HasColumnName("dept_id");
             entity.Property(e => e.DeptNameEng)
                 .HasMaxLength(200)
@@ -405,7 +412,7 @@ public partial class Hrms_dbContext : DbContext
                 .HasMaxLength(200)
                 .HasColumnName("dept_name_thai");
             entity.Property(e => e.DivisionId)
-                .HasMaxLength(2)
+                .HasMaxLength(50)
                 .HasColumnName("division_id");
             entity.Property(e => e.DivisionNameEng)
                 .HasMaxLength(200)
@@ -417,10 +424,10 @@ public partial class Hrms_dbContext : DbContext
                 .HasMaxLength(40)
                 .HasColumnName("email");
             entity.Property(e => e.EmployeeId)
-                .HasMaxLength(7)
+                .HasMaxLength(200)
                 .HasColumnName("employee_id");
             entity.Property(e => e.EmploymentStatus)
-                .HasMaxLength(1)
+                .HasMaxLength(50)
                 .HasColumnName("employment_status");
             entity.Property(e => e.EndDate)
                 .HasMaxLength(8)
@@ -444,7 +451,7 @@ public partial class Hrms_dbContext : DbContext
                 .HasMaxLength(200)
                 .HasColumnName("last_name_thai");
             entity.Property(e => e.LocationId)
-                .HasMaxLength(2)
+                .HasMaxLength(50)
                 .HasColumnName("location_id");
             entity.Property(e => e.LocationNameEng)
                 .HasMaxLength(200)
@@ -456,7 +463,7 @@ public partial class Hrms_dbContext : DbContext
                 .HasMaxLength(12)
                 .HasColumnName("picture_url");
             entity.Property(e => e.PositionId)
-                .HasMaxLength(4)
+                .HasMaxLength(50)
                 .HasColumnName("position_id");
             entity.Property(e => e.PositionNameEng)
                 .HasMaxLength(400)
@@ -471,7 +478,7 @@ public partial class Hrms_dbContext : DbContext
                 .HasMaxLength(8)
                 .HasColumnName("start_date");
             entity.Property(e => e.TeamId)
-                .HasMaxLength(3)
+                .HasMaxLength(50)
                 .HasColumnName("team_id");
             entity.Property(e => e.TeamNameEng)
                 .HasMaxLength(200)
@@ -483,7 +490,7 @@ public partial class Hrms_dbContext : DbContext
                 .HasMaxLength(8)
                 .HasColumnName("termination_date");
             entity.Property(e => e.TitleId)
-                .HasMaxLength(2)
+                .HasMaxLength(50)
                 .HasColumnName("title_id");
             entity.Property(e => e.TitleNameEng)
                 .HasMaxLength(200)
@@ -498,7 +505,7 @@ public partial class Hrms_dbContext : DbContext
                 .HasMaxLength(200)
                 .HasColumnName("title_short_thai");
             entity.Property(e => e.UnitId)
-                .HasMaxLength(3)
+                .HasMaxLength(50)
                 .HasColumnName("unit_id");
             entity.Property(e => e.UnitNameEng)
                 .HasMaxLength(70)
@@ -528,13 +535,13 @@ public partial class Hrms_dbContext : DbContext
                 .HasMaxLength(13)
                 .HasColumnName("citizen_id");
             entity.Property(e => e.DeptId)
-                .HasMaxLength(3)
+                .HasMaxLength(50)
                 .HasColumnName("dept_id");
             entity.Property(e => e.DivisionFull)
                 .HasMaxLength(200)
                 .HasColumnName("division_full");
             entity.Property(e => e.DivisionId)
-                .HasMaxLength(2)
+                .HasMaxLength(50)
                 .HasColumnName("division_id");
             entity.Property(e => e.ExecutiveName)
                 .HasMaxLength(401)
@@ -549,19 +556,19 @@ public partial class Hrms_dbContext : DbContext
                 .HasMaxLength(400)
                 .HasColumnName("key");
             entity.Property(e => e.LocationId)
-                .HasMaxLength(2)
+                .HasMaxLength(50)
                 .HasColumnName("location_id");
             entity.Property(e => e.PosKey)
-                .HasMaxLength(4)
+                .HasMaxLength(50)
                 .HasColumnName("pos_key");
             entity.Property(e => e.StaffAdminTemp)
                 .HasMaxLength(20)
                 .HasColumnName("staff_admin_temp");
             entity.Property(e => e.StaffDepart)
-                .HasMaxLength(1)
+                .HasMaxLength(50)
                 .HasColumnName("staff_depart");
             entity.Property(e => e.StaffId)
-                .HasMaxLength(7)
+                .HasMaxLength(200)
                 .HasColumnName("staff_id");
             entity.Property(e => e.StaffNameThai)
                 .HasMaxLength(200)
@@ -570,10 +577,10 @@ public partial class Hrms_dbContext : DbContext
                 .HasMaxLength(200)
                 .HasColumnName("staff_sname_thai");
             entity.Property(e => e.TeamId)
-                .HasMaxLength(3)
+                .HasMaxLength(50)
                 .HasColumnName("team_id");
             entity.Property(e => e.UnitId)
-                .HasMaxLength(3)
+                .HasMaxLength(50)
                 .HasColumnName("unit_id");
         });
 

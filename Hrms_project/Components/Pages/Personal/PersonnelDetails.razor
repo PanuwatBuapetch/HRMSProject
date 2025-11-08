@@ -1,0 +1,209 @@
+﻿@page "/personnel/{EmployeeId}"
+@page "/empview/{EmployeeId}"
+@page "/empfacview/{EmployeeId}"
+@page "/empdeptview/{EmployeeId}"
+@page "/empsecview/{EmployeeId}"
+@page "/empunitview/{EmployeeId}"
+@rendermode InteractiveServer
+@using System.Linq
+@using Datamodels.Hrms
+@using HrmsSolution.Service
+@using AntDesign
+@using static AntDesign.IconType
+@inject IVEmployeeDetailsService EmployeeDetailsService
+@inject NavigationManager NavigationManager
+@inject MessageService MessageService
+
+<PageTitle>รายละเอียดบุคลากร</PageTitle>
+
+@* Optional context header for different organizational views *@
+@if (ContextIsEmpCampView || ContextIsEmpFacView || ContextIsEmpDeptView || ContextIsEmpSecView || ContextIsEmpUnitView)
+{
+    <div class="employees-title mb-3">
+        <Breadcrumb>
+            <BreadcrumbItem Href="/">
+                <Icon Type="home" />
+                <span>หน้าแรก</span>
+            </BreadcrumbItem>
+            <BreadcrumbItem Href="/organization">
+                <Icon Type="apartment" />
+                <span>โครงสร้างองค์กร</span>
+            </BreadcrumbItem>
+            <BreadcrumbItem>
+                <Icon Type="user" />
+                @if (ContextIsEmpCampView) { <span>ข้อมูลบุคลากร (Campus)</span> }
+                @if (ContextIsEmpFacView) { <span>ข้อมูลบุคลากร (Faculty)</span> }
+                @if (ContextIsEmpDeptView) { <span>ข้อมูลบุคลากร (Department)</span> }
+                @if (ContextIsEmpSecView) { <span>ข้อมูลบุคลากร (Section)</span> }
+                @if (ContextIsEmpUnitView) { <span>ข้อมูลบุคลากร (Unit)</span> }
+            </BreadcrumbItem>
+        </Breadcrumb>
+    </div>
+}
+
+<div class="personnel-detail-container">
+    <Card Class="content-card">
+        @if (isLoading)
+        {
+            <Spin />
+        }
+        else if (!string.IsNullOrEmpty(errorMessage))
+        {
+            <Alert Message="ไม่สามารถโหลดข้อมูลบุคลากร" Description="@errorMessage" Type="@AlertType.Error" ShowIcon="true" />
+            <div style="margin-top:12px;">
+                <Button OnClick="NavigateBack">กลับไปหน้ารายการ</Button>
+            </div>
+        }
+        else if (employee != null)
+        {
+            <AntDesign.Row Gutter="16">
+                <AntDesign.Col Span="6">
+                    <div style="text-align:center;">
+                        @if (!string.IsNullOrWhiteSpace(employee.PictureUrl))
+                        {
+                            <img src="@employee.PictureUrl" alt="Profile" style="width:140px;height:140px;object-fit:cover;border-radius:8px;border:1px solid #eee;" />
+                        }
+                        else
+                        {
+                            <div style="width:140px;height:140px;display:flex;align-items:center;justify-content:center;background:#f5f5f5;border-radius:8px;font-size:28px;color:#666;">@GetInitials(employee.FullNameThai ?? employee.FullNameEng)</div>
+                        }
+
+                        <h3 style="margin-top:12px">@((employee.FullNameThai ?? employee.FullNameEng) ?? "-")</h3>
+                        <div style="color:#888">ID: @employee.EmployeeId</div>
+                        <div style="margin-top:8px">
+                            <Tag Color="@(employee.EmploymentStatus == "กิจกรรม" ? "blue" : "default")">@(employee.EmploymentStatus ?? "-")</Tag>
+                        </div>
+                    </div>
+                </AntDesign.Col>
+                <AntDesign.Col Span="18">
+                    <div class="detail-grid">
+                        <div class="detail-row"><strong>ชื่อ (ไทย):</strong> @((employee.FirstNameThai ?? "") + " " + (employee.LastNameThai ?? ""))</div>
+                        <div class="detail-row"><strong>Name (ENG):</strong> @((employee.FirstNameEng ?? "") + " " + (employee.LastNameEng ?? ""))</div>
+                        <div class="detail-row"><strong>อีเมล:</strong> @(employee.Email ?? "-")</div>
+                        <div class="detail-row"><strong>ตำแหน่ง:</strong> @(employee.PositionNameThai ?? employee.PositionNameEng ?? "-")</div>
+                        <div class="detail-row"><strong>หน่วยงาน:</strong> @(employee.DivisionNameThai ?? employee.DivisionNameEng ?? "-")</div>
+                        <div class="detail-row"><strong>ฝ่าย/แผนก:</strong> @(employee.DeptNameThai ?? employee.DeptNameEng ?? "-")</div>
+                        <div class="detail-row"><strong>หน่วยงานย่อย:</strong> @(employee.UnitNameThai ?? employee.UnitNameEng ?? "-")</div>
+                        <div class="detail-row"><strong>สถานที่ทำงาน:</strong> @(employee.LocationNameThai ?? employee.LocationNameEng ?? "-")</div>
+                        <div class="detail-row"><strong>วันที่เริ่ม:</strong> @(employee.StartDate ?? "-")</div>
+                        <div class="detail-row"><strong>วันที่สิ้นสุด:</strong> @(employee.EndDate ?? employee.TerminationDate ?? "-")</div>
+                        <div class="detail-row"><strong>หมายเลขบัตรประชาชน:</strong> @(employee.CitizenId ?? "-")</div>
+                    </div>
+
+                    <div style="margin-top:16px">
+                        <Space>
+                            <Button OnClick="NavigateBack">กลับ</Button>
+                            <Button Type="@ButtonType.Primary" OnClick="EditEmployee">
+                                <Icon Type="@(Outline.Edit)" /> แก้ไข
+                            </Button>
+                            <Button OnClick="ManageDivision">
+                                <Icon Type="@(Outline.Setting)" /> จัดการหน่วยงาน
+                            </Button>
+                        </Space>
+                    </div>
+                </AntDesign.Col>
+            </AntDesign.Row>
+        }
+    </Card>
+</div>
+
+<style>
+    .personnel-detail-container { padding: 16px; }
+    .content-card .ant-card-body { padding: 18px !important; }
+    .detail-grid { display: grid; grid-template-columns: 1fr; gap: 8px; }
+    .detail-row { padding: 6px 0; border-bottom: 1px dashed #f0f0f0; }
+</style>
+
+@code {
+    [Parameter]
+    public string EmployeeId { get; set; } = string.Empty;
+
+    private VEmployeeDetail? employee;
+    private bool isLoading = true;
+    private string errorMessage = string.Empty;
+
+    // context flags
+    private bool ContextIsEmpCampView;
+    private bool ContextIsEmpFacView;
+    private bool ContextIsEmpDeptView;
+    private bool ContextIsEmpSecView;
+    private bool ContextIsEmpUnitView;
+
+    protected override async Task OnParametersSetAsync()
+    {
+        DetermineContextFromUri();
+        await LoadEmployee();
+    }
+
+    private void DetermineContextFromUri()
+    {
+        var relative = NavigationManager.ToBaseRelativePath(NavigationManager.Uri).ToLowerInvariant();
+        // relative may be like "empview/123" or "personnel/123"
+        ContextIsEmpCampView = relative.StartsWith("empview/");
+        ContextIsEmpFacView = relative.StartsWith("empfacview/");
+        ContextIsEmpDeptView = relative.StartsWith("empdeptview/");
+        ContextIsEmpSecView = relative.StartsWith("empsecview/");
+        ContextIsEmpUnitView = relative.StartsWith("empunitview/");
+    }
+
+    private async Task LoadEmployee()
+    {
+        isLoading = true;
+        errorMessage = string.Empty;
+        employee = null;
+
+        try
+        {
+            employee = await EmployeeDetailsService.GetEmployeeDetailsByIdAsync(EmployeeId);
+
+            if (employee == null)
+            {
+                errorMessage = "ไม่พบข้อมูลบุคลากร";
+            }
+        }
+        catch (HttpRequestException httpEx)
+        {
+            errorMessage = $"ไม่สามารถเชื่อมต่อ API: {httpEx.Message}";
+            MessageService.Error(errorMessage);
+        }
+        catch (Exception ex)
+        {
+            errorMessage = ex.Message;
+            MessageService.Error($"เกิดข้อผิดพลาด: {ex.Message}");
+        }
+        finally
+        {
+            isLoading = false;
+            StateHasChanged();
+        }
+    }
+
+    private string GetInitials(string? name)
+    {
+        if (string.IsNullOrWhiteSpace(name)) return "";
+        var parts = name.Split(' ', StringSplitOptions.RemoveEmptyEntries);
+        return string.Concat(parts.Take(2).Select(p => p[0])).ToUpperInvariant();
+    }
+
+    // Navigation helpers to avoid inline lambdas with nested quotes
+    private void NavigateBack()
+    {
+        // choose reasonable back URL depending on context
+        if (ContextIsEmpCampView) NavigationManager.NavigateTo($"/empview/{EmployeeId}");
+        else if (ContextIsEmpFacView) NavigationManager.NavigateTo($"/empfacview/{EmployeeId}");
+        else if (ContextIsEmpDeptView) NavigationManager.NavigateTo($"/empdeptview/{EmployeeId}");
+        else if (ContextIsEmpSecView) NavigationManager.NavigateTo($"/empsecview/{EmployeeId}");
+        else if (ContextIsEmpUnitView) NavigationManager.NavigateTo($"/empunitview/{EmployeeId}");
+        else NavigationManager.NavigateTo("/personnel");
+    }
+
+    private void EditEmployee()
+    {
+        NavigationManager.NavigateTo($"/personnel/edit/{EmployeeId}");
+    }
+
+    private void ManageDivision()
+    {
+        NavigationManager.NavigateTo($"/personnel/{EmployeeId}/divisions");
+    }
+}
