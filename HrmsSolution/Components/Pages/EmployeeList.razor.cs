@@ -71,7 +71,15 @@ namespace HrmsSolution.Components.Pages
 
         private async Task ToAddEmployee()
         {
-            await JS.InvokeVoidAsync("console.log", "Navigating to Add Employee page...");
+            // **ส่วนที่แก้ไข:**
+            // 1. Console.WriteLine() ยังคงอยู่และจะแสดงใน Server Console
+            Console.WriteLine("Navigating to Add Employee page... (Server Console)");
+
+            // 2. ใช้ JS.InvokeVoidAsync เพื่อเรียก 'console.log' ใน Browser Console
+            await JS.InvokeVoidAsync("console.log", "Redirecting to Add Employee page (Browser Console)");
+
+            // 3. นำทางไปยังหน้าเพิ่มพนักงานใหม่ (สมมติว่า path คือ /employee/add)
+            navigationManager.NavigateTo("/employee/add");
         }
     }
 }

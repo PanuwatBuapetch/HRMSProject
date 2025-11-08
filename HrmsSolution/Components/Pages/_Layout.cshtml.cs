@@ -3,7 +3,7 @@ using Microsoft.AspNetCore.Mvc.RazorPages;
 
 namespace HrmsSolution.Components.Pages
 {
-    public class _HostModel : PageModel
+    public class _LayoutModel : PageModel
     {
         public void OnGet()
         {

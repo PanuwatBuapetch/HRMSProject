@@ -1,0 +1,31 @@
+﻿@using Microsoft.AspNetCore.Components.Web
+@addTagHelper *, Microsoft.AspNetCore.Mvc.TagHelpers
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <base href="/" />
+
+    @* CSS LINKS: ถูกต้องแล้ว มี Bootstrap Icons และ AntDesign *@
+    <link rel="stylesheet" href="bootstrap/bootstrap.min.css" />
+    <link rel="stylesheet" href="app.css" />
+    <link rel="stylesheet" href="HrmsSolution.styles.css" />
+    <link href="_content/AntDesign/css/ant-design-blazor.css" rel="stylesheet" />
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet" />
+    <link rel="icon" type="image/png" href="favicon.png" />
+
+    @* HeadOutlet ควรถูก Render โดยไม่ต้องกำหนด RenderMode ที่นี่ *@
+    <HeadOutlet />
+</head>
+
+<body>
+    @RenderBody() @* **สำคัญ:** เปลี่ยน Routes เป็น RenderBody() *@
+
+    <script src="_framework/blazor.web.js"></script>
+    <script src="_content/AntDesign/js/ant-design-blazor.js"></script>
+</body>
+
+</html>

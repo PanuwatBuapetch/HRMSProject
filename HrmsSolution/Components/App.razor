@@ -1,26 +1,45 @@
-﻿<!DOCTYPE html>
-<html lang="en">
+﻿@* HrmsSolution/Components/App.razor *@
+@using Microsoft.AspNetCore.Components.Web
 
-<head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <base href="/" />
-    <link rel="stylesheet" href="bootstrap/bootstrap.min.css" />
-    <link rel="stylesheet" href="app.css" />
-    <link rel="stylesheet" href="HrmsSolution.styles.css" />
+@*
+    HeadOutlet สำหรับจัดการ <title> และ tags อื่นๆ ใน <head> 
+    (ใน Blazor Web App มักจะถูก Render ผ่าน _Layout.cshtml หรือ index.html)
+*@
+<HeadOutlet />
 
-    <link href="_content/AntDesign/css/ant-design-blazor.css" rel="stylesheet" />
+@* Router: ใช้สำหรับนำทางตาม URL 
+    AdditionalAssemblies: ต้องระบุ Client Assembly เพื่อให้ Blazor ค้นหา Component ใน Client Project ได้
+*@
+<Router AppAssembly="typeof(Program).Assembly" AdditionalAssemblies="new[] { typeof(HrmsSolution.Client._Imports).Assembly }">
 
-    <link rel="icon" type="image/png" href="favicon.png" />
-    <HeadOutlet />
-</head>
+    <Found Context="routeData">
+        <RouteView RouteData="routeData"
+                   DefaultLayout="typeof(Layout.MainLayout)"
+                   RenderMode="new InteractiveAutoRenderMode()" @* **กำหนด Interactive Auto ให้ทุกหน้าโดยอัตโนมัติ** *@ />
+        <FocusOnNavigate RouteData="routeData" Selector="h1" />
+    </Found>
 
-<body>
-    <Routes />
-    <script src="_framework/blazor.web.js"></script>
-
-    <script src="_content/AntDesign/js/ant-design-blazor.js"></script>
-
-</body>
-
-</html>
+    <NotFound>
+        @* ส่วนแสดงผลเมื่อไม่พบเส้นทาง (404 Page) *@
+        <PageTitle>Not found</PageTitle>
+        <div class="container-fluid d-flex justify-content-center" style="background-color: #030637; width: 100vw;height: 100vh;">
+            <div class="card m-5" style="border-radius: 1rem; width: 100rem;">
+                <div class="card-header">
+                    <span class="dot"></span>
+                    <span class="dot-2"></span>
+                    <span class="dot-3"></span>
+                </div>
+                <div class="card-body text-center">
+                    <img src="picture/404NotFound.svg" class="img-fluid" alt="Responsive image" width="500"
+                         height="300" />
+                    <h1 class="card-title">Page Not Found</h1>
+                    <p class="card-text fw-light ">
+                        We're sorry.the page you request could not be found
+                        <mark>Please go back to the homepage</mark>
+                    </p>
+                    <NavLink href="" class="btn btn-primary btn-lg">Go Homepage</NavLink>
+                </div>
+            </div>
+        </div>
+    </NotFound>
+</Router>

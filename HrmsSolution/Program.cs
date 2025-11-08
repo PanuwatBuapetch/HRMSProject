@@ -5,6 +5,9 @@ using HrmsSolution.Service; // 👈 (อย่าลืม using Service ขอ�
 
 var builder = WebApplication.CreateBuilder(args);
 
+
+
+
 // Add services to the container.
 builder.Services.AddRazorComponents()
     .AddInteractiveServerComponents()
@@ -69,11 +72,7 @@ app.UseAntiforgery();
 // (ส่วนของ Localization ย้ายมาอยู่ตรงนี้ ถูกต้องแล้ว)
 var cultures = builder.Configuration.GetSection("Cultures").GetChildren().ToDictionary(x => x.Key, x => x.Value);
 var supportedCultures = cultures.Keys.ToArray();
-var localizationOptions = new RequestLocalizationOptions()
-    .AddSupportedCultures(supportedCultures)
-    .AddSupportedUICultures(supportedCultures);
-
-app.UseRequestLocalization(localizationOptions);
+var localizationOptions = new RequestLocalizationOptions().AddSupportedCultures(supportedCultures).AddSupportedUICultures(supportedCultures);
 
 
 // --- 3. Map Razor Components ---
