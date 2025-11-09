@@ -61,6 +61,16 @@ namespace HRMS_API.Service
             existingEmp.DivisionId = employee.DivisionId;
             existingEmp.DeptId = employee.DeptId;
             existingEmp.TeamId = employee.TeamId;
+            existingEmp.TitleId = employee.TitleId;
+            existingEmp.LocationId = employee.LocationId;
+            existingEmp.TeamId = employee.TeamId;
+            existingEmp.UnitId = employee.UnitId;
+            existingEmp.CitizenId = employee.CitizenId;
+            existingEmp.StartDate = employee.StartDate;
+            existingEmp.TerminationDate = employee.TerminationDate;
+            existingEmp.Username = employee.Username;
+            existingEmp.Password = employee.Password;
+            existingEmp.Pincode = employee.Pincode;
             // ... (อัปเดต Field อื่นๆ ที่อนุญาตให้แก้) ...
 
             await context.SaveChangesAsync();

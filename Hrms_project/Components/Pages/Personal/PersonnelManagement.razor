@@ -32,60 +32,7 @@
             </Button>
             </Col>
         </Row>
-
-        <Row Gutter="16" Class="mt-3">
-            <Col Span="4" XXL="3">
-            <Select TItemValue="string" TItem="string"
-                    @bind-Value="@filterFirstName"
-                    Placeholder="ชื่อ-สกุล (ไทย)"
-                    OnSelectedItemChanged="@((_) => ApplyFilter())"
-                    Style="width: 100%">
-                <SelectOptions>
-                    <SelectOption TItemValue="string" TItem="string" Value="@ALL" Label="@ALL" />
-                    <SelectOption TItemValue="string" TItem="string" Value="@SOMCHAI" Label="@SOMCHAI" />
-                    <SelectOption TItemValue="string" TItem="string" Value="@WALLOP" Label="@WALLOP" />
-                </SelectOptions>
-            </Select>
-            </Col>
-            <Col Span="4" XXL="3">
-            <Select TItemValue="string" TItem="string"
-                    @bind-Value="@filterDivision1"
-                    Placeholder="หน่วยงานระดับ 1"
-                    OnSelectedItemChanged="@((_) => ApplyFilter())"
-                    Style="width: 100%">
-                <SelectOptions>
-                    <SelectOption TItemValue="string" TItem="string" Value="@ALL" Label="@ALL" />
-                    <SelectOption TItemValue="string" TItem="string" Value="@PSU" Label="@PSU" />
-                </SelectOptions>
-            </Select>
-            </Col>
-            <Col Span="4" XXL="3">
-            <Select TItemValue="string" TItem="string"
-                    @bind-Value="@filterDivision2"
-                    Placeholder="หน่วยงานระดับ 2"
-                    OnSelectedItemChanged="@((_) => ApplyFilter())"
-                    Style="width: 100%">
-                <SelectOptions>
-                    <SelectOption TItemValue="string" TItem="string" Value="@ALL" Label="@ALL" />
-                    <SelectOption TItemValue="string" TItem="string" Value="@FMS" Label="@FMS" />
-                </SelectOptions>
-            </Select>
-            </Col>
-            <Col Span="4" XXL="3">
-            <Select TItemValue="string" TItem="string"
-                    @bind-Value="@filterStatus"
-                    Placeholder="จัดการสถานะ"
-                    OnSelectedItemChanged="@((_) => ApplyFilter())"
-                    Style="width: 100%">
-                <SelectOptions>
-                    <SelectOption TItemValue="string" TItem="string" Value="@ALL" Label="@ALL" />
-                    <SelectOption TItemValue="string" TItem="string" Value="@ACTIVE" Label="กิจกรรม" />
-                    <SelectOption TItemValue="string" TItem="string" Value="@INACTIVE" Label="ไม่กิจกรรม" />
-                </SelectOptions>
-            </Select>
-            </Col>
-        </Row>
-
+            
         @if (!string.IsNullOrEmpty(errorMessage) && !showAddModal)
         {
             <Alert Message="เกิดข้อผิดพลาดในการโหลดข้อมูล"
@@ -235,6 +182,61 @@
                 <Input @bind-Value="newEmployee.PositionId" />
             </FormItem>
             </Col>
+            <Col Span="12">
+            <FormItem Label="Location ID">
+                <Input @bind-Value="newEmployee.LocationId" />
+            </FormItem>
+            </Col>
+            <Col Span="12">
+            <FormItem Label="Dept ID">
+                <Input @bind-Value="newEmployee.DeptId" />
+            </FormItem>
+            </Col>
+            <Col Span="12">
+            <FormItem Label="Team ID">
+                <Input @bind-Value="newEmployee.TeamId" />
+            </FormItem>
+            </Col>
+            <Col Span="12">
+            <FormItem Label="Title ID">
+                <Input @bind-Value="newEmployee.TitleId" />
+            </FormItem>
+            </Col>
+
+            <Col Span="12">
+            <FormItem Label="Citizen ID">
+                <Input @bind-Value="newEmployee.CitizenId" />
+            </FormItem>
+            </Col>
+            <Col Span="12">
+            <FormItem Label="Username">
+                <Input @bind-Value="newEmployee.Username" />
+            </FormItem>
+            </Col>
+
+            @* --- Fields เกี่ยวกับวันทำงาน (ใช้ InputText ธรรมดา เนื่องจากไม่ใช่ Date Type ใน Model) --- *@
+            <Col Span="12">
+            <FormItem Label="Start Date">
+                <Input @bind-Value="newEmployee.StartDate" Placeholder="YYYYMMDD" />
+            </FormItem>
+            </Col>
+            <Col Span="12">
+            <FormItem Label="Termination Date">
+                <Input @bind-Value="newEmployee.TerminationDate" Placeholder="YYYYMMDD" />
+            </FormItem>
+            </Col>
+
+            @* --- Optional: Password/Pincode (ควรใช้ InputPassword) --- *@
+            <Col Span="12">
+            <FormItem Label="Password">
+                <Input @bind-Value="newEmployee.Password" Type="@InputType.Password" />
+            </FormItem>
+            </Col>
+            <Col Span="12">
+            <FormItem Label="Pincode">
+                <Input @bind-Value="newEmployee.Pincode" Type="@InputType.Password" />
+            </FormItem>
+            </Col>
         </Row>
 
         <FormItem WrapperColOffset="6">
@@ -301,14 +303,7 @@
     private List<Employee> personnel = new();
     private bool isLoading = true;
 
-    // Constants for select options
-    private const string ALL = "ทั้งหมด";
-    private const string SOMCHAI = "สมชาย";
-    private const string WALLOP = "วัลลภ";
-    private const string PSU = "มหาวิทยาลัยสงขลานครินทร์";
-    private const string FMS = "คณะวิทยาการจัดการ";
-    private const string ACTIVE = "Active";
-    private const string INACTIVE = "Inactive";
+
 
     // Filter parameters
     private string searchText = "";

@@ -14,115 +14,253 @@
 @inject NavigationManager NavigationManager
 @inject MessageService MessageService
 
-<PageTitle>รายละเอียดบุคลากร</PageTitle>
+<PageTitle>รายละเอียดข้อมูลบุคลากร</PageTitle>
 
-@* Optional context header for different organizational views *@
-@if (ContextIsEmpCampView || ContextIsEmpFacView || ContextIsEmpDeptView || ContextIsEmpSecView || ContextIsEmpUnitView)
-{
-    <div class="employees-title mb-3">
-        <Breadcrumb>
-            <BreadcrumbItem Href="/">
-                <Icon Type="home" />
-                <span>หน้าแรก</span>
-            </BreadcrumbItem>
-            <BreadcrumbItem Href="/organization">
-                <Icon Type="apartment" />
-                <span>โครงสร้างองค์กร</span>
-            </BreadcrumbItem>
-            <BreadcrumbItem>
-                <Icon Type="user" />
-                @if (ContextIsEmpCampView) { <span>ข้อมูลบุคลากร (Campus)</span> }
-                @if (ContextIsEmpFacView) { <span>ข้อมูลบุคลากร (Faculty)</span> }
-                @if (ContextIsEmpDeptView) { <span>ข้อมูลบุคลากร (Department)</span> }
-                @if (ContextIsEmpSecView) { <span>ข้อมูลบุคลากร (Section)</span> }
-                @if (ContextIsEmpUnitView) { <span>ข้อมูลบุคลากร (Unit)</span> }
-            </BreadcrumbItem>
-        </Breadcrumb>
-    </div>
-}
+<div class="employees-title mb-3">
+    <Breadcrumb>
+        <BreadcrumbItem Href="/">
+            <Icon Type="home" />
+            <span>หน้าแรก</span>
+        </BreadcrumbItem>
+        <BreadcrumbItem Href="organization">
+            <Icon Type="apartment" />
+            <span>โครงสร้างองค์กร</span>
+        </BreadcrumbItem>
+        <BreadcrumbItem Href="/personnel">
+            <Icon Type="user" />
+            <span>รายการบุคลากร</span>
+        </BreadcrumbItem>
+        <BreadcrumbItem>รายละเอียด</BreadcrumbItem>
+    </Breadcrumb>
+</div>
 
 <div class="personnel-detail-container">
-    <Card Class="content-card">
-        @if (isLoading)
-        {
-            <Spin />
-        }
-        else if (!string.IsNullOrEmpty(errorMessage))
-        {
-            <Alert Message="ไม่สามารถโหลดข้อมูลบุคลากร" Description="@errorMessage" Type="@AlertType.Error" ShowIcon="true" />
-            <div style="margin-top:12px;">
-                <Button OnClick="NavigateBack">กลับไปหน้ารายการ</Button>
-            </div>
-        }
-        else if (employee != null)
-        {
-            <AntDesign.Row Gutter="16">
-                <AntDesign.Col Span="6">
+    <h2 class="mb-4">รายละเอียดข้อมูลบุคลากร</h2>
+
+    @if (isLoading)
+    {
+        <div style="text-align:center; padding: 50px;"><Spin Size="SpinSize.Large" /></div>
+    }
+    else if (!string.IsNullOrEmpty(errorMessage))
+    {
+        <Alert Message="ไม่สามารถโหลดข้อมูลบุคลากร" Description="@errorMessage" Type="@AlertType.Error" ShowIcon="true" />
+        <div style="margin-top:12px;">
+            <Button OnClick="NavigateBack">กลับไปหน้ารายการ</Button>
+        </div>
+    }
+    else if (employee != null)
+    {
+        <AntDesign.Row Gutter="16">
+            <AntDesign.Col Span="6">
+                <Card Class="profile-card">
                     <div style="text-align:center;">
                         @if (!string.IsNullOrWhiteSpace(employee.PictureUrl))
                         {
-                            <img src="@employee.PictureUrl" alt="Profile" style="width:140px;height:140px;object-fit:cover;border-radius:8px;border:1px solid #eee;" />
+                            <img src="@employee.PictureUrl" alt="Profile" class="profile-img" />
                         }
                         else
                         {
-                            <div style="width:140px;height:140px;display:flex;align-items:center;justify-content:center;background:#f5f5f5;border-radius:8px;font-size:28px;color:#666;">@GetInitials(employee.FullNameThai ?? employee.FullNameEng)</div>
+                            <div class="profile-placeholder">@GetInitials(employee.FullNameThai ?? employee.FullNameEng)</div>
                         }
 
-                        <h3 style="margin-top:12px">@((employee.FullNameThai ?? employee.FullNameEng) ?? "-")</h3>
-                        <div style="color:#888">ID: @employee.EmployeeId</div>
-                        <div style="margin-top:8px">
-                            <Tag Color="@(employee.EmploymentStatus == "กิจกรรม" ? "blue" : "default")">@(employee.EmploymentStatus ?? "-")</Tag>
-                        </div>
-                    </div>
-                </AntDesign.Col>
-                <AntDesign.Col Span="18">
-                    <div class="detail-grid">
-                        <div class="detail-row"><strong>ชื่อ (ไทย):</strong> @((employee.FirstNameThai ?? "") + " " + (employee.LastNameThai ?? ""))</div>
-                        <div class="detail-row"><strong>Name (ENG):</strong> @((employee.FirstNameEng ?? "") + " " + (employee.LastNameEng ?? ""))</div>
-                        <div class="detail-row"><strong>อีเมล:</strong> @(employee.Email ?? "-")</div>
-                        <div class="detail-row"><strong>ตำแหน่ง:</strong> @(employee.PositionNameThai ?? employee.PositionNameEng ?? "-")</div>
-                        <div class="detail-row"><strong>หน่วยงาน:</strong> @(employee.DivisionNameThai ?? employee.DivisionNameEng ?? "-")</div>
-                        <div class="detail-row"><strong>ฝ่าย/แผนก:</strong> @(employee.DeptNameThai ?? employee.DeptNameEng ?? "-")</div>
-                        <div class="detail-row"><strong>หน่วยงานย่อย:</strong> @(employee.UnitNameThai ?? employee.UnitNameEng ?? "-")</div>
-                        <div class="detail-row"><strong>สถานที่ทำงาน:</strong> @(employee.LocationNameThai ?? employee.LocationNameEng ?? "-")</div>
-                        <div class="detail-row"><strong>วันที่เริ่ม:</strong> @(employee.StartDate ?? "-")</div>
-                        <div class="detail-row"><strong>วันที่สิ้นสุด:</strong> @(employee.EndDate ?? employee.TerminationDate ?? "-")</div>
-                        <div class="detail-row"><strong>หมายเลขบัตรประชาชน:</strong> @(employee.CitizenId ?? "-")</div>
+                        <h3 class="mt-3">@((employee.FullNameThai ?? employee.FullNameEng) ?? "ไม่ระบุชื่อ")</h3>
+                        <div class="text-muted">MR. @(employee.FullNameEng ?? "-")</div>
                     </div>
 
-                    <div style="margin-top:16px">
-                        <Space>
-                            <Button OnClick="NavigateBack">กลับ</Button>
-                            <Button Type="@ButtonType.Primary" OnClick="EditEmployee">
-                                <Icon Type="@(Outline.Edit)" /> แก้ไข
-                            </Button>
-                            <Button OnClick="ManageDivision">
-                                <Icon Type="@(Outline.Setting)" /> จัดการหน่วยงาน
-                            </Button>
-                        </Space>
+                    <Divider Class="my-3" />
+
+                    <div class="profile-info-list">
+                        <div class="info-item">
+                            <Icon Type="desktop" Theme="IconThemeType.Outline" /> @(employee.PositionNameThai ?? "ไม่ระบุตำแหน่ง")
+                        </div>
+                        <div class="info-item">
+                            <Icon Type="mail" Theme="IconThemeType.Outline" /> @(employee.Email ?? "-")
+                        </div>
+                        <div class="info-item">
+                            <Icon Type="apartment" Theme="IconThemeType.Outline" /> @(employee.DivisionNameThai ?? employee.DivisionNameEng ?? "ไม่ระบุหน่วยงาน")
+                        </div>
                     </div>
-                </AntDesign.Col>
-            </AntDesign.Row>
-        }
-    </Card>
+                </Card>
+            </AntDesign.Col>
+
+            <AntDesign.Col Span="18">
+                <Card Title="ข้อมูลส่วนตัว" Class="mb-4 detail-card">
+                    <div class="detail-grid">
+                        <div class="detail-row">
+                            <strong>ชื่อ-สกุล (ภาษาไทย):</strong>
+                            <span class="detail-value">@((employee.TitleNameThai ?? "นาย") + " " + (employee.FirstNameThai ?? "") + " " + (employee.LastNameThai ?? ""))</span>
+                        </div>
+                        <div class="detail-row">
+                            <strong>ชื่อ-สกุล (ภาษาอังกฤษ):</strong>
+                            <span class="detail-value">@(employee.TitleNameEng ?? "MR.") @((employee.FirstNameEng ?? "") + " " + (employee.LastNameEng ?? ""))</span>
+                        </div>
+                        <div class="detail-row">
+                            <strong>อีเมล:</strong> <span class="detail-value">@(employee.Email ?? "-")</span>
+                        </div>
+                        <div class="detail-row">
+                            <strong>รหัสผู้ใช้:</strong> <span class="detail-value">@(employee.EmployeeId ?? "-")</span>
+                        </div>                     
+                        <div class="detail-row">
+                            <strong>ตำแหน่งหลัก:</strong> <span class="detail-value">@(employee.PositionNameThai ?? "-")</span>
+                        </div>
+                        <div class="detail-row">
+                            <strong>ตำแหน่งบริหาร (ผู้บริหาร):</strong>
+                            <span class="detail-value">@(employee.EmploymentStatus ?? "-")</span>
+                        </div>
+                        <div class="detail-row">
+                            <strong>หมายเลขประจำตัวประชาชน:</strong> <span class="detail-value">@(employee.CitizenId ?? "-")</span>
+                        </div>
+                    </div>
+                </Card>
+
+                <Card Title="ข้อมูลการทำงาน" Class="mb-4 detail-card">
+                    <div class="detail-grid">
+                        <div class="detail-row">
+                            <strong>องค์กร:</strong>
+                            <span class="detail-value">มหาวิทยาลัยสงขลานครินทร์</span>
+                        </div>
+                        <div class="detail-row">
+                            <strong>หน่วยงานระดับ 1:</strong>
+                            <span class="detail-value">@(employee.DivisionNameThai ?? employee.DivisionNameEng ?? "-")</span>
+                        </div>
+                        <div class="detail-row">
+                            <strong>ฝ่าย/แผนก:</strong>
+                            <span class="detail-value">@(employee.DeptNameThai ?? employee.DeptNameEng ?? "-")</span>
+                        </div>
+                        <div class="detail-row">
+                            <strong>หน่วยงานย่อย:</strong>
+                            <span class="detail-value">@(employee.UnitNameThai ?? employee.UnitNameEng ?? "-")</span>
+                        </div>
+                        <div class="detail-row">
+                            <strong>สถานที่ทำงาน:</strong>
+                            <span class="detail-value">@(employee.LocationNameThai ?? employee.LocationNameEng ?? "-")</span>
+                        </div>
+                        <div class="detail-row">
+                            <strong>วันเริ่ม(จริง) เริ่มต้นทำงาน (บรรจุราชการ):</strong>
+                            <span class="detail-value">@(employee.StartDate ?? "-")</span>
+                        </div>
+                        <div class="detail-row">
+                            <strong>วันสิ้นสุด การสิ้นสุดการทำงาน (เกษียณ/ลาออก):</strong>
+                            <span class="detail-value">@(employee.TerminationDate ?? employee.EndDate ?? "-")</span>
+                        </div>
+                    </div>
+                </Card>
+
+                <Space Class="mt-3">
+                    <Button OnClick="NavigateBack">กลับ</Button>
+                    <Button Type="@ButtonType.Primary" OnClick="EditEmployee">
+                        <Icon Type="@(Outline.Edit)" /> แก้ไข
+                    </Button>
+                    <Button OnClick="ManageDivision">
+                        <Icon Type="@(Outline.Setting)" /> จัดการหน่วยงาน
+                    </Button>
+                </Space>
+
+            </AntDesign.Col>
+        </AntDesign.Row>
+    }
 </div>
 
 <style>
-    .personnel-detail-container { padding: 16px; }
-    .content-card .ant-card-body { padding: 18px !important; }
-    .detail-grid { display: grid; grid-template-columns: 1fr; gap: 8px; }
-    .detail-row { padding: 6px 0; border-bottom: 1px dashed #f0f0f0; }
+    .personnel-detail-container {
+        padding: 16px;
+        max-width: 1200px;
+        margin: 0 auto;
+    }
+
+    .profile-card {
+        text-align: center;
+        height: 100%;
+    }
+
+    .profile-img {
+        width: 140px;
+        height: 140px;
+        object-fit: cover;
+        border-radius: 8px;
+        border: 1px solid #eee;
+    }
+
+    .profile-placeholder {
+        width: 140px;
+        height: 140px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: #f5f5f5;
+        border-radius: 50%;
+        font-size: 28px;
+        color: #666;
+        margin: 0 auto;
+    }
+
+    .profile-info-list {
+        text-align: left;
+    }
+
+        .profile-info-list .info-item {
+            margin-bottom: 8px;
+            font-size: 14px;
+            color: #555;
+        }
+
+            .profile-info-list .info-item .anticon {
+                margin-right: 8px;
+                color: #1890ff;
+            }
+
+    .detail-card .ant-card-head-title {
+        font-size: 18px;
+        font-weight: 600;
+    }
+
+    .detail-grid {
+        display: grid;
+        grid-template-columns: 1fr;
+        gap: 8px;
+    }
+
+    .detail-row {
+        padding: 6px 0;
+        font-size: 14px;
+    }
+
+        .detail-row strong {
+            color: #555;
+            display: inline-block;
+            width: 250px;
+        }
+
+    .detail-value {
+        font-weight: 500;
+        color: #333;
+    }
+
+    @@media (max-width: 992px) {
+        .detail-row strong {
+            width: 100%;
+            display: block;
+        }
+    }
 </style>
 
 @code {
     [Parameter]
     public string EmployeeId { get; set; } = string.Empty;
 
+    // NOTE: VEmployeeDetail ในโค้ดจริงของคุณควรมี Property สำหรับชื่อเต็มของหน่วยงาน/ตำแหน่ง/คำนำหน้าชื่อด้วย
+    // VEmployeeDetail ที่ใช้ในโค้ดนี้ต้องมีฟิลด์เหล่านี้:
+    /*
+    * EmployeeId, FirstNameThai, LastNameThai, FirstNameEng, LastNameEng, Email, Username, CitizenId,
+    * PositionNameThai, PositionNameEng, DivisionNameThai, DivisionNameEng, DeptNameThai, DeptNameEng,
+    * UnitNameThai, UnitNameEng, LocationNameThai, LocationNameEng, StartDate, TerminationDate, EndDate,
+    * ManagementPositionNameThai, PictureUrl, EmploymentStatus, TitleNameThai, TitleNameEng, SecretCode, Password (for check)
+    */
     private VEmployeeDetail? employee;
     private bool isLoading = true;
     private string errorMessage = string.Empty;
 
-    // context flags
+    // context flags (สำหรับ Breadcrumb)
     private bool ContextIsEmpCampView;
     private bool ContextIsEmpFacView;
     private bool ContextIsEmpDeptView;
@@ -138,7 +276,6 @@
     private void DetermineContextFromUri()
     {
         var relative = NavigationManager.ToBaseRelativePath(NavigationManager.Uri).ToLowerInvariant();
-        // relative may be like "empview/123" or "personnel/123"
         ContextIsEmpCampView = relative.StartsWith("empview/");
         ContextIsEmpFacView = relative.StartsWith("empfacview/");
         ContextIsEmpDeptView = relative.StartsWith("empdeptview/");
@@ -154,6 +291,7 @@
 
         try
         {
+            // Assuming GetEmployeeDetailsByIdAsync returns the joined VEmployeeDetail data
             employee = await EmployeeDetailsService.GetEmployeeDetailsByIdAsync(EmployeeId);
 
             if (employee == null)
@@ -182,19 +320,14 @@
     {
         if (string.IsNullOrWhiteSpace(name)) return "";
         var parts = name.Split(' ', StringSplitOptions.RemoveEmptyEntries);
+        // Returns the first letter of the first two words (e.g., PANUWAT BUAPETCH -> PB)
         return string.Concat(parts.Take(2).Select(p => p[0])).ToUpperInvariant();
     }
 
-    // Navigation helpers to avoid inline lambdas with nested quotes
     private void NavigateBack()
     {
-        // choose reasonable back URL depending on context
-        if (ContextIsEmpCampView) NavigationManager.NavigateTo($"/empview/{EmployeeId}");
-        else if (ContextIsEmpFacView) NavigationManager.NavigateTo($"/empfacview/{EmployeeId}");
-        else if (ContextIsEmpDeptView) NavigationManager.NavigateTo($"/empdeptview/{EmployeeId}");
-        else if (ContextIsEmpSecView) NavigationManager.NavigateTo($"/empsecview/{EmployeeId}");
-        else if (ContextIsEmpUnitView) NavigationManager.NavigateTo($"/empunitview/{EmployeeId}");
-        else NavigationManager.NavigateTo("/personnel");
+        // Simple navigation back to the general personnel list
+        NavigationManager.NavigateTo("/personnel");
     }
 
     private void EditEmployee()

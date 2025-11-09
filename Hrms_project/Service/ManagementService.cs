@@ -7,6 +7,7 @@ namespace HrmsSolution.Service
     {
         private readonly HttpClient _httpClient;
         private const string ApiPath = "api/Management";
+        private const string ViewApiPath = "api/VManagementDetails";
 
         public ManagementService(IHttpClientFactory httpClientFactory)
         {
@@ -15,7 +16,7 @@ namespace HrmsSolution.Service
 
         public async Task<List<Management>> GetAllManagementAsync()
         {
-            return await _httpClient.GetFromJsonAsync<List<Management>>(ApiPath);
+            return await _httpClient.GetFromJsonAsync<List<Management>>(ApiPath) ?? new List<Management>();
         }
 
         public async Task<Management> GetManagementByIdAsync(string id)
@@ -40,6 +41,17 @@ namespace HrmsSolution.Service
         {
             var response = await _httpClient.DeleteAsync($"{ApiPath}/{id}");
             return response.IsSuccessStatusCode;
+        }
+
+        // View-specific methods
+        public async Task<List<VManagementDetail>> GetAllManagementDetailsAsync()
+        {
+            return await _httpClient.GetFromJsonAsync<List<VManagementDetail>>(ViewApiPath) ?? new List<VManagementDetail>();
+        }
+
+        public async Task<VManagementDetail?> GetManagementDetailByIdAsync(string id)
+        {
+            return await _httpClient.GetFromJsonAsync<VManagementDetail>($"{ViewApiPath}/{id}");
         }
     }
 }

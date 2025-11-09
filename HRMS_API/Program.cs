@@ -27,6 +27,7 @@ builder.Services.AddScoped<WorkUnitService>();
 // (Services สำหรับ Views)
 builder.Services.AddScoped<VEmployeeDetailsService>();
 builder.Services.AddScoped<VManagementDetailsService>();
+builder.Services.AddScoped<IOrganizationStructureService, OrganizationStructureService>();
 
 
 var app = builder.Build();

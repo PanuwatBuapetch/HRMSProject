@@ -1,260 +1,326 @@
 ﻿@page "/organization"
+@rendermode InteractiveServer
+@using Datamodels.Hrms
+@using HrmsSolution.Service
+@using AntDesign
+@inject IOrganizationService OrganizationService
+@inject MessageService MessageService
+
+<PageTitle>โครงสร้างองค์กร</PageTitle>
 
 <style>
-    /* Styling for the overall page and structure */
-    .organization-container {
-        padding: 20px;
-        background-color: #f8f9fa; /* Light gray background for the content area */
-        font-family: Arial, sans-serif;
+    .org-chart-container {
+        padding: 24px;
+        background-color: #f8f9fa;
+        overflow-x: auto;
+        min-width: 900px;
     }
 
-    .org-chart-title {
-        color: #007bff; /* Blue color for title */
-        font-size: 1.5rem;
-        margin-bottom: 20px;
-        border-bottom: 3px solid #007bff;
-        padding-bottom: 10px;
-    }
-
-    /* Basic box styling for organization units */
-    .org-unit-box {
-        border: 1px solid #ccc;
-        padding: 10px;
-        margin: 5px;
-        text-align: center;
-        background-color: white;
-        min-width: 150px;
-        height: auto;
+    .org-chart-header {
         display: flex;
         align-items: center;
-        justify-content: center;
-        font-size: 0.9rem;
-        cursor: pointer;
-        transition: background-color 0.2s;
-        border-radius: 5px;
+        gap: 16px;
+        margin-bottom: 16px;
     }
 
-        .org-unit-box:hover {
-            background-color: #e9ecef;
-        }
-
-    /* Styling for the main organizational chart layout (uses Flexbox for simplicity) */
-    .org-chart-main {
+    .org-chart-grid {
         display: flex;
         flex-direction: column;
-        align-items: center;
+        gap: 12px;
     }
 
-    /* Styling for the main levels */
-    .org-level {
+    .division-row {
         display: flex;
-        justify-content: center;
-        width: 100%;
-        margin-top: 30px;
-        position: relative; /* For drawing connecting lines/pseudo-elements later */
+        gap: 12px;
+        flex-wrap: wrap;
     }
 
-    .org-level-row {
-        display: flex;
-        justify-content: center;
-        width: 100%;
+    .unit-tag {
+        margin-right: 6px;
+        margin-bottom: 6px;
     }
 
-    .org-column {
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        padding: 0 10px;
+    .card-division {
+        min-width: 300px;
+        width: 320px;
     }
 
-    /* Utility for simple 'connector' line appearance */
-    .connector-line {
-        height: 30px;
-        width: 1px;
-        background-color: #000;
-        margin: 0 auto;
+    .dept-card {
+        margin-top: 8px;
     }
 
-    /* Specific styling for the top box (อธิการบดี) */
-    .org-top-box {
-        font-weight: bold;
-        background-color: #d1ecf1; /* Light blue/teal background */
+    .search-box {
+        width: 320px;
     }
-
-    /* Styling for the 'สำนักงานอธิการบดี' section (the dense middle part) */
-    .office-of-president {
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        margin: 20px 0;
-    }
-
-    .office-section-row {
-        display: flex;
-        justify-content: center;
-        align-items: flex-start;
-    }
-
-    .office-column-group {
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        margin: 0 10px;
-    }
-
-    .office-sub-unit {
-        margin-top: 10px;
-    }
-
-    .office-label {
-        margin-top: 5px;
-        font-size: 0.8rem;
-        color: #6c757d;
-    }
-
-    /* Style for the 'หมายเหตุ' box */
-    .note-box {
-        border: 1px solid #ffc107;
-        padding: 5px 10px;
-        background-color: #fff3cd;
-        color: #856404;
-        font-size: 0.8rem;
-        margin-top: 10px;
-        border-radius: 3px;
-    }
-
 </style>
 
-<div class="organization-container">
-    <div class="org-chart-title">โครงสร้างองค์กร</div>
+<div class="org-chart-container">
+    <div class="org-chart-header">
+        <h3 style="margin:0;">โครงสร้างองค์กร</h3>
 
-    <div class="org-chart-main">
-
-        <div class="org-level">
-            <div class="org-unit-box org-top-box">อธิการบดี/คณะกรรมการ</div>
+        <div class="search-box">
+            <AntDesign.Input Placeholder="ค้นหาชื่อสำนัก/กอง..."
+                             Value="searchTerm"
+                             ValueChanged="@((string v) => { searchTerm = v ?? string.Empty; ApplyFilter(); })" />
         </div>
 
-        <div class="connector-line"></div>
-
-        <div class="org-level org-level-row">
-            <div class="org-unit-box">โรงพยาบาล ม.อ.</div>
-            <div class="org-unit-box">กรรมการตรวจสอบ (ม.อ.)</div>
-            <div class="org-unit-box">กรรมการนโยบาย...</div>
-            <div class="org-unit-box">กรรมการเงิน... (อ.ส.ท.)</div>
-            <div class="org-unit-box">กรรมการบริหาร...</div>
-            <div class="org-unit-box">กรรมการบริหารเงิน...</div>
-            <div class="org-unit-box">กรรมการบริหารกองทุน...</div>
-            <div class="org-unit-box">กรรมการบริหาร...</div>
-            <div class="org-unit-box">กรรมการบริหาร...</div>
-            <div class="org-unit-box">กรรมการบริหาร...</div>
-            <div class="org-unit-box">กรรมการวิสามัญ...</div>
+        <div style="margin-left:auto; display:flex; gap:8px; align-items:center;">
+            <Button Type="@ButtonType.Primary" OnClick="@LoadOrganizationData">รีเฟรช</Button>
+            <Button Type="@ButtonType.Default" OnClick="@SeedSampleDataAsync">สร้างข้อมูลตัวอย่าง</Button>
         </div>
-
-        <div class="connector-line" style="height: 50px;"></div>
-
-        <div class="org-level org-level-row">
-            <div class="office-column-group" style="margin-right: 50px;">
-                <div class="org-unit-box">กองบริหารวิชาการ</div>
-                <div class="office-sub-unit">
-                    <div class="org-unit-box">กองบริหารงานวิจัย...</div>
-                </div>
-                <div class="office-sub-unit">
-                    <div class="org-unit-box">ศูนย์นวัตกรรม</div>
-                </div>
-                <div class="office-sub-unit">
-                    <div class="org-unit-box">ศูนย์บริการวิชาการ...</div>
-                </div>
-            </div>
-
-            <div class="office-column-group">
-                <div class="org-unit-box org-top-box">สำนักงานอธิการบดี</div>
-                <div class="note-box">หมายเหตุ</div>
-                <div class="office-sub-unit">
-                    <div class="org-unit-box">กองการเจ้าหน้าที่</div>
-                </div>
-                <div class="office-sub-unit">
-                    <div class="org-unit-box">กองนโยบายและแผน</div>
-                </div>
-                <div class="office-sub-unit">
-                    <div class="org-unit-box">กองส่งเสริมชีวิตและ...</div>
-                </div>
-                <div class="office-sub-unit">
-                    <div class="org-unit-box">ศูนย์ปฏิบัติการและ...</div>
-                </div>
-                <div class="office-sub-unit">
-                    <div class="org-unit-box">ศูนย์ข้อมูลสารสนเทศ...</div>
-                </div>
-            </div>
-
-            <div class="office-column-group" style="margin-left: 50px;">
-                <div class="org-unit-box">กองคลัง</div>
-                <div class="office-sub-unit">
-                    <div class="org-unit-box">สำนักงานตรวจสอบ 1</div>
-                </div>
-                <div class="office-sub-unit">
-                    <div class="org-unit-box">สำนักงานตรวจสอบ 2</div>
-                </div>
-                <div class="office-sub-unit">
-                    <div class="org-unit-box">สำนักงานตรวจสอบ 3</div>
-                </div>
-                <div class="office-sub-unit">
-                    <div class="org-unit-box">สำนักงานตรวจสอบ 4</div>
-                </div>
-                <div class="office-sub-unit">
-                    <div class="org-unit-box">สำนักงานตรวจสอบ 5</div>
-                </div>
-            </div>
-        </div>
-
-        <div class="connector-line" style="height: 50px;"></div>
-
-        <div class="org-level org-level-row">
-            <div class="org-column">
-                <div class="org-unit-box">วิทยาเขต มหาวิทยาลัยสงขลานครินทร์</div>
-                <div class="office-sub-unit">
-                    <div class="org-unit-box">กองกลางมหาวิทยาลัย</div>
-                </div>
-                <div class="office-sub-unit">
-                    <div class="org-unit-box">กองบริหารมหาวิทยาลัย</div>
-                </div>
-            </div>
-
-            <div class="org-column">
-                <div class="org-unit-box">สถาบันวิจัย...</div>
-                <div class="office-sub-unit">
-                    <div class="org-unit-box">ศูนย์อินเดียศึกษา</div>
-                </div>
-            </div>
-
-            <div class="org-column">
-                <div class="org-unit-box">ศูนย์เครื่องมือแพทย์...</div>
-            </div>
-
-            <div class="org-column">
-                <div class="org-unit-box">ส.บ.พ. มหาวิทยาลัย...</div>
-            </div>
-
-            <div class="org-column">
-                <div class="org-unit-box">สำนักงานการเงิน...</div>
-            </div>
-
-            <div class="org-column">
-                <div class="org-unit-box">สำนักงาน ธ.น.ก.</div>
-            </div>
-
-            <div class="org-column">
-                <div class="org-unit-box">สถาบันภาษา</div>
-            </div>
-
-            <div class="org-column">
-                <div class="org-unit-box">สำนักงานกองทุน...</div>
-            </div>
-        </div>
-
     </div>
 
+    @if (isLoading)
+    {
+        <div style="text-align:center; padding:28px;">
+            <Spin Size="@SpinSize.Large" />
+        </div>
+    }
+    else if (filteredDivisions is null || !filteredDivisions.Any())
+    {
+        <div style="padding:16px;">
+            ไม่พบข้อมูลสำนัก/กอง
+            <div style="margin-top:8px;">
+                <Button Type="@ButtonType.Primary" OnClick="@SeedSampleDataAsync">สร้างข้อมูลตัวอย่าง</Button>
+            </div>
+        </div>
+    }
+    else
+    {
+        <div class="org-chart-grid">
+            @foreach (var division in filteredDivisions)
+            {
+                <Card Title="@(division.DivisionNameThai ?? division.DivisionNameEng)" Class="card-division">
+                    <div>
+                        <div style="font-size:0.9rem; color:#666; margin-bottom:8px;">
+                            รหัส: @division.DivisionId
+                        </div>
+
+                        <div class="division-row">
+                            @{
+                                var depts = departments.Where(d => d.DivisionId == division.DivisionId).ToList();
+                            }
+
+                            @if (!depts.Any())
+                            {
+                                <div style="color:#999">ไม่มีฝ่าย/แผนก</div>
+                            }
+                            else
+                            {
+                                foreach (var dept in depts)
+                                {
+                                    <Card Size="@CardSize.Small" Title="@(dept.DeptNameThai ?? dept.DeptNameEng)" Class="dept-card">
+                                        <div style="font-size:0.85rem; color:#666; margin-bottom:6px;">รหัส: @dept.DeptId</div>
+                                        <div>
+                                            @{
+                                                var units = workUnits.Where(u => u.DeptId == dept.DeptId).ToList();
+                                            }
+                                            @if (!units.Any())
+                                            {
+                                                <div style="color:#999">ไม่มีหน่วย</div>
+                                            }
+                                            else
+                                            {
+                                                foreach (var u in units)
+                                                {
+                                                    <Tag Color="@TagColor.Blue" Class="unit-tag">@((u.UnitNameThai ?? u.UnitNameEng))</Tag>
+                                                }
+                                            }
+                                        </div>
+                                    </Card>
+                                }
+                            }
+                        </div>
+                    </div>
+                </Card>
+            }
+        </div>
+    }
 </div>
 
 @code {
-    // No C# code needed for this static display
+    private bool isLoading = true;
+    private string searchTerm = string.Empty;
+
+    private List<Division> divisions = new();
+    private List<Division> filteredDivisions = new();
+    private List<Department> departments = new();
+    private List<WorkUnit> workUnits = new();
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadOrganizationData();
+    }
+
+    private async Task LoadOrganizationData()
+    {
+        try
+        {
+            isLoading = true;
+
+            divisions = await OrganizationService.GetAllDivisionsAsync();
+            departments.Clear();
+            workUnits.Clear();
+
+            // load departments and units for each division (sequential for simplicity)
+            foreach (var div in divisions)
+            {
+                try
+                {
+                    var divDepts = await OrganizationService.GetDepartmentsByDivisionIdAsync(div.DivisionId);
+                    if (divDepts != null && divDepts.Any())
+                    {
+                        departments.AddRange(divDepts);
+
+                        foreach (var d in divDepts)
+                        {
+                            try
+                            {
+                                var deptUnits = await OrganizationService.GetWorkUnitsByDepartmentIdAsync(d.DeptId);
+                                if (deptUnits != null && deptUnits.Any())
+                                {
+                                    workUnits.AddRange(deptUnits);
+                                }
+                            }
+                            catch (Exception)
+                            {
+                                // ignore unit load errors for single dept to keep UI resilient
+                            }
+                        }
+                    }
+                }
+                catch (Exception)
+                {
+                    // ignore department load errors per division
+                }
+            }
+
+            ApplyFilter();
+        }
+        catch (Exception ex)
+        {
+            // MessageService.Error can be awaited but previously used without await - keep consistent
+             MessageService.Error($"โหลดข้อมูลล้มเหลว: {ex.Message}");
+        }
+        finally
+        {
+            isLoading = false;
+            StateHasChanged();
+        }
+    }
+
+    private async Task SeedSampleDataAsync()
+    {
+        if (divisions != null && divisions.Any())
+        {
+            MessageService.Info("มีข้อมูลอยู่แล้ว ไม่ต้องสร้างข้อมูลตัวอย่าง");
+            return;
+        }
+
+        isLoading = true;
+        try
+        {
+            // Define sample data
+            var sampleDivisions = new List<Division>
+            {
+                new Division { DivisionId = "D001", DivisionNameThai = "สำนักทรัพยากรบุคคล", DivisionNameEng = "Human Resources", Isactive = "1" },
+                new Division { DivisionId = "D002", DivisionNameThai = "สำนักการเงิน", DivisionNameEng = "Finance", Isactive = "1" }
+            };
+
+            var sampleDepartments = new List<Department>
+            {
+                new Department { DeptId = "DP001", DeptNameThai = "ฝ่ายสรรหา", DeptNameEng = "Recruitment", DivisionId = "D001", Isactive = "1" },
+                new Department { DeptId = "DP002", DeptNameThai = "ฝ่ายพัฒนาบุคลากร", DeptNameEng = "Staff Development", DivisionId = "D001", Isactive = "1" },
+                new Department { DeptId = "DP003", DeptNameThai = "ฝ่ายบัญชี", DeptNameEng = "Accounting", DivisionId = "D002", Isactive = "1" }
+            };
+
+            var sampleUnits = new List<WorkUnit>
+            {
+                new WorkUnit { UnitId = "U001", UnitNameThai = "หน่วยสรรหา 1", UnitNameEng = "Recruit Unit 1", DeptId = "DP001", Isactive = "1" },
+                new WorkUnit { UnitId = "U002", UnitNameThai = "หน่วยฝึกอบรม", UnitNameEng = "Training Unit", DeptId = "DP002", Isactive = "1" },
+                new WorkUnit { UnitId = "U003", UnitNameThai = "หน่วยบัญชี 1", UnitNameEng = "Accounting Unit 1", DeptId = "DP003", Isactive = "1" }
+            };
+
+            var anyCreatedOnServer = false;
+
+            // Try to add via OrganizationService; if service fails, fall back to local lists
+            foreach (var d in sampleDivisions)
+            {
+                try
+                {
+                    var ok = await OrganizationService.AddDivisionAsync(d);
+                    anyCreatedOnServer = anyCreatedOnServer || ok;
+                }
+                catch
+                {
+                    // ignore and fallback later
+                }
+            }
+
+            foreach (var dept in sampleDepartments)
+            {
+                try
+                {
+                    var ok = await OrganizationService.AddDepartmentAsync(dept);
+                    anyCreatedOnServer = anyCreatedOnServer || ok;
+                }
+                catch
+                {
+                }
+            }
+
+            foreach (var u in sampleUnits)
+            {
+                try
+                {
+                    var ok = await OrganizationService.AddWorkUnitAsync(u);
+                    anyCreatedOnServer = anyCreatedOnServer || ok;
+                }
+                catch
+                {
+                }
+            }
+
+            // If server calls didn't create anything (e.g., API unavailable), add locally so UI shows data
+            if (!anyCreatedOnServer)
+            {
+                divisions.AddRange(sampleDivisions);
+                departments.AddRange(sampleDepartments);
+                workUnits.AddRange(sampleUnits);
+                ApplyFilter();
+            }
+            else
+            {
+                // reload from server
+                await LoadOrganizationData();
+            }
+
+             MessageService.Success("สร้างข้อมูลตัวอย่างเรียบร้อย");
+        }
+        catch (Exception ex)
+        {
+             MessageService.Error($"ไม่สามารถสร้างข้อมูลตัวอย่างได้: {ex.Message}");
+        }
+        finally
+        {
+            isLoading = false;
+            StateHasChanged();
+        }
+    }
+
+    private void ApplyFilter()
+    {
+        if (string.IsNullOrWhiteSpace(searchTerm))
+        {
+            filteredDivisions = divisions.ToList();
+            return;
+        }
+
+        var q = searchTerm.Trim();
+        filteredDivisions = divisions.Where(d =>
+            (d.DivisionNameThai?.Contains(q, StringComparison.OrdinalIgnoreCase) ?? false) ||
+            (d.DivisionNameEng?.Contains(q, StringComparison.OrdinalIgnoreCase) ?? false) ||
+            (d.DivisionId?.Contains(q, StringComparison.OrdinalIgnoreCase) ?? false)
+        ).ToList();
+    }
 }
