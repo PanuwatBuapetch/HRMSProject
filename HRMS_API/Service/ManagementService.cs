@@ -22,11 +22,9 @@ namespace HRMS_API.Service
                 .ToListAsync();
         }
 
-        // (แก้ไข)
         public async Task<Management?> GetManagementByIdAsync(string id)
         {
             using var context = _contextFactory.CreateDbContext();
-            // (แก้ไข)
             return await context.Managements.FindAsync(id);
         }
 
