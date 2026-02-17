@@ -1,4 +1,3 @@
----
 
 ```markdown
 # 🏢 Modern HRMS Management System (Demo)
