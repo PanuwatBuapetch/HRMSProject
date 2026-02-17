@@ -44,13 +44,16 @@
 ## 📸 Screenshots
 
 **หน้ารายงาน Dashboard**
-<img width="2483" height="1274" alt="image" src="https://github.com/user-attachments/assets/b4611393-1578-437c-8a18-f94288560148" />
+<img width="1855" height="915" alt="image" src="https://github.com/user-attachments/assets/ddc65133-0ae0-4339-9a9e-0c03e96bad2a" />
+
 
 **หน้าต่างจัดการข้อมูลบุคลากร Employee**
-<img width="2506" height="1280" alt="image" src="https://github.com/user-attachments/assets/0b507ea4-41fc-4721-8076-80fb99d90bb5" />
+<img width="1856" height="915" alt="image" src="https://github.com/user-attachments/assets/bef016f6-67ee-47ce-ae83-cb7dc72a699f" />
+
 
 **หน้า Login เข้าสู่ระบบ HRMS**
-<img width="2486" height="1278" alt="image" src="https://github.com/user-attachments/assets/39a4e1bb-53d6-42df-9710-a0ce2789c5cd" />
+<img width="1849" height="906" alt="image" src="https://github.com/user-attachments/assets/6ada8910-4eb3-4edb-803f-48047d658d3c" />
+
 
 ---
 
