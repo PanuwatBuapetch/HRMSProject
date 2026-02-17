@@ -1,524 +1,98 @@
 ﻿@page "/executive"
-@rendermode InteractiveServer
-@using CurrieTechnologies.Razor.SweetAlert2
-@using Datamodels.Hrms
-@using HrmsSolution.Service 
 @using AntDesign
-@using static AntDesign.IconType
-@inject IManagementService ManagementService 
-@inject IEmployeeService EmployeeService 
-@inject NavigationManager NavigationManager
-@inject NotificationService NotificationService 
-@inject SweetAlertService Swal
+@using Datamodels.Hrms
+@using Hrms_project.Components.Pages.Executive
+@implements IAsyncDisposable
 
-<PageTitle>ข้อมูลผู้บริหาร</PageTitle>
+<PageTitle>จัดการข้อมูลผู้บริหาร | HRMS</PageTitle>
 
-<div class="hrms-container">
-    <h3>ข้อมูลผู้บริหาร</h3>
-
-    <div class="content-header">
-        <div class="search-bar-main">
-            <input type="text" placeholder="ค้นหาชื่อ-สกุล" class="form-control" @bind="SearchTerm" @bind:event="oninput" />
-            <button class="btn btn-primary" @onclick="LoadExecutives">ค้นหา</button>
-        </div>
-        <button class="btn-add-executive" @onclick="OpenSelectionModal">
-            <span class="oi oi-plus" aria-hidden="true"></span> เพิ่มผู้บริหาร
-        </button>
+<div class="container-fluid py-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h3 class="fw-bold text-primary m-0">
+            <Icon Type="team" Theme="IconThemeType.Outline" /> ระบบจัดการผู้บริหาร
+        </h3>
+        <Button Type="@ButtonType.Primary" Icon="plus" OnClick="OpenSelectionModal" Size="@ButtonSize.Large">
+            แต่งตั้งผู้บริหาร
+        </Button>
     </div>
 
-    @if (IsLoading)
-    {
-        <div style="text-align: center; padding: 50px;">
-            <Spin Size="SpinSize.Large" />
-        </div>
-    }
-    else
-    {
-        <div class="table-container">
-            <table class="data-table">
-                <thead>
-                    <tr>
-                        <th>Employee ID</th>
-                        <th>ชื่อ-สกุล (ไทย)</th>
-                        <th>ตำแหน่งบริหาร</th>
-                        <th>หน่วยงานหลัก</th>
-                        <th>สถานะ</th>
-                        <th>จัดการสถานะ</th>
-                        <th>การจัดการ</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @foreach (var executive in ExecutivesList)
-                    {
-                        bool isActive = executive.Isactive == "Y";
-                        <tr>
-                            <td>@(executive.StaffId ?? "-")</td>
-                            <td>@(executive.StaffNameThai ?? "-")</td>
-                            <td>@(executive.AdminNameThai ?? "-")</td>
-                            <td>@(executive.DivisionFull ?? "-")</td>
-                            <td>
-                                <span class="badge-status @(isActive ? "badge-active" : "badge-inactive")">
-                                    @(isActive ? "ทำงาน" : "ไม่ทำงาน")
-                                </span>
-                            </td>
-                            <td>
-                                <button class="page-link" @onclick="() => ToggleStatus(executive)">
-                                    @(isActive ? "ตั้งค่าไม่ทำงาน" : "ตั้งค่าทำงาน")
-                                </button>
-                            </td>
-                            <td>
-                                <div class="action-btn-group">
-                                    <button class="action-btn btn-edit" @onclick="() => EditExecutive(executive)">
-                                        <span class="oi oi-pencil"></span>
-                                    </button>
-                                    <button class="action-btn btn-delete" @onclick="() => DeleteExecutive(executive)">
-                                        <span class="oi oi-trash"></span>
-                                    </button>
-                                </div>
-                            </td>
-                        </tr>
-                    }
-                </tbody>
-            </table>
-        </div>
-    }
+    <div class="card shadow-sm border-0">
+        @* ใช้ Ant Design Table *@
+        <Table TItem="VManagementDetail"
+               DataSource="@ExecutivesList"
+               Loading="@IsLoading"
+               Bordered
+               PaginationPosition="Boot">
+            <PropertyColumn Property="c => c.StaffId" Title="รหัสพนักงาน" Sortable />
+            <PropertyColumn Property="c => c.StaffNameThai" Title="ชื่อ-นามสกุล" Sortable />
+            <PropertyColumn Property="c => c.AdminNameThai" Title="ตำแหน่งบริหาร" />
+            <Column TData="string" Title="สถานะ" Align="ColumnAlign.Center">
+                @if (context.Isactive == "Y")
+                {
+                    <Tag Color="Green">กำลังทำงาน</Tag>
+                }
+                else
+                {
+                    <Tag Color="Red">ปิดใช้งาน</Tag>
+                }
+            </Column>
+            <ActionColumn Title="จัดการ" Align="ColumnAlign.Center">
+                <Space>
+                    <SpaceItem>
+                        <Tooltip Title="แก้ไขข้อมูล">
+                            <Button Icon="edit" Shape="@ButtonShape.Circle" OnClick="() => EditExecutive(context)" />
+                        </Tooltip>
+                    </SpaceItem>
+                    <SpaceItem>
+                        <Tooltip Title="ถอดถอนตำแหน่ง">
+                            <Button Icon="delete" Danger Shape="@ButtonShape.Circle" OnClick="() => DeleteExecutive(context)" />
+                        </Tooltip>
+                    </SpaceItem>
+                </Space>
+            </ActionColumn>
+        </Table>
+    </div>
 </div>
 
-@* --- Modal สำหรับเลือกบุคลากร (Personnel Selection) --- *@
-@if (ShowSelectionModal)
-{
-    <div class="modal-backdrop">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h4>ค้นหาบุคลากรเพื่อแต่งตั้ง</h4>
-                <button class="modal-close-btn" @onclick="CloseSelectionModal">&times;</button>
-            </div>
-
-            <div class="modal-search-bar">
-                <input type="text" placeholder="ค้นหาชื่อ-นามสกุล / รหัสพนักงาน" class="form-control" style="flex-grow: 1;" @bind="PersonnelSearchTerm" @bind:event="oninput" />
-                <button class="btn btn-primary" @onclick="LoadPersonnelForSelection">ค้นหา</button>
-            </div>
-
-            <table class="data-table">
-                <thead>
-                    <tr>
-                        <th>ID</th>
-                        <th>ชื่อ-สกุล (ไทย)</th>
-                        <th>หน่วยงาน</th>
-                        <th></th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @if (!PersonnelList.Any())
-                    {
-                        <tr><td colspan="4" style="text-align: center;">กรุณาค้นหาบุคลากร</td></tr>
-                    }
-                    @foreach (var person in PersonnelList)
-                    {
-                        <tr>
-                            <td>@person.EmployeeId</td>
-                            <td>@person.FullNameThai</td>
-                            <td>@person.OrgUnit</td>
-                            <td>
-                                <button class="modal-table-select-btn" @onclick="() => OpenManagementForm(person)">เลือก</button>
-                            </td>
-                        </tr>
-                    }
-                </tbody>
-            </table>
-
-            <div class="modal-footer">
-                <button class="btn btn-secondary" @onclick="CloseSelectionModal">ยกเลิก</button>
-            </div>
-        </div>
+@* Modal 1: เลือกพนักงาน *@
+<Modal Title="ค้นหาพนักงานเพื่อแต่งตั้ง"
+       @bind-Visible="@ShowSelectionModal"
+       Footer="null"
+       Width="800">
+    <div class="d-flex mb-3 gap-2">
+        <Search Placeholder="พิมพ์ชื่อหรือรหัสพนักงาน..."
+                @bind-Value="@PersonnelSearchTerm"
+                OnSearch="LoadPersonnelForSelection"
+                EnterButton="true" />
     </div>
-}
+    <Table TItem="Personnel" DataSource="@PersonnelList" Size="@TableSize.Small" ScrollY="300px">
+        <PropertyColumn Property="c => c.EmployeeId" Title="ID" Width="100px" />
+        <PropertyColumn Property="c => c.FullNameThai" Title="ชื่อ-นามสกุล" />
+        <ActionColumn Align="ColumnAlign.Right">
+            <Button Type="@ButtonType.Link" OnClick="() => SelectEmployeeForManagement(context)">เลือกคนนี้</Button>
+        </ActionColumn>
+    </Table>
+</Modal>
 
-@* --- Modal สำหรับเพิ่ม/แก้ไขตำแหน่งผู้บริหาร (Management Form) --- *@
-@if (ShowManagementModal)
-{
-    <Modal Title="@(IsEditingManagement ? "แก้ไขตำแหน่งผู้บริหาร" : "แต่งตั้งตำแหน่งผู้บริหาร")" 
-           @bind-Visible="ShowManagementModal" 
-           Width="600" 
-           OnOk="HandleManagementSubmit" 
-           OkText="@(IsEditingManagement ? "บันทึกการแก้ไข" : "แต่งตั้ง")">
-        <Form Model="CurrentManagement" LabelColSpan="6" WrapperColSpan="18">
-            <FormItem Label="พนักงาน">
-                <Input Value="@(SelectedEmployee?.FullNameThai ?? "-")" Disabled />
-            </FormItem>
-            <FormItem Label="ตำแหน่งบริหาร ID">
-                <Input @bind-Value="CurrentManagement.ManagementPositionId" Placeholder="รหัสตำแหน่งบริหาร" />
-            </FormItem>
-            <FormItem Label="Division ID">
-                <Input @bind-Value="CurrentManagement.DivisionId" />
-            </FormItem>
-            <FormItem Label="สถานะใช้งาน">
-                <Switch @bind-Checked="IsManagementActive" />
-            </FormItem>
-        </Form>
-    </Modal>
-}
-
-@code {
-    private class Personnel
-    {
-        public string EmployeeId { get; set; } = string.Empty;
-        public string FullNameThai { get; set; } = string.Empty;
-        public string OrgUnit { get; set; } = string.Empty;
-    }
-
-    private List<VManagementDetail> ExecutivesList = new();
-    private List<Personnel> PersonnelList = new();
-    private Employee SelectedEmployee = new();
-    private Management CurrentManagement = new();
-
-    private bool IsLoading = true;
-    private bool ShowSelectionModal;
-    private bool ShowManagementModal;
-    private bool IsEditingManagement;
-    private bool IsManagementActive = true;
-    
-    private string SearchTerm = string.Empty;
-    private string PersonnelSearchTerm = string.Empty;
-
-    protected override async Task OnInitializedAsync()
-    {
-        await LoadExecutives();
-    }
-
-    private async Task LoadExecutives()
-    {
-        IsLoading = true;
-        try
-        {
-            ExecutivesList = await ManagementService.GetAllManagementDetailsAsync();
-            
-            if (!string.IsNullOrWhiteSpace(SearchTerm))
-            {
-                ExecutivesList = ExecutivesList
-                    .Where(e => (e.StaffNameThai ?? "").Contains(SearchTerm, StringComparison.OrdinalIgnoreCase) || 
-                               (e.AdminNameThai ?? "").Contains(SearchTerm, StringComparison.OrdinalIgnoreCase))
-                    .ToList();
-            }
-        }
-        catch (Exception ex)
-        {
-            NotificationService.Error(new NotificationConfig { 
-                Message = "Error", 
-                Description = $"ไม่สามารถโหลดข้อมูลผู้บริหาร: {ex.Message}" 
-            });
-            ExecutivesList = new List<VManagementDetail>();
-        }
-        finally
-        {
-            IsLoading = false;
-        }
-    }
-
-    private void OpenSelectionModal()
-    {
-        ShowSelectionModal = true;
-        PersonnelSearchTerm = string.Empty;
-        PersonnelList = new List<Personnel>();
-    }
-
-    private void CloseSelectionModal()
-    {
-        ShowSelectionModal = false;
-    }
-
-    private async Task LoadPersonnelForSelection()
-    {
-        var employees = await EmployeeService.GetAllEmployeesAsync(); 
-        
-        PersonnelList = employees
-            .Where(e => (e.FullNameThai ?? "").Contains(PersonnelSearchTerm, StringComparison.OrdinalIgnoreCase) || 
-                       (e.EmployeeId ?? "").Contains(PersonnelSearchTerm, StringComparison.OrdinalIgnoreCase))
-            .Select(e => new Personnel { 
-                EmployeeId = e.EmployeeId!, 
-                FullNameThai = e.FullNameThai ?? "",
-                OrgUnit = e.DivisionId ?? "" 
-            })
-            .ToList();
-    }
-    
-    private void OpenManagementForm(Personnel person)
-    {
-        SelectedEmployee = new Employee { EmployeeId = person.EmployeeId, FullNameThai = person.FullNameThai };
-        
-        CurrentManagement = new Management 
-        {
-            ManagementId = Guid.NewGuid().ToString(),
-            EmployeeId = person.EmployeeId,
-            Isactive = "Y" 
-        };
-        IsManagementActive = true;
-        IsEditingManagement = false;
-        
-        CloseSelectionModal();
-        ShowManagementModal = true;
-    }
-    
-    private async Task EditExecutive(VManagementDetail executive)
-    {
-        if (executive.Key == null)
-        {
-            NotificationService.Error(new NotificationConfig { Message = "Error", Description = "ไม่พบ Management ID ในข้อมูล View" });
-            return;
-        }
-
-        var managementEntity = await ManagementService.GetManagementByIdAsync(executive.Key);
-        
-        if (managementEntity == null)
-        {
-            NotificationService.Error(new NotificationConfig { Message = "Error", Description = "ไม่พบข้อมูล Management Entity ที่ถูกต้อง" });
-            return;
-        }
-
-        CurrentManagement = managementEntity;
-        
-        SelectedEmployee = new Employee { 
-            EmployeeId = executive.StaffId!, 
-            FullNameThai = executive.StaffNameThai 
-        };
-        
-        IsManagementActive = managementEntity.Isactive == "Y";
-        IsEditingManagement = true;
-        ShowManagementModal = true;
-    }
-
-    private async Task HandleManagementSubmit()
-    {
-        CurrentManagement.Isactive = IsManagementActive ? "Y" : "N";
-        
-        try
-        {
-            if (IsEditingManagement)
-            {
-                bool success = await ManagementService.UpdateManagementAsync(CurrentManagement.ManagementId!, CurrentManagement);
-                if (success) 
-                {
-                    NotificationService.Success(new NotificationConfig { 
-                        Message = "สำเร็จ", 
-                        Description = $"แก้ไขตำแหน่ง {SelectedEmployee?.FullNameThai} เรียบร้อย" 
-                    });
-                }
-                else throw new Exception("Update failed.");
-            }
-            else
-            {
-                var result = await ManagementService.AddManagementAsync(CurrentManagement);
-                NotificationService.Success(new NotificationConfig { 
-                    Message = "สำเร็จ", 
-                    Description = $"แต่งตั้ง {SelectedEmployee?.FullNameThai} สำเร็จ" 
-                });
-            }
-            
-            await LoadExecutives();
-            ShowManagementModal = false;
-        }
-        catch (Exception ex)
-        {
-            NotificationService.Error(new NotificationConfig { 
-                Message = "ข้อผิดพลาด", 
-                Description = $"การบันทึกตำแหน่งผู้บริหารล้มเหลว: {ex.Message}" 
-            });
-        }
-    }
-    
-    private async Task ToggleStatus(VManagementDetail executive)
-    {
-        string newStatus = executive.Isactive == "Y" ? "N" : "Y";
-        
-        try
-        {
-            var managementToUpdate = await ManagementService.GetManagementByIdAsync(executive.Key!);
-            if (managementToUpdate == null) throw new Exception("Management record not found.");
-
-            managementToUpdate.Isactive = newStatus;
-            
-            bool success = await ManagementService.UpdateManagementAsync(managementToUpdate.ManagementId!, managementToUpdate);
-            
-            if (success)
-            {
-                await LoadExecutives();
-                NotificationService.Success(new NotificationConfig { 
-                    Message = "สำเร็จ", 
-                    Description = $"อัปเดตสถานะ {executive.StaffNameThai} เป็น {newStatus} สำเร็จ" 
-                });
-            }
-        }
-        catch (Exception ex)
-        {
-            NotificationService.Error(new NotificationConfig { 
-                Message = "ข้อผิดพลาด", 
-                Description = $"ไม่สามารถอัปเดตสถานะได้: {ex.Message}" 
-            });
-        }
-    }
-    
-    private async Task DeleteExecutive(VManagementDetail executive)
-    {
-         var confirm = await Swal.FireAsync(new SweetAlertOptions
-         {
-             Title = "ยืนยันการถอดตำแหน่ง?",
-             Text = $"คุณต้องการถอดตำแหน่งผู้บริหาร {executive.StaffNameThai} ออกหรือไม่?",
-             Icon = SweetAlertIcon.Warning,
-             ShowCancelButton = true,
-             ConfirmButtonText = "ใช่, ถอด!",
-             CancelButtonText = "ยกเลิก"
-         });
-
-         if (confirm.IsConfirmed)
-         {
-             try
-             {
-                bool success = await ManagementService.DeleteManagementAsync(executive.Key!); 
-                if (success)
-                {
-                    await LoadExecutives();
-                    NotificationService.Success(new NotificationConfig { 
-                        Message = "สำเร็จ", 
-                        Description = $"ถอดตำแหน่ง {executive.StaffNameThai} สำเร็จ" 
-                    });
-                }
-             }
-             catch (Exception ex)
-             {
-                 NotificationService.Error(new NotificationConfig { 
-                     Message = "ข้อผิดพลาด", 
-                     Description = $"ไม่สามารถลบข้อมูลผู้บริหาร: {ex.Message}" 
-                 });
-             }
-         }
-    }
-}
-
-<style>
-    .hrms-container {
-        padding: 20px;
-    }
-    
-    .content-header {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        margin-bottom: 20px;
-    }
-
-    .search-bar-main {
-        display: flex;
-        gap: 10px;
-    }
-
-    .table-container {
-        overflow-x: auto;
-    }
-
-    .data-table {
-        width: 100%;
-        border-collapse: collapse;
-    }
-
-    .data-table th,
-    .data-table td {
-        padding: 12px;
-        border: 1px solid #ddd;
-    }
-
-    .badge-status {
-        padding: 5px 10px;
-        border-radius: 4px;
-        font-size: 0.9em;
-    }
-
-    .badge-active {
-        background-color: #52c41a;
-        color: white;
-    }
-
-    .badge-inactive {
-        background-color: #ff4d4f;
-        color: white;
-    }
-
-    .action-btn-group {
-        display: flex;
-        gap: 5px;
-    }
-
-    .action-btn {
-        padding: 5px 10px;
-        border: none;
-        border-radius: 4px;
-        cursor: pointer;
-    }
-
-    .btn-edit {
-        background-color: #1890ff;
-        color: white;
-    }
-
-    .btn-delete {
-        background-color: #ff4d4f;
-        color: white;
-    }
-
-    /* Modal Styles */
-    .modal-backdrop {
-        position: fixed;
-        top: 0;
-        left: 0;
-        right: 0;
-        bottom: 0;
-        background-color: rgba(0,0,0,0.5);
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        z-index: 1000;
-    }
-
-    .modal-content {
-        background: white;
-        padding: 20px;
-        border-radius: 8px;
-        width: 80%;
-        max-width: 800px;
-        max-height: 90vh;
-        overflow-y: auto;
-    }
-
-    .modal-header {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        margin-bottom: 20px;
-    }
-
-    .modal-close-btn {
-        background: none;
-        border: none;
-        font-size: 1.5rem;
-        cursor: pointer;
-    }
-
-    .modal-search-bar {
-        display: flex;
-        gap: 10px;
-        margin-bottom: 20px;
-    }
-
-    .modal-footer {
-        margin-top: 20px;
-        text-align: right;
-    }
-
-    .modal-table-select-btn {
-        padding: 5px 10px;
-        background-color: #1890ff;
-        color: white;
-        border: none;
-        border-radius: 4px;
-        cursor: pointer;
-    }
-</style>
+@* Modal 2: ฟอร์ม CRUD *@
+<Modal Title="@(IsEditing ? "แก้ไขข้อมูลผู้บริหาร" : "แต่งตั้งตำแหน่งบริหาร")"
+       @bind-Visible="@ShowManagementForm"
+       OnOk="HandleSubmit"
+       OkText="@("บันทึกข้อมูล")"
+       CancelText="@("ยกเลิก")"
+       ConfirmLoading="@IsSubmitting">
+    <Form Model="@CurrentManagement" Layout="@FormLayout.Vertical">
+        <FormItem Label="ชื่อผู้บริหาร">
+            <Input Value="@SelectedEmployeeName" Disabled />
+        </FormItem>
+        <FormItem Label="รหัสตำแหน่งบริหาร (Management Position ID)">
+            <Input @bind-Value="@context.ManagementPositionId" MaxLength="2" Placeholder="เช่น 01, 02" />
+        </FormItem>
+        <FormItem Label="สถานะการทำงาน">
+            <Select @bind-Value="@context.Isactive" TItem="string" TItemValue="string">
+                <SelectOption TItem="string" TItemValue="string" Value="@("Y")" Label="เปิดใช้งาน (Active)" />
+                <SelectOption TItem="string" TItemValue="string" Value="@("N")" Label="ปิดใช้งาน (Inactive)" />
+            </Select>
+        </FormItem>
+    </Form>
+</Modal>

@@ -1,64 +1,100 @@
-﻿@using AntDesign
-@using CurrieTechnologies.Razor.SweetAlert2
+﻿@using Hrms_project.Models
+@using Hrms_project.Service
+@inject JsonLocalizationService locallizer
 @inject SweetAlertService Swal
+@inject AuthState State
+@inject NavigationManager Nav
+@inject IJSRuntime JSRuntime
 
-<nav class="navbar navbar-expand-sm navbar-dark px-4">
+<nav class="navbar navbar-expand-sm navbar-dark px-4 shadow-sm" style="background-color: #001529;">
     <div class="container-fluid">
         <div class="collapse navbar-collapse" id="mynavbar">
             <ul class="navbar-nav me-auto">
                 <li class="nav-item">
                     <a class="nav-link text-white" href="">
-                        <span class="bi bi-house-fill px-2"></span> หน้าแรก
+                        <span class="bi bi-house-fill px-2"></span> @locallizer["หน้าแรก"]
                     </a>
                 </li>
-                <li class="nav-item">
-                    <a class="nav-link text-white" href="report">
-                        <span class="bi bi-bar-chart-line-fill px-2"></span>รายงาน
-                    </a>
-                </li>
-                <li class="nav-item text-white">
-                    <a class="nav-link text-white" href="setting">
-                        <span class="bi bi-gear-wide-connected px-2"></span>ตั้งค่า
-                    </a>
-                </li>
+
+                @* แสดงเมนูตั้งค่าเฉพาะ Admin เท่านั้น *@
+                @if (State.Role == "Admin")
+                {
+                    <li class="nav-item text-white">
+                        <a class="nav-link text-white" href="settings">
+                            <span class="bi bi-gear-wide-connected px-2"></span>@locallizer["ตั้งค่า"]
+                        </a>
+                    </li>
+                }
             </ul>
-            <div class="d-flex">
+
+            <div class="d-flex align-items-center">
+                @* แสดงภาษา *@
+                <div class="me-3">
+                    <ChangeLanguae />
+                </div>
+
+                @* Dropdown ข้อมูลผู้ใช้งาน *@
                 <Dropdown Trigger="@(new Trigger[] { Trigger.Click })" Placement="Placement.BottomRight">
                     <Overlay>
                         <Menu Style="width: 12rem;">
-                            <MenuItem>
-                                <NavLink class="nav-link text-black" @onclick="ShowLogoutConfirmation">
-                                    <span class="bi bi-arrow-left-circle-fill px-2" aria-hidden="true"></span> ออกจากระบบ
-                                </NavLink>
+                            <MenuItem Icon="logout">
+                                <a class="text-danger" @onclick="ShowLogoutConfirmation" style="text-decoration: none;">
+                                    <span class="bi bi-arrow-left-circle-fill px-2"></span> @locallizer["ออกจากระบบ"]
+                                </a>
                             </MenuItem>
                         </Menu>
                     </Overlay>
                     <ChildContent>
-                        <div class="nav-item px-4">
-                            <NavLink class="nav-link" @onclick:preventDefault>
-                                <Icon Type="user" Class="px-1"></Icon> Anonymous
-                            </NavLink>
+                        <div class="nav-item px-3" style="cursor: pointer;">
+                            <span class="text-white">
+                                <Icon Type="user" Class="me-1"></Icon>
+                                @(State.IsLoggedIn? State.Role: "Guest")
+                                <Icon Type="down" Style="font-size: 10px;"></Icon>
+                            </span>
                         </div>
                     </ChildContent>
                 </Dropdown>
-                <div class="nav-role">
-                    <ChangeLanguae />
-                </div>                 
             </div>
         </div>
     </div>
 </nav>
 
 @code {
+    protected override async Task OnInitializedAsync()
+    {
+        // โหลดภาษาเริ่มต้น
+        // await locallizer.SetCulture("th-TH");
+    }
+
     private async Task ShowLogoutConfirmation()
     {
+        // 1. แสดง Popup ยืนยัน
         SweetAlertResult result = await Swal.FireAsync(new SweetAlertOptions
         {
-                Title = "ออกจากระบบ",
-                Text = "ขอบคุณที่ใช้บริการ กำลังเข้าสู่หน้าเข้าสู่ระบบ",
-                Icon = SweetAlertIcon.Success,
-                Timer = 3000,
-                ShowConfirmButton = false
+            Title = locallizer["ออกจากระบบ"],
+            Text = locallizer["คุณต้องการออกจากระบบหรือไม่ ?"],
+            Icon = SweetAlertIcon.Question,
+            ShowCancelButton = true,
+            ConfirmButtonText = locallizer["ตกลง"],
+            CancelButtonText = locallizer["ยกเลิก"],
+            ConfirmButtonColor = "#001529"
         });
+
+        // 2. ถ้ากดยืนยัน (Confirm)
+        if (result.IsConfirmed)
+        {
+            // 1. ล้างค่าในโปรแกรม
+            State.Logout();
+
+            // 2. ล้างค่าใน Browser
+            await JSRuntime.InvokeVoidAsync("localStorage.removeItem", "isLoggedIn");
+            await JSRuntime.InvokeVoidAsync("localStorage.removeItem", "userRole");
+
+            // 3. แสดง Alert สำเร็จ
+            await Swal.FireAsync("สำเร็จ", "ออกจากระบบเรียบร้อย", SweetAlertIcon.Success);
+
+            // 4. ดีดกลับไปหน้าแรก
+            Nav.NavigateTo("/", forceLoad: true);
+        }
     }
 }

@@ -14,23 +14,32 @@ namespace HRMS_API.Service
 
         public async Task<List<Employee>> GetAllEmployeesAsync()
         {
-            using var context = _contextFactory.CreateDbContext();
+            using var context = await _contextFactory.CreateDbContextAsync();
             return await context.Employees
-                .AsNoTracking() // ใช้อ่านอย่างเดียว จะเร็วกว่า
-                .OrderBy(e => e.EmployeeId)
+                .AsNoTracking()
+                .OrderBy(e => e.EmployeeId) // เรียงตามรหัส
                 .ToListAsync();
         }
 
         public async Task<Employee?> GetEmployeeByIdAsync(string id)
         {
-            using var context = _contextFactory.CreateDbContext();
-            // FindAsync จะค้นหาจาก Primary Key ซึ่งเร็วที่สุด
+            using var context = await _contextFactory.CreateDbContextAsync();
             return await context.Employees.FindAsync(id);
         }
 
-        public async Task<Employee> AddEmployeeAsync(Employee employee)
+        public async Task<Employee?> AddEmployeeAsync(Employee employee)
         {
-            using var context = _contextFactory.CreateDbContext();
+            using var context = await _contextFactory.CreateDbContextAsync();
+
+            // 1. Validate: เช็คว่ารหัสซ้ำไหม
+            if (await context.Employees.AnyAsync(e => e.EmployeeId == employee.EmployeeId))
+                throw new Exception($"รหัสพนักงาน {employee.EmployeeId} มีอยู่ในระบบแล้ว");
+
+            // 2. Validate: เช็คว่าบัตรประชาชนซ้ำไหม (ถ้าจำเป็น)
+            // if (!string.IsNullOrEmpty(employee.CitizenId) && 
+            //     await context.Employees.AnyAsync(e => e.CitizenId == employee.CitizenId))
+            //     throw new Exception("เลขบัตรประชาชนนี้มีอยู่ในระบบแล้ว");
+
             context.Employees.Add(employee);
             await context.SaveChangesAsync();
             return employee;
@@ -38,40 +47,35 @@ namespace HRMS_API.Service
 
         public async Task<bool> UpdateEmployeeAsync(string id, Employee employee)
         {
-            if (id != employee.EmployeeId)
-            {
-                return false; // ID ไม่ตรงกัน
-            }
+            if (id != employee.EmployeeId) return false;
 
-            using var context = _contextFactory.CreateDbContext();
+            using var context = await _contextFactory.CreateDbContextAsync();
 
-            // ดึงข้อมูลเดิมมาอัปเดต (วิธีนี้ปลอดภัยที่สุด)
             var existingEmp = await context.Employees.FindAsync(id);
-            if (existingEmp == null)
-            {
-                return false; // ไม่พบข้อมูล
-            }
+            if (existingEmp == null) return false;
 
-            // อัปเดตค่าที่ต้องการ
-            existingEmp.FirstNameThai = employee.FirstNameThai;
-            existingEmp.LastNameThai = employee.LastNameThai;
-            existingEmp.Email = employee.Email;
-            existingEmp.PositionId = employee.PositionId;
-            existingEmp.LocationId = employee.LocationId;
-            existingEmp.DivisionId = employee.DivisionId;
-            existingEmp.DeptId = employee.DeptId;
-            existingEmp.TeamId = employee.TeamId;
-            existingEmp.TitleId = employee.TitleId;
-            existingEmp.LocationId = employee.LocationId;
-            existingEmp.TeamId = employee.TeamId;
-            existingEmp.UnitId = employee.UnitId;
-            existingEmp.CitizenId = employee.CitizenId;
-            existingEmp.StartDate = employee.StartDate;
-            existingEmp.TerminationDate = employee.TerminationDate;
-            existingEmp.Username = employee.Username;
-            existingEmp.Password = employee.Password;
-            existingEmp.Pincode = employee.Pincode;
-            // ... (อัปเดต Field อื่นๆ ที่อนุญาตให้แก้) ...
+            // *** Perfect Update Technique ***
+            // อัปเดตทุก Field ที่ตรงกัน โดยไม่ต้องเขียนทีละบรรทัด
+            context.Entry(existingEmp).CurrentValues.SetValues(employee);
+
+            // ป้องกันการแก้ไข Field สำคัญที่ห้ามแก้ (เช่น วันที่สร้าง)
+            // context.Entry(existingEmp).Property(x => x.CreatedDate).IsModified = false; 
+
+            await context.SaveChangesAsync();
+            return true;
+        }
+
+        // ฟังก์ชันใหม่: สำหรับระบบ Organization Chart (ย้ายคนออก)
+        public async Task<bool> UnassignEmployeeAsync(string id)
+        {
+            using var context = await _contextFactory.CreateDbContextAsync();
+            var emp = await context.Employees.FindAsync(id);
+            if (emp == null) return false;
+
+            // ปลดสังกัด
+            emp.DivisionId = null;
+            emp.DeptId = null;
+            emp.UnitId = null;
 
             await context.SaveChangesAsync();
             return true;
@@ -79,14 +83,14 @@ namespace HRMS_API.Service
 
         public async Task<bool> DeleteEmployeeAsync(string id)
         {
-            using var context = _contextFactory.CreateDbContext();
+            using var context = await _contextFactory.CreateDbContextAsync();
 
-            // ใช้วิธี ExecuteDelete เพื่อประสิทธิภาพ (ไม่ต้องดึงข้อมูลมาก่อน)
-            var affectedRows = await context.Employees
-                .Where(e => e.EmployeeId == id)
-                .ExecuteDeleteAsync();
+            var emp = await context.Employees.FindAsync(id);
+            if (emp == null) return false;
 
-            return affectedRows > 0;
+            context.Employees.Remove(emp);
+            await context.SaveChangesAsync();
+            return true;
         }
     }
 }

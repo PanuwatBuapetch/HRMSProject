@@ -26,10 +26,17 @@ namespace HRMS_API.Service
         public async Task<VEmployeeDetail?> GetEmployeeDetailsByIdAsync(string id)
         {
             using var context = _contextFactory.CreateDbContext();
-            // View ไม่มี Primary Key จึงต้องใช้ FirstOrDefault
-            return await context.VEmployeeDetails
+            var result = await context.VEmployeeDetails
                 .AsNoTracking()
                 .FirstOrDefaultAsync(v => v.EmployeeId == id);
+
+            // ถ้ามีข้อมูล และ PictureUrl ไม่เป็น null ให้ทำการ Trim ช่องว่างออก
+            if (result != null && result.PictureUrl != null)
+            {
+                result.PictureUrl = result.PictureUrl.Trim();
+            }
+
+            return result;
         }
 
         // (ตัวอย่าง) ค้นหาจาก View

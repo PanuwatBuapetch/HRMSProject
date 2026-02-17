@@ -1,38 +1,189 @@
-﻿.page {
-    position: relative;
+﻿.navbar-toggler {
+    background-color: rgba(255, 255, 255, 0);
+}
+
+.top-row {
+    height: 3.5rem;
+}
+
+.navbar-brand {
+    font-size: 1.1rem;
+}
+
+.bi {
+    width: 2rem;
+    font-size: 1.1rem;
+    vertical-align: text-top;
+    top: -2px;
+}
+
+.profile {
     display: flex;
-    flex-direction: column;
 }
 
-main {
-    flex: 1;
+    .profile i {
+        font-size: 32px;
+    }
+
+    .profile p {
+        margin-left: 0.5rem;
+        margin-top: 1rem;
+        margin-right: 1rem;
+        font-size: 17px;
+        font-weight: 600;
+    }
+
+.topic-menu {
+    margin-left: 1.5rem;
 }
 
-.sidebar {
-    background-color: white;
+    .topic-menu p {
+        font-weight: bold;
+        color: #009CDE;
+    }
+
+.nav-item {
+    font-size: 0.9rem;
 }
 
+    .nav-item ::deep a {
+        padding-left: 1rem;
+        color: #000000;
+        border-radius: 4px;
+        height: 3rem;
+        display: flex;
+        align-items: center;
+        line-height: 3rem;
+    }
+
+    .nav-item ::deep .bi-people-fill {
+        color: #0085FF;
+    }
+
+    .nav-item ::deep .bi-person-badge-fill {
+        color: #FF8911;
+    }
+
+    .nav-item ::deep .bi-buildings-fill {
+        color: #5E1675;
+    }
+
+    .nav-item ::deep .bi-person-vcard-fill {
+        color: #211951;
+    }
+
+    .nav-item ::deep .bi-file-earmark-text-fill {
+        color: #0085FF;
+    }
+
+    .nav-item ::deep a.active {
+        background-color: rgba(255,255,255,0.25);
+        color: black;
+    }
+
+
+    .nav-item ::deep a:hover {
+        background-color: rgba(0, 136, 215, 0.7);
+        color: white;
+    }
+
+        .nav-item ::deep a:hover .bi {
+            color: white;
+        }
+
+.text-detail-navmenu {
+    font-size: 13px;
+    font-weight: 300;
+    text-align: center;
+}
+
+.logout {
+    cursor: pointer;
+}
+
+.languae {
+    margin-left: 17rem;
+}
+
+.nav-link img {
+    width: 35px;
+    height: 35px;
+}
+
+.bi-arrow-left-circle-fill {
+    color: #FF0000;
+}
 
 @media (min-width: 1100px) {
-    .page {
-        flex-direction: row;
+    .navbar-toggler {
+        display: none;
     }
 
-    .sidebar {
-        width: 250px;
-        height: 100vh;
-        position: sticky;
-        box-shadow: 0px 3px 4px 0px rgba(0, 0, 0, 0.25);
+    .collapse {
+        display: block;
     }
 
+    .profile-mobile {
+        display: none;
+    }
+
+    .profile-ipad {
+        display: none;
+    }
+
+    .languae {
+        display: none;
+    }
+
+    .control-mobile {
+        display: none;
+    }
+}
+
+@media (max-width: 1100px) {
     .top-row {
-        position: sticky;
-        top: 0;
-        z-index: 1;
+        background-color: #38A2FF;
+        padding-bottom: 4rem;
     }
 
-    .top-row, article {
-        padding-left: 2rem !important;
-        padding-right: 1.5rem !important;
+    .profile {
+        display: none;
+    }
+
+    .profile-ipad {
+        display: none;
+    }
+
+    .form-check-input {
+        width: 60px;
+        height: 32px;
+    }
+
+    .nav-role {
+        font-weight: 500;
+        margin-top: 6px;
+        color: white;
+    }
+}
+
+@media (max-width: 610px) {
+    .top-row {
+        padding-bottom: 3.6rem;
+    }
+
+    .profile-mobile {
+        display: unset;
+    }
+
+        .profile-mobile .nav-link {
+            font-size: 20px;
+        }
+
+    .profile-ipad {
+        display: unset;
+    }
+
+    .control-mobile {
+        display: unset;
     }
 }

@@ -1,0 +1,81 @@
+﻿@using Datamodels.Hrms
+
+@if (EmployeeData != null)
+{
+    <div class="employee-profile-container">
+        <div class="row">
+            <div class="col-md-4 text-center border-end">
+                <div class="profile-avatar-container mb-3">
+                    ภาพ
+                </div>
+                <h3 class="fw-bold">@EmployeeData.FullNameThai</h3>
+                <h5 class="text-secondary">@EmployeeData.FullNameEng</h5>
+                <span class="badge bg-primary fs-6">@EmployeeData.PositionId</span>
+            </div>
+
+            @* --- ส่วนที่ 2: Details Content (ข้อมูลเจาะลึก) --- *@
+            <div class="col-md-8 ps-4">
+                <h4 class="mb-4 text-primary border-bottom pb-2">ข้อมูลบุคลากร</h4>
+
+                <div class="row mb-3">
+                    <div class="col-sm-4 fw-bold">รหัสพนักงาน:</div>
+                    <div class="col-sm-8 text-muted">@EmployeeData.EmployeeId</div>
+                </div>
+
+                <div class="row mb-3">
+                    <div class="col-sm-4 fw-bold">แผนก/ฝ่าย:</div>
+                    <div class="col-sm-8 text-muted">@EmployeeData.PositionId (@EmployeeData.PositionId)</div>
+                </div>
+
+                <div class="row mb-3">
+                    <div class="col-sm-4 fw-bold">อีเมลติดต่อ:</div>
+                    <div class="col-sm-8 text-muted">@EmployeeData.Email</div>
+                </div>
+
+                <div class="row mb-3">
+                    <div class="col-sm-4 fw-bold">เลขบัตรประชาชน:</div>
+                    <div class="col-sm-8 text-muted">@EmployeeData.CitizenId</div>
+                </div>
+
+                <div class="row mb-3">
+                    <div class="col-sm-4 fw-bold">วันที่เริ่มงาน:</div>
+                    <div class="col-sm-8 text-muted">@EmployeeData.StartDate</div>
+                </div>
+
+                <div class="row mb-3">
+                    <div class="col-sm-4 fw-bold">สถานะการจ้างงาน:</div>
+                    <div class="col-sm-8">
+                        <span class="badge @(EmployeeData.EmploymentStatus == "Active" ? "bg-success" : "bg-warning")">
+                            @EmployeeData.EmploymentStatus
+                        </span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+else
+{
+    <div class="d-flex justify-content-center p-5">
+        <div class="spinner-border text-primary" role="status"></div>
+        <span class="ms-3">กำลังดึงข้อมูลส่วนบุคคล...</span>
+    </div>
+}
+
+<style>
+    .employee-profile-container {
+        background: white;
+        padding: 30px;
+        border-radius: 15px;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+    }
+
+    .profile-avatar-container img {
+        border: 5px solid #f8f9fa;
+    }
+</style>
+
+@code {
+    [Parameter]
+    public VEmployeeDetail? EmployeeData { get; set; }
+}

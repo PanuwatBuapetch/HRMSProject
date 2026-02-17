@@ -1,0 +1,29 @@
+﻿@page "/profile"
+@inject AuthState State
+@using AntDesign
+@using Hrms_project.Models
+
+<div style="padding: 24px;">
+    <Card Title="ข้อมูลส่วนตัว (My Profile)" Style="max-width: 800px; margin: auto; border-radius: 15px;">
+        <div style="display: flex; gap: 30px; align-items: flex-start;">
+            @* ส่วนรูปภาพ *@
+            <div style="text-align: center;">
+                <Avatar Size="AvatarSize.Large" Src="picture/user.png" />
+                <Tag Color="Blue" Style="margin-top: 10px; display: block;">@State.Role</Tag>
+            </div>
+
+            @* ส่วนรายละเอียด *@
+            <div style="flex-grow: 1;">
+                <Descriptions Title="รายละเอียดบุคลากร" Bordered Column="1">
+                    <DescriptionsItem Title="ชื่อ-นามสกุล">ภานุวัฒน์ บัวเพชร</DescriptionsItem>
+                    <DescriptionsItem Title="รหัสพนักงาน">HR69001</DescriptionsItem>
+                    <DescriptionsItem Title="ตำแหน่ง">Full Stack Developer</DescriptionsItem>
+                    <DescriptionsItem Title="แผนก">เทคโนโลยีสารสนเทศ (IT)</DescriptionsItem>
+                    <DescriptionsItem Title="อีเมล">panuwat.b@company.com</DescriptionsItem>
+                    <DescriptionsItem Title="เบอร์โทรศัพท์">081-234-5678</DescriptionsItem>
+                    <DescriptionsItem Title="สถานะ">พนักงานประจำ</DescriptionsItem>
+                </Descriptions>
+            </div>
+        </div>
+    </Card>
+</div>

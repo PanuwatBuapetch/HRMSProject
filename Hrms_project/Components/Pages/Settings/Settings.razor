@@ -1,0 +1,74 @@
+﻿@page "/settings"
+@using AntDesign
+@using Datamodels.Hrms
+@namespace HrmsApp.Pages
+
+<PageTitle>ตั้งค่าบริษัท | HRMS</PageTitle>
+
+<div class="container-fluid py-4">
+    <div class="mb-4">
+        <h3 class="fw-bold text-primary m-0"><Icon Type="setting" /> ตั้งค่าโครงสร้างองค์กร</h3>
+        <p class="text-muted">จัดการรายชื่อแผนกและตำแหน่งบริหารภายในบริษัท</p>
+    </div>
+
+    <div class="card shadow-sm border-0 rounded-4">
+        <div class="card-body p-4">
+            <Tabs DefaultActiveKey="1">
+
+                @* --- Tab 1: จัดการแผนก (Departments) --- *@
+                <TabPane Key="1">
+                    <TabTemplate><Icon Type="apartment" /> รายชื่อแผนก</TabTemplate>
+                    <ChildContent>
+                        <div class="d-flex justify-content-between align-items-center mb-3">
+                            <h5 class="m-0 fw-bold">รายชื่อแผนกทั้งหมด</h5>
+                            <Button Type="@ButtonType.Primary" Icon="plus" OnClick="() => ShowDeptModal()">เพิ่มแผนก</Button>
+                        </div>
+                        <Table TItem="Department" DataSource="@Departments" Bordered Size="@TableSize.Small" Loading="@IsLoading">
+                            <PropertyColumn Property="c => c.DeptId" Title="รหัสแผนก" Width="120px" />
+                            <PropertyColumn Property="c => c.DeptNameThai" Title="ชื่อแผนก" />
+                            <ActionColumn Title="จัดการ" Align="ColumnAlign.Center" Width="150px">
+                                <Button Icon="edit" Type="@ButtonType.Link" OnClick="() => ShowDeptModal(context)" />
+                                <Button Icon="delete" Type="@ButtonType.Link" Danger OnClick="() => DeleteDept(context.DeptId)" />
+                            </ActionColumn>
+                        </Table>
+                    </ChildContent>
+                </TabPane>
+
+                @* --- Tab 2: จัดการตำแหน่งบริหาร (Management Positions) --- *@
+                <TabPane Key="2">
+                    <TabTemplate><Icon Type="idcard" /> ตำแหน่งบริหาร</TabTemplate>
+                    <ChildContent>
+                        <div class="d-flex justify-content-between align-items-center mb-3">
+                            <h5 class="m-0 fw-bold">ระดับตำแหน่งบริหาร</h5>
+                            <Button Type="@ButtonType.Primary" Icon="plus" OnClick="() => ShowPosModal()">เพิ่มตำแหน่ง</Button>
+                        </div>
+                        <Table TItem="ManagementPosition" DataSource="@Positions" Bordered Size="@TableSize.Small" Loading="@IsLoading">
+                            <PropertyColumn Property="c => c.ManagementPositionId" Title="รหัส" Width="100px" />
+                            <PropertyColumn Property="c => c.PositionNameThai" Title="ชื่อตำแหน่ง" />
+                            <PropertyColumn Property="c => c.PositionLevel" Title="ระดับความสำคัญ" Width="120px" Sortable />
+                            <ActionColumn Title="จัดการ" Align="ColumnAlign.Center" Width="100px">
+                                <Button Icon="edit" Type="@ButtonType.Link" OnClick="() => ShowPosModal(context)" />
+                            </ActionColumn>
+                        </Table>
+                    </ChildContent>
+                </TabPane>
+
+            </Tabs>
+        </div>
+    </div>
+</div>
+
+@* --- Modal สำหรับจัดการแผนก --- *@
+<Modal Title="@(_isEditMode ? "แก้ไขแผนก" : "เพิ่มแผนก")"
+       @bind-Visible="@_deptModalVisible"
+       OnOk="HandleDeptSubmit"
+       OnCancel="() => _deptModalVisible = false">
+    <Form Model="@_editDept" Layout="@FormLayout.Vertical">
+        <FormItem Label="รหัสแผนก">
+            <Input @bind-Value="@context.DeptId" Disabled="@_isEditMode" />
+        </FormItem>
+        <FormItem Label="ชื่อแผนก">
+            <Input @bind-Value="@context.DeptNameThai" />
+        </FormItem>
+    </Form>
+</Modal>

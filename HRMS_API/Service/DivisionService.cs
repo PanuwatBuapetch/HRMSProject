@@ -14,39 +14,42 @@ namespace HRMS_API.Service
 
         public async Task<List<Division>> GetAllDivisionsAsync()
         {
-            using var context = _contextFactory.CreateDbContext();
+            await using var context = await _contextFactory.CreateDbContextAsync();
             return await context.Divisions
                 .AsNoTracking()
-                .OrderBy(l => l.DivisionId)
+                .OrderBy(d => d.DivisionId)
                 .ToListAsync();
         }
 
         public async Task<Division?> GetDivisionByIdAsync(string id)
         {
-            using var context = _contextFactory.CreateDbContext();
+            await using var context = await _contextFactory.CreateDbContextAsync();
             return await context.Divisions.FindAsync(id);
         }
 
         public async Task<Division> AddDivisionAsync(Division division)
         {
-            using var context = _contextFactory.CreateDbContext();
+            await using var context = await _contextFactory.CreateDbContextAsync();
             context.Divisions.Add(division);
             await context.SaveChangesAsync();
             return division;
         }
 
-        public async Task<bool> UpdateDivisionAsync(string id, Division location)
+        public async Task<bool> UpdateDivisionAsync(string id, Division division)
         {
-            if (id != location.LocationId) return false;
+            // แก้ไข: เปลี่ยนจาก LocationId เป็น DivisionId
+            if (id != division.DivisionId) return false;
 
-            using var context = _contextFactory.CreateDbContext();
+            await using var context = await _contextFactory.CreateDbContextAsync();
 
             var existing = await context.Divisions.FindAsync(id);
             if (existing == null) return false;
 
-            existing.DivisionNameThai = location.DivisionNameThai;
-            existing.DivisionNameEng = location.DivisionNameEng;
-            existing.DivisionDesc = location.DivisionDesc;
+            // Mapping ข้อมูลใหม่
+            existing.DivisionNameThai = division.DivisionNameThai;
+            existing.DivisionNameEng = division.DivisionNameEng;
+            existing.DivisionDesc = division.DivisionDesc;
+            existing.Isactive = division.Isactive; // เพิ่ม Isactive เข้าไปด้วย
 
             await context.SaveChangesAsync();
             return true;
@@ -54,9 +57,10 @@ namespace HRMS_API.Service
 
         public async Task<bool> DeleteDivisionAsync(string id)
         {
-            using var context = _contextFactory.CreateDbContext();
-            var affectedRows = await context.Locations
-                .Where(l => l.LocationId == id)
+            await using var context = await _contextFactory.CreateDbContextAsync();
+            // แก้ไข: เปลี่ยนจาก context.Locations เป็น context.Divisions
+            var affectedRows = await context.Divisions
+                .Where(d => d.DivisionId == id)
                 .ExecuteDeleteAsync();
             return affectedRows > 0;
         }

@@ -11,66 +11,60 @@ namespace HRMS_API.Service
             _contextFactory = contextFactory;
         }
 
-        // (แก้ไข) เปลี่ยนจาก EmployeeTitle -> Management
         public async Task<List<Management>> GetAllManagementAsync()
         {
-            using var context = _contextFactory.CreateDbContext();
-            // (แก้ไข) เปลี่ยนจาก .EmployeeTitles -> .Managements
-            return await context.Managements
-                .AsNoTracking()
-                .OrderBy(m => m.ManagementId) // (แก้ไข)
-                .ToListAsync();
+            using var context = await _contextFactory.CreateDbContextAsync();
+            return await context.Managements.AsNoTracking().ToListAsync();
+        }
+
+        // ดึงข้อมูลจาก View (สำคัญมากสำหรับหน้าจอสรุป)
+        public async Task<List<VManagementDetail>> GetAllManagementDetailsAsync()
+        {
+            using var context = await _contextFactory.CreateDbContextAsync();
+            return await context.VManagementDetails.AsNoTracking().ToListAsync();
+        }
+
+        // ดึงรายชื่อตำแหน่งบริหารมาทำ Dropdown
+        public async Task<List<ManagementPosition>> GetAllManagementPositionsAsync()
+        {
+            using var context = await _contextFactory.CreateDbContextAsync();
+            return await context.ManagementPositions.AsNoTracking().ToListAsync();
         }
 
         public async Task<Management?> GetManagementByIdAsync(string id)
         {
-            using var context = _contextFactory.CreateDbContext();
+            using var context = await _contextFactory.CreateDbContextAsync();
             return await context.Managements.FindAsync(id);
         }
 
-        // (แก้ไข)
         public async Task<Management> AddManagementAsync(Management management)
         {
-            using var context = _contextFactory.CreateDbContext();
-            // (แก้ไข)
+            using var context = await _contextFactory.CreateDbContextAsync();
+            if (string.IsNullOrEmpty(management.ManagementId)) management.ManagementId = Guid.NewGuid().ToString();
+
             context.Managements.Add(management);
             await context.SaveChangesAsync();
             return management;
         }
 
-        // (แก้ไข)
         public async Task<bool> UpdateManagementAsync(string id, Management management)
         {
-            // (แก้ไข)
-            if (id != management.ManagementId) return false;
-
-            using var context = _contextFactory.CreateDbContext();
-            // (แก้ไข)
+            using var context = await _contextFactory.CreateDbContextAsync();
             var existing = await context.Managements.FindAsync(id);
             if (existing == null) return false;
 
-            // (แก้ไข) อัปเดต Property ของ Management
-            existing.Isactive = management.Isactive;
-            existing.EmployeeId = management.EmployeeId;
-            existing.ManagementPositionId = management.ManagementPositionId;
-            existing.TempAdminCode = management.TempAdminCode;
-            existing.LocationId = management.LocationId;
-            existing.DivisionId = management.DivisionId;
-            existing.DeptId = management.DeptId;
-            existing.TeamId = management.TeamId;
-            existing.UnitId = management.UnitId;
+            // ใช้ SetValues เพื่ออัปเดตทุกฟิลด์ที่ส่งมาจาก UI
+            context.Entry(existing).CurrentValues.SetValues(management);
 
             await context.SaveChangesAsync();
             return true;
         }
 
-        // (แก้ไข)
         public async Task<bool> DeleteManagementAsync(string id)
         {
-            using var context = _contextFactory.CreateDbContext();
-            // (แก้ไข)
+            using var context = await _contextFactory.CreateDbContextAsync();
             var affectedRows = await context.Managements
-                .Where(m => m.ManagementId == id) // (แก้ไข)
+                .Where(m => m.ManagementId == id)
                 .ExecuteDeleteAsync();
             return affectedRows > 0;
         }

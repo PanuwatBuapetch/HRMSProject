@@ -1,0 +1,215 @@
+﻿@page "/employees/edit/{id}"
+@using Datamodels.Hrms
+@using Hrms_project.Service
+@using HrmsSolution.Service
+@using AntDesign
+@inject IEmployeeService EmployeeService
+@inject IOrganizationService OrganizationService
+@inject JsonLocalizationService locallizer
+@inject NavigationManager NavigationContext
+@inject SweetAlertService Swal
+@inject MessageService MessageService
+
+<PageTitle>@locallizer["แก้ไขข้อมูลบุคลากร"]</PageTitle>
+
+<div class="container mt-4">
+    <div class="card shadow-sm">
+        <div class="card-header bg-primary text-white">
+            <h4 class="mb-0">@locallizer["แก้ไขข้อมูลบุคลากรและสังกัด"]</h4>
+        </div>
+        <div class="card-body">
+            @if (editModel == null || isInitialLoading)
+            {
+                <div class="text-center p-5">
+                    <Spin Size="AntSpinSize.Large" Tip="กำลังโหลดข้อมูล..." />
+                </div>
+            }
+            else
+            {
+                <EditForm Model="@editModel" OnValidSubmit="HandleValidSubmit">
+                    <DataAnnotationsValidator />
+
+                    <div class="row">
+                        @* --- ส่วนรูปภาพ --- *@
+                        <div class="col-md-4 text-center border-end">
+                            <img src="@(string.IsNullOrEmpty(editModel.PictureUrl) ? "/picture/user.png" : editModel.PictureUrl)"
+                                 class="img-thumbnail rounded-circle mb-3" style="width: 180px; height: 180px; object-fit: cover;" />
+                            <div class="px-3 text-start">
+                                <label class="form-label fw-bold">@locallizer["URL รูปภาพ"]</label>
+                                <InputText class="form-control" @bind-Value="editModel.PictureUrl" />
+                            </div>
+                        </div>
+
+                        @* --- ส่วนข้อมูลหน่วยงาน (สำคัญสำหรับการแสดงในโครงสร้าง) --- *@
+                        <div class="col-md-8">
+                            <h5 class="text-primary border-bottom pb-2 mb-3">@locallizer["ข้อมูลสังกัดหน่วยงาน"]</h5>
+                            <div class="row">
+                                @* เลือกสำนัก/กอง (Division) *@
+                                <div class="col-md-12 mb-3">
+                                    <label class="form-label fw-bold">@locallizer["สำนัก / กอง"]</label>
+                                    <Select TItem="Division" TItemValue="string"
+                                            DataSource="@divisions"
+                                            @bind-Value="@editModel.DivisionId"
+                                            LabelName="@nameof(Division.DivisionNameThai)"
+                                            ValueName="@nameof(Division.DivisionId)"
+                                            OnSelectedItemChanged="OnDivisionChanged"
+                                            EnableSearch />
+                                </div>
+
+                                @* เลือกฝ่าย (Department) *@
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label fw-bold">@locallizer["ฝ่าย / คณะ"]</label>
+                                    <Select TItem="Department" TItemValue="string"
+                                            DataSource="@departments"
+                                            @bind-Value="@editModel.DeptId"
+                                            LabelName="@nameof(Department.DeptNameThai)"
+                                            ValueName="@nameof(Department.DeptId)"
+                                            OnSelectedItemChanged="OnDepartmentChanged"
+                                            Disabled="@(string.IsNullOrEmpty(editModel.DivisionId))"
+                                            EnableSearch />
+                                </div>
+
+                                @* เลือกกลุ่มงาน (Work Unit) *@
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label fw-bold">@locallizer["กลุ่มงาน / หน่วยงานย่อย"]</label>
+                                    <Select TItem="WorkUnit" TItemValue="string"
+                                            DataSource="@workUnits"
+                                            @bind-Value="@editModel.UnitId"
+                                            LabelName="@nameof(WorkUnit.UnitNameThai)"
+                                            ValueName="@nameof(WorkUnit.UnitId)"
+                                            Disabled="@(string.IsNullOrEmpty(editModel.DeptId))"
+                                            EnableSearch />
+                                </div>
+                            </div>
+
+                            <h5 class="text-primary border-bottom pb-2 mt-4 mb-3">@locallizer["ข้อมูลส่วนบุคคล"]</h5>
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label">@locallizer["ชื่อ (ไทย)"]</label>
+                                    <InputText class="form-control" @bind-Value="editModel.FirstNameThai" />
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label">@locallizer["นามสกุล (ไทย)"]</label>
+                                    <InputText class="form-control" @bind-Value="editModel.LastNameThai" />
+                                </div>
+                                <div class="col-md-12 mb-3">
+                                    <label class="form-label">@locallizer["อีเมล"]</label>
+                                    <InputText class="form-control" @bind-Value="editModel.Email" />
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="mt-4 d-flex justify-content-end border-top pt-3">
+                        <Button OnClick="GoBack" Class="me-2">@locallizer["ยกเลิก"]</Button>
+                        <Button Type="@ButtonType.Primary" HtmlType="submit" Icon="save">
+                            @locallizer["บันทึกการแก้ไข"]
+                        </Button>
+                    </div>
+                </EditForm>
+            }
+        </div>
+    </div>
+</div>
+
+@code {
+    [Parameter] public string Id { get; set; } = "";
+    private Datamodels.Hrms.Employee? editModel;
+    private bool isInitialLoading = true;
+
+    // ข้อมูลสำหรับ Dropdowns
+    private List<Division> divisions = new();
+    private List<Department> departments = new();
+    private List<WorkUnit> workUnits = new();
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadAllData();
+    }
+
+    private async Task LoadAllData()
+    {
+        try
+        {
+            isInitialLoading = true;
+
+            // 1. โหลดข้อมูลพนักงาน
+            editModel = await EmployeeService.GetEmployeeByIdAsync(Id);
+
+            // 2. โหลดข้อมูลสำนักทั้งหมด
+            divisions = await OrganizationService.GetAllDivisionsAsync() ?? new();
+
+            if (editModel != null)
+            {
+                // 3. โหลดข้อมูลฝ่ายและกลุ่มงานตามที่พนักงานสังกัดอยู่เดิม
+                if (!string.IsNullOrEmpty(editModel.DivisionId))
+                    departments = await OrganizationService.GetDepartmentsByDivisionIdAsync(editModel.DivisionId) ?? new();
+
+                if (!string.IsNullOrEmpty(editModel.DeptId))
+                    workUnits = await OrganizationService.GetWorkUnitsByDepartmentIdAsync(editModel.DeptId) ?? new();
+            }
+            else
+            {
+                await Swal.FireAsync(locallizer["ไม่พบข้อมูล"], locallizer["ไม่พบพนักงาน"], SweetAlertIcon.Error);
+                GoBack();
+            }
+        }
+        catch (Exception ex)
+        {
+            MessageService.Error($"โหลดข้อมูลล้มเหลว: {ex.Message}");
+        }
+        finally
+        {
+            isInitialLoading = false;
+        }
+    }
+
+    // เมื่อเปลี่ยนสำนัก -> โหลดฝ่ายใหม่
+    private async Task OnDivisionChanged(Division division)
+    {
+        editModel!.DeptId = null; // Reset ค่าเดิม
+        editModel!.UnitId = null;
+        departments.Clear();
+        workUnits.Clear();
+
+        if (division != null)
+        {
+            departments = await OrganizationService.GetDepartmentsByDivisionIdAsync(division.DivisionId) ?? new();
+        }
+    }
+
+    // เมื่อเปลี่ยนฝ่าย -> โหลดกลุ่มงานใหม่
+    private async Task OnDepartmentChanged(Department department)
+    {
+        editModel!.UnitId = null; // Reset ค่าเดิม
+        workUnits.Clear();
+
+        if (department != null)
+        {
+            workUnits = await OrganizationService.GetWorkUnitsByDepartmentIdAsync(department.DeptId) ?? new();
+        }
+    }
+
+    private async Task HandleValidSubmit()
+    {
+        var result = await Swal.FireAsync(new SweetAlertOptions
+        {
+            Title = locallizer["ยืนยันการแก้ไข"],
+            Text = locallizer["พนักงานคนนี้จะถูกย้ายไปยังหน่วยงานที่เลือกในโครงสร้างองค์กร"],
+            Icon = SweetAlertIcon.Warning,
+            ShowCancelButton = true
+        });
+
+        if (result.IsConfirmed)
+        {
+            var isSuccess = await EmployeeService.UpdateEmployeeAsync(editModel!);
+            if (isSuccess)
+            {
+                await Swal.FireAsync(locallizer["สำเร็จ"], locallizer["อัปเดตข้อมูลและหน่วยงานเรียบร้อย"], SweetAlertIcon.Success);
+                GoBack();
+            }
+        }
+    }
+
+    private void GoBack() => NavigationContext.NavigateTo("/employees");
+}

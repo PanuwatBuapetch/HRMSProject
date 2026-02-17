@@ -6,7 +6,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <base href="/" />
     <link rel="stylesheet" href="bootstrap/bootstrap.min.css" />
-    <link rel="stylesheet" href="app.css" />
     <link rel="stylesheet" href="Hrms_project.styles.css" />
     <link rel="icon" type="image/png" href="favicon.png" />
 
@@ -14,15 +13,17 @@
 
     <link href="_content/AntDesign/css/ant-design-blazor.css" rel="stylesheet">
 
-    <HeadOutlet />
+    <HeadOutlet @rendermode="new InteractiveServerRenderMode(false)" />
 </head>
 
 <body>
     <Routes @rendermode="new InteractiveServerRenderMode(false)" />
     @* <Routes/> *@
     <script src="_framework/blazor.web.js"></script>
-
+    <script src="_content/CurrieTechnologies.Razor.SweetAlert2/sweetalert2.min.js"></script>
     <script src="_content/AntDesign/js/ant-design-blazor.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@2.9.4/dist/Chart.min.js"></script>
+    <script src="_content/ChartJs.Blazor.Fork/ChartJsBlazorInterop.js"></script>
 </body>
 
 </html>

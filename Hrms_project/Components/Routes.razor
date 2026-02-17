@@ -1,29 +1,121 @@
 ﻿@using Hrms_project.Components.Layout
-<Router AppAssembly="typeof(Program).Assembly" AdditionalAssemblies="new[] { typeof(Client._Imports).Assembly }">
+@using Hrms_project.Models
+@inject AuthState State
+@inject NavigationManager Nav
+
+<Router AppAssembly="@typeof(Program).Assembly" AdditionalAssemblies="new[] { typeof(Client._Imports).Assembly }">
     <Found Context="routeData">
-        <RouteView RouteData="@routeData" DefaultLayout="@typeof(MainLayout)" />
-        <FocusOnNavigate RouteData="@routeData" Selector="h1" />
+        @if (State.IsLoggedIn)
+        {
+            @* --- กรณีที่ล็อกอินแล้ว: ให้เข้าถึงหน้าต่างๆ ได้ปกติ --- *@
+            <RouteView RouteData="@routeData" DefaultLayout="@typeof(MainLayout)" />
+            <FocusOnNavigate RouteData="@routeData" Selector="h1" />
+        }
+        else
+        {
+                var path = Nav.ToBaseRelativePath(Nav.Uri).ToLower();
+                if (path.StartsWith("login"))
+                {
+                    <RouteView RouteData="@routeData" DefaultLayout="@typeof(MainLayout)" />
+                }
+                else
+                {
+                    @* ถ้าจะแอบไปหน้าอื่นโดยไม่ล็อกอิน ให้ดีดไปหน้า login ทันที *@
+                    Nav.NavigateTo("login");
+                }
+            
+        }
     </Found>
     <NotFound>
-        <PageTitle>Not found</PageTitle>
-        <div class="container-fluid d-flex justify-content-center" style="background-color: #030637; width: 100vw;height: 100vh;">
-            <div class="card m-5" style="border-radius: 1rem; width: 100rem;">
-                <div class="card-header">
-                    <span class="dot"></span>
-                    <span class="dot-2"></span>
-                    <span class="dot-3"></span>
+        @* --- ส่วนหน้า 404 ของพี่ภูมิที่แต่งมาอย่างสวย --- *@
+        <PageTitle>404 - ไม่พบหน้านี้</PageTitle>
+        <div class="not-found-wrapper">
+            <div class="glass-card shadow-lg">
+                <div class="window-controls">
+                    <span class="dot red"></span>
+                    <span class="dot yellow"></span>
+                    <span class="dot green"></span>
                 </div>
-                <div class="card-body text-center">
-                    <img src="picture/404NotFound.svg" class="img-fluid" alt="Responsive image" width="500"
-                         height="300" />
-                    <h1 class="card-title">Page Not Found</h1>
-                    <p class="card-text fw-light ">
-                        We're sorry.the page you request could not be found
-                        <mark>Please go back to the homepage</mark>
+
+                <div class="card-content p-5 text-center">
+                    <h1 class="display-1 fw-bold text-gradient mb-3">404</h1>
+                    <h2 class="h3 mb-3 text-white">ขออภัย! ไม่พบหน้าที่คุณต้องการ</h2>
+                    <p class="text-light-50 fw-light mb-5">
+                        หน้านี้อาจจะถูกลบไปแล้ว หรือ URL อาจจะผิดพลาด <br />
+                        <mark class="bg-transparent text-warning">กรุณากลับไปที่หน้าหลักเพื่อเริ่มต้นใหม่</mark>
                     </p>
-                    <NavLink href="" class="btn btn-primary btn-lg">Go Homepage</NavLink>
+
+                    <NavLink href="/" class="btn btn-primary-custom btn-lg px-5 shadow">
+                        <i class="bi bi-house-door me-2"></i> กลับหน้าหลัก
+                    </NavLink>
                 </div>
             </div>
         </div>
     </NotFound>
 </Router>
+
+<style>
+    /* CSS ของพี่ภูมิ (คงเดิมไว้ทั้งหมดเพราะสวยมากแล้วครับ) */
+    .not-found-wrapper {
+        background: radial-gradient(circle at center, #070b4d 0%, #030637 100%);
+        width: 100vw;
+        height: 100vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        overflow: hidden;
+        font-family: 'Prompt', sans-serif;
+        position: fixed; /* เพิ่มเพื่อให้เต็มหน้าจอจริงๆ */
+        top: 0;
+        left: 0;
+        z-index: 9999;
+    }
+
+    .glass-card {
+        background: rgba(255, 255, 255, 0.05);
+        backdrop-filter: blur(15px);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        border-radius: 2rem;
+        width: 90%;
+        max-width: 600px;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .window-controls {
+        background: rgba(0, 0, 0, 0.2);
+        padding: 15px 25px;
+        display: flex;
+        gap: 8px;
+    }
+
+    .dot { width: 12px; height: 12px; border-radius: 50%; }
+    .red { background: #ff5f56; }
+    .yellow { background: #ffbd2e; }
+    .green { background: #27c93f; }
+
+    .text-gradient {
+        background: linear-gradient(135deg, #fff 0%, #7d85ff 100%);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+    }
+
+    .btn-primary-custom {
+        background: linear-gradient(135deg, #6366f1 0%, #a855f7 100%);
+        border: none;
+        color: white;
+        border-radius: 50px;
+        padding: 12px 30px;
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+        text-decoration: none;
+        display: inline-block;
+    }
+
+    .btn-primary-custom:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 10px 20px rgba(99, 102, 241, 0.4);
+        color: white;
+    }
+
+    .text-light-50 { color: rgba(255, 255, 255, 0.6); }
+</style>

@@ -1,42 +1,33 @@
-﻿@inject NavigationManager NavigationManager
-@inject IConfiguration Configuration
+﻿@using Hrms_project.Service
+@inject JsonLocalizationService LocService
+@inject NavigationManager Nav
+@inject IJSRuntime JSRuntime
 
-@if (cultures != null)
-{
-
-    <Switch Checked="@IsThai" CheckedChildren="TH" UnCheckedChildren="EN" OnChange="RequestCutureChange" />
-
-}
+<div class="d-flex align-items-center me-3">
+    <div class="form-check form-switch">
+        <input class="form-check-input" type="checkbox" role="switch" id="langSwitch"
+               checked="@(LocService.CurrentCulture == "th-TH")"
+               @onchange="ToggleLanguage"
+               style="cursor: pointer; transform: scale(1.2);">
+        <label class="form-check-label ms-2 fw-bold text-white" for="langSwitch" style="font-size: 14px;">
+            @(LocService.CurrentCulture == "th-TH" ? "ภาษาไทย (TH)" : "English (EN)")
+        </label>
+    </div>
+</div>
 
 @code {
-    public string selectedCulture = System.Threading.Thread.CurrentThread.CurrentCulture.Name;
-    public Dictionary<string, string> cultures;
-
-    protected override void OnInitialized()
+    private async Task ToggleLanguage(ChangeEventArgs e)
     {
-        cultures = Configuration.GetSection("Cultures").GetChildren().ToDictionary(x => x.Key, x => x.Value);
-    }
+        // ถ้า checked (true) ให้เป็น th-TH, ถ้าไม่ (false) ให้เป็น en-US
+        bool isThai = (bool)(e.Value ?? false);
+        string newCulture = isThai ? "th-TH" : "en-US";
 
+        // 1. บันทึกลง LocalStorage
+        await JSRuntime.InvokeVoidAsync("localStorage.setItem", "selectedCulture", newCulture);
 
-    public bool IsEnglish => selectedCulture == "en-US";
+        // 2. สั่งเปลี่ยนภาษาใน Service
+        await LocService.SetCulture(newCulture);
 
-    public bool IsThai => selectedCulture == "th-TH";
-
-
-    public void RequestCutureChange(bool isChecked)
-    {
-
-        // Toggle the selected culture
-        // selectedCulture = isChecked ? "en-US" : "th-TH";
-        selectedCulture = isChecked ? "th-TH" : "en-US";
-
-
-        var uri = new Uri(NavigationManager.Uri).GetComponents(UriComponents.PathAndQuery, UriFormat.Unescaped);
-
-
-        var query = $"?culture={Uri.EscapeDataString(selectedCulture)}&" + $"redirectUri={Uri.EscapeDataString(uri)}";
-
-        // NavigationManager.NavigateTo("/Culture/SetCulture" + query, forceLoad: true);
-        NavigationManager.NavigateTo("/Culture/SetCulture" + query, forceLoad: true);
+        Console.WriteLine($"[Toggle] Switched to: {newCulture}");
     }
 }

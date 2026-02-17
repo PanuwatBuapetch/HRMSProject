@@ -33,8 +33,15 @@ namespace HRMS_API.Controllers
         [HttpPost]
         public async Task<ActionResult<ManagementPosition>> AddManagementPosition(ManagementPosition managementPosition)
         {
-            var newItem = await _managementPositionService.AddManagementPositionAsync(managementPosition);
-            return CreatedAtAction(nameof(GetManagementPosition), new { id = newItem.ManagementPositionId }, newItem);
+            try
+            {
+                var newItem = await _managementPositionService.AddManagementPositionAsync(managementPosition);
+                return CreatedAtAction(nameof(GetManagementPosition), new { id = newItem.ManagementPositionId }, newItem);
+            }
+            catch (InvalidOperationException ex)
+            {
+                return Conflict(ex.Message); // ส่ง 409 Conflict กลับไปถ้าซ้ำ
+            }
         }
 
         [HttpPut("{id}")]

@@ -1,75 +1,68 @@
 ﻿@page "/"
+@using ChartJs.Blazor
+@namespace HrmsApp.Pages
 
-<div class="dashboard-container">
-    <h2 class="mb-4">แดชบอร์ด</h2>
+<PageTitle>Dashboard - HRMS</PageTitle>
 
-    <div class="row">
-
-        <div class="col-md-4 mb-4">
-            <div class="card dashboard-card bg-white p-3">
-                <div class="d-flex align-items-center">
-                    <span class="bi bi-person-lines-fill me-3 p-3 bg-success-subtle text-success fs-3 rounded"></span>
-                    <div>
-                        <h3 class="card-title fw-bold mb-0">24</h3>
-                        <p class="card-text text-muted mb-0">จำนวนผู้บริหาร</p>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <div class="col-md-4 mb-4">
-            <div class="card dashboard-card bg-white p-3">
-                <div class="d-flex align-items-center">
-                    <span class="bi bi-people-fill me-3 p-3 bg-warning-subtle text-warning fs-3 rounded"></span>
-                    <div>
-                        <h3 class="card-title fw-bold mb-0">134</h3>
-                        <p class="card-text text-muted mb-0">จำนวนบุคลากร</p>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <div class="col-md-4 mb-4">
-            <div class="card dashboard-card bg-white p-3">
-                <div class="d-flex align-items-center">
-                    <span class="bi bi-building-fill me-3 p-3 bg-info-subtle text-info fs-3 rounded"></span>
-                    <div>
-                        <h3 class="card-title fw-bold mb-0">14</h3>
-                        <p class="card-text text-muted mb-0">จำนวนหน่วยงานระดับ 3</p>
-                    </div>
-                </div>
-            </div>
-        </div>
+<div class="container-fluid py-3 bg-light min-vh-100">
+    <div class="mb-4">
+        <h4 class="fw-bold text-dark"><i class="bi bi-speedometer2 me-2"></i>Dashboard สรุปภาพรวม</h4>
     </div>
 
-    <div class="row">
-
-        <div class="col-md-4 mb-4">
-            <div class="card chart-card p-3 shadow-sm">
-                <p class="fw-bold">จำนวนบุคลากรต่อหน่วยงานระดับ 1</p>
-                <div class="chart-placeholder" style="height: 300px;">
-
-
-                    [Image of a colorful pie chart]
-
+    @if (IsLoading)
+    {
+        <div class="text-center py-5">
+            <div class="spinner-border text-primary" role="status"></div>
+        </div>
+    }
+    else
+    {
+        @* --- ส่วนของ Card สรุป (ปรับให้เล็กลงและเรียง 4 คอลัมน์) --- *@
+        <div class="row g-3 mb-4">
+            <div class="col-6 col-md-3">
+                <div class="card border-0 shadow-sm rounded-3 p-3 bg-white border-start border-primary border-4">
+                    <div class="text-muted small fw-bold">พนักงาน (STAFF)</div>
+                    <div class="h4 fw-bold mb-0">@staffdetails?.Count <small class="text-muted fs-6">คน</small></div>
+                </div>
+            </div>
+            <div class="col-6 col-md-3">
+                <div class="card border-0 shadow-sm rounded-3 p-3 bg-white border-start border-danger border-4">
+                    <div class="text-muted small fw-bold">ผู้บริหาร (MGT)</div>
+                    <div class="h4 fw-bold mb-0">@Managements?.Count <small class="text-muted fs-6">คน</small></div>
+                </div>
+            </div>
+            <div class="col-6 col-md-3">
+                <div class="card border-0 shadow-sm rounded-3 p-3 bg-white border-start border-success border-4">
+                    <div class="text-muted small fw-bold">แผนก (DEPT)</div>
+                    <div class="h4 fw-bold mb-0">@departments?.Count <small class="text-muted fs-6">แห่ง</small></div>
+                </div>
+            </div>
+            <div class="col-6 col-md-3">
+                <div class="card border-0 shadow-sm rounded-3 p-3 bg-white border-start border-warning border-4">
+                    <div class="text-muted small fw-bold">ตำแหน่ง (POS)</div>
+                    <div class="h4 fw-bold mb-0">@PositionsCount <small class="text-muted fs-6">ตำแหน่ง</small></div>
                 </div>
             </div>
         </div>
 
-        <div class="col-md-4 mb-4">
-            <div class="card chart-card p-3 shadow-sm">
-                <p class="fw-bold">จำนวนบุคลากรต่อหน่วยงานระดับ 2</p>
-                <div class="chart-placeholder" style="height: 300px;">
+        @* --- ส่วนของกราฟ (แบ่ง 2 คอลัมน์ 7:5 เพื่อไม่ให้ใหญ่เกินไป) --- *@
+        <div class="row g-4">
+            <div class="col-lg-7">
+                <div class="card border-0 shadow-sm rounded-3 p-3 h-100">
+                    <h6 class="fw-bold mb-3"><i class="bi bi-bar-chart-line me-2"></i>พนักงานแยกตามแผนก</h6>
+                    <div style="height: 300px;">
+                        <Chart Config="_barConfig"></Chart>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-5">
+                <div class="card border-0 shadow-sm rounded-3 p-3 h-100">
+                    <h6 class="fw-bold mb-3"><i class="bi bi-pie-chart me-2"></i>สัดส่วนสถานะพนักงาน</h6>
+                    <div style="height: 300px;">
+                        <Chart Config="_statusPieConfig"></Chart>
+                    </div>
                 </div>
             </div>
         </div>
-
-        <div class="col-md-4 mb-4">
-            <div class="card chart-card p-3 shadow-sm">
-                <p class="fw-bold">จำนวนบุคลากรต่อหน่วยงานระดับ 3</p>
-                <div class="chart-placeholder" style="height: 300px;">
-                </div>
-            </div>
-        </div>
-    </div>
+    }
 </div>

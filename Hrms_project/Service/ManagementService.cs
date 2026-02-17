@@ -23,7 +23,12 @@ namespace HrmsSolution.Service
         {
             return await _httpClient.GetFromJsonAsync<Management>($"{ApiPath}/{id}");
         }
-
+        public async Task<List<ManagementPosition>> GetAllManagementPositionsAsync()
+        {
+            // ตัวอย่างการเรียกผ่าน HttpClient (ปรับตาม API ของพี่นะครับ)
+            var response = await _httpClient.GetFromJsonAsync<List<ManagementPosition>>("api/Management/Positions");
+            return response ?? new List<ManagementPosition>();
+        }
         public async Task<Management> AddManagementAsync(Management management)
         {
             var response = await _httpClient.PostAsJsonAsync(ApiPath, management);

@@ -30,6 +30,20 @@ namespace HRMS_API.Controllers
             return Ok(item);
         }
 
+        [HttpGet("Positions")] // ต้องมีตัวนี้เพื่อให้ตรงกับ Service ฝั่ง Client
+        public async Task<ActionResult<IEnumerable<ManagementPosition>>> GetAllManagementPositions()
+        {
+            var items = await _managementService.GetAllManagementPositionsAsync();
+            return Ok(items);
+        }
+
+        [HttpGet("Details")] // สำหรับหน้าสรุปที่มีชื่อพนักงานและชื่อตำแหน่ง
+        public async Task<ActionResult<IEnumerable<VManagementDetail>>> GetAllManagementDetails()
+        {
+            var items = await _managementService.GetAllManagementDetailsAsync();
+            return Ok(items);
+        }
+
         [HttpPost]
         public async Task<ActionResult<Management>> AddManagement(Management management)
         {

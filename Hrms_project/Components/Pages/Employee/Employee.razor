@@ -1,0 +1,107 @@
+﻿@page "/employees"
+@namespace Hrms_project.Pages
+@using AntDesign
+@using Datamodels.Hrms
+@* เชื่อมต่อกับ Code-behind *@
+
+<PageTitle>@locallizer["จัดการสถานะ"]</PageTitle>
+
+<div class="container-fluid py-4">
+    @* --- ส่วนหัว (Header) --- *@
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h3 class="fw-bold text-primary m-0">
+            <Icon Type="team" Theme="IconThemeType.Outline" /> @locallizer["ข้อมูลบุคลากร"]
+        </h3>
+        <Button Type="@ButtonType.Primary" Icon="plus-circle" OnClick="ShowAddModal" Size="@ButtonSize.Large">
+            @locallizer["เพิ่มบุคลากร"]
+        </Button>
+    </div>
+
+    @* --- ส่วนค้นหา --- *@
+    <div class="card shadow-sm border-0 mb-4">
+        <div class="card-body">
+            <div class="row">
+                <div class="col-12 col-md-5 col-lg-4">
+                    @* Bind กับ searchText ใน .cs *@
+                    <Search Placeholder="@locallizer["ค้นหาชื่อ-สกุล"]"
+                            @bind-Value="@searchText"
+                            OnSearch="() => StateHasChanged()"
+                            EnterButton="true"
+                            AllowClear="true" />
+                </div>
+            </div>
+        </div>
+    </div>
+
+    @* --- ตารางข้อมูล Ant Design --- *@
+    <div class="card shadow-sm border-0">
+        @* ใช้ FilteredEmployees จาก .cs เป็นแหล่งข้อมูล *@
+        <Table TItem="Datamodels.Hrms.Employee"
+               DataSource="@FilteredEmployees"
+               Loading="@isLoading"
+               Bordered
+               Responsive
+               PaginationPosition="bottomRight">
+
+            <PropertyColumn Property="c => c.CitizenId" Title="@locallizer["เลขบัตรประชาชน"]" Sortable />
+
+            <Column TData="string" Title="@locallizer["ชื่อ-สกุล (ภาษาไทย)"]" Sortable>
+                <div class="fw-bold">@($"{context.FirstNameThai} {context.LastNameThai}")</div>
+                @* แสดง Email เฉพาะจอเล็ก *@
+                <small class="text-muted d-lg-none">@context.Email</small>
+            </Column>
+
+            <PropertyColumn Property="c => c.Email" Title="@locallizer["อีเมล"]" Class="d-none d-lg-table-cell" />
+
+            <ActionColumn Title="@locallizer["การจัดการ"]" Align="ColumnAlign.Center">
+                <Space>
+                    <SpaceItem>
+                        <Tooltip Title="@locallizer["ดูรายละเอียด"]">
+                            <Button Icon="eye" Shape="@ButtonShape.Circle" OnClick="() => ViewEmployeeDetail(context.EmployeeId)" />
+                        </Tooltip>
+                    </SpaceItem>
+                    <SpaceItem>
+                        <Tooltip Title="@locallizer["แก้ไข"]">
+                            <Button Icon="edit" Shape="@ButtonShape.Circle" OnClick='() => NavigationContext.NavigateTo($"/employees/edit/{context.EmployeeId}")' />
+                        </Tooltip>
+                    </SpaceItem>
+                    <SpaceItem>
+                        <Tooltip Title="@locallizer["ลบ"]">
+                            <Button Icon="delete" Danger Shape="@ButtonShape.Circle" OnClick="() => DeleteEmployee(context)" />
+                        </Tooltip>
+                    </SpaceItem>
+                </Space>
+            </ActionColumn>
+        </Table>
+    </div>
+</div>
+
+@* --- Modal: แสดงรายละเอียดพนักงาน (Ant Design) --- *@
+<Modal Title="@locallizer["ข้อมูลส่วนตัว"]"
+       @bind-Visible="@isViewModalVisible"
+       OnOk="@(() => isViewModalVisible = false)"
+       OnCancel="@(() => isViewModalVisible = false)"
+       OkText="@locallizer["ตกลง"]"
+       CancelText="@locallizer["ยกเลิก"]"
+       Width="750">
+    @if (selectedEmployee != null)
+    {
+        <div class="p-3">
+            <div class="row align-items-center">
+                <div class="col-12 col-md-4 text-center mb-4 mb-md-0">
+                    <Avatar Size="AvatarSize.Large" Src="@(string.IsNullOrEmpty(selectedEmployee.PictureUrl) ? "picture/user.png" : selectedEmployee.PictureUrl)" />
+                </div>
+                <div class="col-12 col-md-8">
+                    <Descriptions Bordered Layout="@DescriptionsLayout.Horizontal" Column="1" Size="@DescriptionsSize.Small">
+                        <DescriptionsItem Title="@locallizer["รหัสพนักงาน"]">@selectedEmployee.EmployeeId</DescriptionsItem>
+                        <DescriptionsItem Title="@locallizer["ชื่อ-สกุล (TH)"]">@($"{selectedEmployee.FirstNameThai} {selectedEmployee.LastNameThai}")</DescriptionsItem>
+                        <DescriptionsItem Title="@locallizer["ชื่อ-สกุล (EN)"]">@($"{selectedEmployee.FirstNameEng} {selectedEmployee.LastNameEng}")</DescriptionsItem>
+                        <DescriptionsItem Title="@locallizer["เลขบัตรประชาชน"]">@selectedEmployee.CitizenId</DescriptionsItem>
+                        <DescriptionsItem Title="@locallizer["อีเมล"]">@selectedEmployee.Email</DescriptionsItem>
+                        <DescriptionsItem Title="@locallizer["วันที่เริ่มงาน"]">@selectedEmployee.StartDate</DescriptionsItem>
+                    </Descriptions>
+                </div>
+            </div>
+        </div>
+    }
+</Modal>

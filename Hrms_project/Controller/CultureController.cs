@@ -1,23 +1,39 @@
 ﻿using Microsoft.AspNetCore.Localization;
 using Microsoft.AspNetCore.Mvc;
+using System.Web;
 
-namespace HrmsSolution.Controllers
+namespace Hrms_project.Controllers
 {
     [Route("[controller]/[action]")]
     public class CultureController : Controller
     {
-        public IActionResult SetCulture(string? culture, string redirectUri)
+        public IActionResult SetCulture(string culture, string redirectUri)
         {
             if (culture != null)
             {
-                HttpContext.Response.Cookies.Append(
+                Response.Cookies.Append(
                     CookieRequestCultureProvider.DefaultCookieName,
-                    CookieRequestCultureProvider.MakeCookieValue(
-                        new RequestCulture(culture)));
-
-
+                    CookieRequestCultureProvider.MakeCookieValue(new RequestCulture(culture)),
+                    new CookieOptions
+                    {
+                        Expires = DateTimeOffset.UtcNow.AddYears(1),
+                        Path = "/",
+                        SameSite = SameSiteMode.Lax
+                    }
+                );
             }
-            return LocalRedirect(redirectUri);
+
+            // Decode redirectUri และถ้าว่างให้กลับไปหน้าแรก
+            if (string.IsNullOrEmpty(redirectUri))
+            {
+                redirectUri = "/";
+            }
+            else
+            {
+                redirectUri = HttpUtility.UrlDecode(redirectUri);
+            }
+
+            return Redirect(redirectUri);
         }
     }
 }

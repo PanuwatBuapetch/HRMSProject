@@ -1,284 +1,120 @@
-﻿@* NavMenu.razor - Modern HRMS Navigation Menu *@
+﻿@namespace Hrms_project.Components.Layout
+@using Hrms_project.Service
+@implements IAsyncDisposable
 
-<div class="sidebar">
-    <div class="sidebar-header">
-        <div class="logo-container">
-            <div class="logo-box">
-                <span class="logo-text">H</span>
-            </div>
-            <span class="logo-title">RMS</span>
+<div class="container-fluid">
+    <div class="profile-mobile">
+        <div class="d-flex">
+            <nav class="navbar navbar-expand-sm navbar-dark px-4">
+                <div class="collapse navbar-collapse" id="mynavbar">
+                    <ul class="navbar-nav me-auto">
+                        <li class="nav-item">
+                            <a class="nav-link text-white" href="">
+                                <span class="bi bi-house-fill px-2"></span> @locallizer["หน้าแรก"]
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link text-white" href="settings">
+                                <span class="bi bi-gear-wide-connected px-2"></span> @locallizer["ตั้งค่า"]
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+            </nav>
         </div>
     </div>
 
-    <nav class="sidebar-nav">
-        <!-- การจัดการ Section -->
-        <div class="nav-section">
-            <div class="nav-section-title">ระบบ</div>
+    <div class="profile-mobile">
+        <div class="d-flex">
+            <Dropdown Trigger="@(new Trigger[] { Trigger.Click })" Placement="Placement.BottomRight">
+                <Overlay>
+                    <Menu Style="width: 12rem;">
+                        <MenuItem>
+                            <a class="nav-link text-black" @onclick="ShowLogoutConfirmation">
+                                <span class="bi bi-arrow-left-circle-fill px-2" aria-hidden="true"></span> @locallizer["ออกจากระบบ"]
+                            </a>
+                        </MenuItem>
+                    </Menu>
+                </Overlay>
+                <ChildContent>
+                    <div class="nav-item">
+                        <NavLink class="nav-link px-3 text-white fw-bold" @onclick:preventDefault>
+                            <img src="picture/user.png" class="img-user" />
+                        </NavLink>
+                    </div>
+                </ChildContent>
+            </Dropdown>
 
-            <NavLink class="nav-item" href="/organization">
-                <i class="bi bi-buildings-fill icon-purple"></i>
-                <span>โครงสร้างองค์กร</span>
-            </NavLink>
-
-            <NavLink class="nav-item" href="/personnel">
-                <i class="bi bi-people-fill icon-gray"></i>
-                <span>ข้อมูลบุคลากร</span>
-            </NavLink>
-
-            <NavLink class="nav-item" href="/executive">
-                <i class="bi bi-person-badge-fill icon-orange"></i>
-                <span>ข้อมูลผู้บริหาร</span>
-            </NavLink>
-
-            <NavLink class="nav-item" href="/profile">
-                <i class="bi bi-award-fill icon-blue"></i>
-                <span>โปรไฟล์</span>
-            </NavLink>
-        </div>
-
-        <!-- ข้อมูลส่วนตัว Section -->
-        <div class="nav-section">
-            <div class="nav-section-title">ข้อมูลส่วนตัว</div>
-
-            <NavLink class="nav-item" href="/mydata">
-                <i class="bi bi-person-vcard-fill icon-blue"></i>
-                <span>ข้อมูลส่วนตัว</span>
-            </NavLink>
-       
-        </div>
-
-        <!-- จัดทำโดย Footer -->
-        <div class="nav-section nav-footer-section">
-            <div class="nav-footer-title">จัดทำโดย</div>
-            <div class="nav-footer-text">
-                ภานุวัฒน์ บัวเพชร<br />
+            <div class="nav-link mt-1 px-1">
+                <ChangeLanguae />
             </div>
-        </div>
-    </nav>
 
-    <div class="sidebar-footer">
-        <small class="text-muted">© 2024 </small>
+            <button title="Navigation menu" class="navbar-toggler mx-3 bg-dark" @onclick="ToggleNavMenu">
+                <span class="navbar-toggler-icon fw-bold"></span>
+            </button>
+        </div>
     </div>
 </div>
 
-<style>
-    .sidebar {
-        width: 250px;
-        height: 100vh;
-        background: #ffffff;
-        border-right: 1px solid #e0e0e0;
-        display: flex;
-        flex-direction: column;
-        position: fixed;
-        left: 0;
-        top: 0;
-        overflow-y: auto;
-        box-shadow: 2px 0 10px rgba(0,0,0,0.05);
-    }
+<div class="@NavMenuCssClass" @onclick="ToggleNavMenu">
+    <div class="container-fluid">
+        <div class="profile-ipad">
+            <nav class="flex-column">
+                <div class="topic-menu mt-3">
+                    <p>@locallizer["เมนู"]</p>
+                </div>
+                <div class="nav-item px-3">
+                    <NavLink class="nav-link" href="" Match="NavLinkMatch.All">
+                        <span class="bi bi-house-fill" aria-hidden="true"></span> @locallizer["หน้าแรก"]
+                    </NavLink>
+                </div>
+                <div class="nav-item px-3">
+                    <NavLink class="nav-link" href="settings">
+                        <span class="bi bi-gear-wide-connected" aria-hidden="true"></span> @locallizer["ตั้งค่า"]
+                    </NavLink>
+                </div>
+            </nav>
+        </div>
 
-    .sidebar-header {
-        padding: 20px;
-        border-bottom: 1px solid #e0e0e0;
-    }
+        <nav class="flex-column">
+            <div class="topic-menu">
+                <p>@locallizer["การจัดการ"]</p>
+            </div>
+            <div class="nav-item px-3">
+                <NavLink class="nav-link" href="employees">
+                    <span class="bi bi-people-fill" aria-hidden="true"></span> @locallizer["ข้อมูลบุคลากร"]
+                </NavLink>
+            </div>
+            <div class="nav-item px-3">
+                <NavLink class="nav-link" href="executive">
+                    <span class="bi bi-person-badge-fill" aria-hidden="true"></span> @locallizer["ข้อมูลผู้บริหาร"]
+                </NavLink>
+            </div>
+            <div class="nav-item px-3">
+                <NavLink class="nav-link" href="organization">
+                    <span class="bi bi-buildings-fill" aria-hidden="true"></span> @locallizer["โครงสร้างองค์กร"]
+                </NavLink>
+            </div>
 
-    .logo-container {
-        display: flex;
-        align-items: center;
-        gap: 12px;
-    }
+            <div class="line-hr"><hr /></div>
 
-    .logo-box {
-        width: 40px;
-        height: 40px;
-        background: linear-gradient(135deg, #2196F3 0%, #1976D2 100%);
-        border-radius: 8px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        box-shadow: 0 2px 8px rgba(33, 150, 243, 0.3);
-    }
+            <div class="topic-menu">
+                <p>@locallizer["ข้อมูลส่วนตัว"]</p>
+            </div>
+            <div class="nav-item px-3">
+                <NavLink class="nav-link" href="profile">
+                    <span class="bi bi-person-vcard-fill" aria-hidden="true"></span> @locallizer["ข้อมูลส่วนตัว"]
+                </NavLink>
+            </div>
 
-    .logo-text {
-        color: white;
-        font-size: 24px;
-        font-weight: bold;
-    }
+            <div class="line-hr"><hr /></div>
 
-    .logo-title {
-        font-size: 20px;
-        font-weight: bold;
-        color: #1976D2;
-    }
-
-    .sidebar-nav {
-        flex: 1;
-        padding: 10px 0;
-    }
-
-    .nav-section {
-        margin-bottom: 20px;
-    }
-
-    .nav-section-title {
-        padding: 8px 20px;
-        font-size: 12px;
-        font-weight: 600;
-        color: #2196F3;
-        text-transform: uppercase;
-        letter-spacing: 0.5px;
-        margin-top: 10px;
-    }
-
-    .nav-item {
-        display: flex;
-        align-items: center;
-        padding: 12px 20px;
-        color: #333;
-        text-decoration: none;
-        transition: all 0.3s ease;
-        border-left: 3px solid transparent;
-        gap: 12px;
-    }
-
-        .nav-item i {
-            font-size: 20px;
-            width: 28px;
-            color: #666;
-            transition: all 0.3s ease;
-        }
-
-    /* Icon Colors */
-    .icon-purple {
-        color: #9C27B0 !important;
-    }
-
-    .icon-orange {
-        color: #FF9800 !important;
-    }
-
-    .icon-blue {
-        color: #2196F3 !important;
-    }
-
-    .icon-gray {
-        color: #757575 !important;
-    }
-
-    .nav-item:hover .icon-purple {
-        color: #7B1FA2 !important;
-    }
-
-    .nav-item:hover .icon-orange {
-        color: #F57C00 !important;
-    }
-
-    .nav-item:hover .icon-blue {
-        color: #1976D2 !important;
-    }
-
-    .nav-item:hover .icon-gray {
-        color: #616161 !important;
-    }
-
-    .nav-item span {
-        font-size: 14px;
-    }
-
-    .nav-item:hover {
-        background: #f5f5f5;
-        color: #2196F3;
-        border-left-color: #2196F3;
-    }
-
-        .nav-item:hover i {
-            color: #2196F3;
-        }
-
-    .nav-item.active {
-        background: linear-gradient(90deg, rgba(33, 150, 243, 0.1) 0%, rgba(33, 150, 243, 0.05) 100%);
-        color: #2196F3;
-        border-left-color: #2196F3;
-        font-weight: 500;
-    }
-
-        .nav-item.active i {
-            color: #2196F3;
-        }
-
-    .nav-subsection {
-        padding-left: 20px;
-    }
-
-    .nav-subitem {
-        display: block;
-        padding: 8px 20px;
-        color: #666;
-        text-decoration: none;
-        font-size: 13px;
-        transition: all 0.2s ease;
-        border-left: 2px solid transparent;
-    }
-
-        .nav-subitem:hover {
-            color: #2196F3;
-            background: #f9f9f9;
-            border-left-color: #2196F3;
-            padding-left: 25px;
-        }
-
-    .sidebar-footer {
-        padding: 20px;
-        text-align: center;
-        border-top: 1px solid #e0e0e0;
-    }
-
-    /* Footer in navigation */
-    .nav-footer-section {
-        margin-top: auto;
-        padding: 20px;
-        background: #f8f9fa;
-        border-top: 1px solid #e0e0e0;
-    }
-
-    .nav-footer-title {
-        font-size: 13px;
-        font-weight: 600;
-        color: #2196F3;
-        margin-bottom: 10px;
-        text-align: center;
-    }
-
-    .nav-footer-text {
-        font-size: 11px;
-        color: #666;
-        line-height: 1.6;
-        text-align: center;
-    }
-
-    /* Scrollbar styling */
-    .sidebar::-webkit-scrollbar {
-        width: 6px;
-    }
-
-    .sidebar::-webkit-scrollbar-track {
-        background: #f1f1f1;
-    }
-
-    .sidebar::-webkit-scrollbar-thumb {
-        background: #c1c1c1;
-        border-radius: 3px;
-    }
-
-        .sidebar::-webkit-scrollbar-thumb:hover {
-            background: #a8a8a8;
-        }
-</style>
-
-@code {
-    private bool collapseNavMenu = false;
-
-    private void ToggleNavMenu()
-    {
-        collapseNavMenu = !collapseNavMenu;
-    }
-}
+            <div class="detail-navmenu text-detail-navmenu">
+                <p>
+                    จัดทำโดย ภานุวัฒน์ บัวเพชร <br />
+                    Software Version : Demo
+                </p>
+            </div>
+        </nav>
+    </div>
+</div>

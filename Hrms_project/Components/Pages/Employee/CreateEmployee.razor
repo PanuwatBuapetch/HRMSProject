@@ -1,0 +1,272 @@
+﻿@page "/employees/create"
+@using AntDesign
+@using Datamodels.Hrms
+@using Microsoft.AspNetCore.Components.Forms
+
+@* ไม่ต้อง @inherits เพราะใช้ partial class แล้ว *@
+
+<PageTitle>@locallizer["เพิ่มบุคลากร"] - HRMS</PageTitle>
+
+<div class="container-fluid">
+    <div class="d-flex justify-content-between align-items-center mt-3 mb-4">
+        <h3 class="fw-bold text-primary">
+            <i class="bi bi-person-plus-fill me-2"></i>@locallizer["เพิ่มบุคลากรใหม่"]
+        </h3>
+    </div>
+
+    @* --- Stepper --- *@
+    <div class="card shadow-sm mb-4 border-0">
+        <div class="card-body p-4">
+            <Steps Current="current" Size="StepsSize.Small">
+                @foreach (var item in Steps)
+                {
+                    <Step Title="@item.Title" Icon="@item.Icon" />
+                }
+            </Steps>
+        </div>
+    </div>
+
+    <div class="card shadow border-0" style="border-radius: 12px;">
+        <div class="card-body p-4">
+            <EditForm EditContext="@editContext" OnValidSubmit="HandleSubmit">
+                <DataAnnotationsValidator />
+
+                @* --- Step 0: ข้อมูลส่วนตัว --- *@
+                @if (current == 0)
+                {
+                    <div class="animate-fade-in">
+                        <h5 class="text-secondary mb-3"><i class="bi bi-person-vcard me-2"></i>@locallizer["ข้อมูลส่วนตัว"]</h5>
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <label class="form-label">@locallizer["ชื่อ (ไทย)"] <span class="text-danger">*</span></label>
+                                <InputText @bind-Value="NewEmployee.FirstNameThai" class="form-control" placeholder="ระบุชื่อจริง" />
+                                <ValidationMessage For="@(() => NewEmployee.FirstNameThai)" />
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">@locallizer["นามสกุล (ไทย)"] <span class="text-danger">*</span></label>
+                                <InputText @bind-Value="NewEmployee.LastNameThai" class="form-control" placeholder="ระบุนามสกุล" />
+                                <ValidationMessage For="@(() => NewEmployee.LastNameThai)" />
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">@locallizer["ชื่อ (อังกฤษ)"]</label>
+                                <InputText @bind-Value="NewEmployee.FirstNameEng" class="form-control" placeholder="Name" />
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">@locallizer["นามสกุล (อังกฤษ)"]</label>
+                                <InputText @bind-Value="NewEmployee.LastNameEng" class="form-control" placeholder="Surname" />
+                            </div>
+                            <div class="col-md-12">
+                                <label class="form-label">@locallizer["เลขบัตรประชาชน"] <span class="text-danger">*</span></label>
+                                <InputText @bind-Value="NewEmployee.CitizenId" class="form-control" maxlength="13" placeholder="ระบุเลข 13 หลัก" />
+                                <ValidationMessage For="@(() => NewEmployee.CitizenId)" />
+                            </div>
+                        </div>
+                    </div>
+                }
+
+                @* --- Step 1: ข้อมูลการจ้างงาน --- *@
+                else if (current == 1)
+                {
+                    <div class="animate-fade-in">
+                        <h5 class="text-secondary mb-3"><i class="bi bi-building me-2"></i>@locallizer["สังกัดและตำแหน่ง"]</h5>
+                        <div class="row g-3">
+                            <div class="col-md-12">
+                                <label class="form-label">@locallizer["สำนัก / กอง"] <span class="text-danger">*</span></label>
+                                <InputSelect ValueExpression="@(() => NewEmployee.DivisionId)"
+                                             Value="@NewEmployee.DivisionId"
+                                             ValueChanged="@((string value) => OnDivisionChanged(value))"
+                                             class="form-select">
+                                    <option value="">-- @locallizer["เลือกสำนัก/กอง"] --</option>
+                                    @foreach (var item in divisions)
+                                    {
+                                        <option value="@item.DivisionId">@item.DivisionNameThai</option>
+                                    }
+                                </InputSelect>
+                                <ValidationMessage For="@(() => NewEmployee.DivisionId)" />
+                            </div>
+
+                            <div class="col-md-6">
+                                <label class="form-label">@locallizer["ฝ่าย / คณะ"]</label>
+                                <InputSelect ValueExpression="@(() => NewEmployee.DeptId)"
+                                             Value="@NewEmployee.DeptId"
+                                             ValueChanged="@((string value) => OnDepartmentChanged(value))"
+                                             class="form-select"
+                                             disabled="@(string.IsNullOrEmpty(NewEmployee.DivisionId))">
+                                    <option value="">-- @locallizer["เลือกฝ่าย"] --</option>
+                                    @foreach (var item in departments)
+                                    {
+                                        <option value="@item.DeptId">@item.DeptNameThai</option>
+                                    }
+                                </InputSelect>
+                            </div>
+
+                            <div class="col-md-6">
+                                <label class="form-label">@locallizer["กลุ่มงาน"]</label>
+                                <InputSelect @bind-Value="NewEmployee.UnitId" class="form-select" disabled="@(string.IsNullOrEmpty(NewEmployee.DeptId))">
+                                    <option value="">-- @locallizer["เลือกกลุ่มงาน"] --</option>
+                                    @foreach (var item in workUnits)
+                                    {
+                                        <option value="@item.UnitId">@item.UnitNameThai</option>
+                                    }
+                                </InputSelect>
+                            </div>
+
+                            <div class="col-12"><hr class="text-muted" /></div>
+
+                            <div class="col-md-6">
+                                <label class="form-label">@locallizer["รหัสตำแหน่ง (Position ID)"]</label>
+                                <InputText @bind-Value="NewEmployee.PositionId" class="form-control" placeholder="Optional" />
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">@locallizer["วันที่เริ่มงาน"]</label>
+                                @* แก้ไข: ใช้ InputText type="date" เพราะ Model เป็น string *@
+                                <InputText @bind-Value="NewEmployee.StartDate" type="date" class="form-control" />
+                            </div>
+                        </div>
+                    </div>
+                }
+
+                @* --- Step 2: ข้อมูลติดต่อ --- *@
+                else if (current == 2)
+                {
+                    <div class="animate-fade-in">
+                        <h5 class="text-secondary mb-3"><i class="bi bi-telephone me-2"></i>@locallizer["ช่องทางติดต่อ"]</h5>
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <label class="form-label">@locallizer["อีเมล"] <span class="text-danger">*</span></label>
+                                <InputText @bind-Value="NewEmployee.Email" class="form-control" type="email" placeholder="name@example.com" />
+                                <ValidationMessage For="@(() => NewEmployee.Email)" />
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">@locallizer["เบอร์โทรฉุกเฉิน"]</label>
+                                @* แก้ไข: ใช้ EmergencyContactPhone แทน PhoneNumber *@
+                                <InputText @bind-Value="NewEmployee.EmergencyContactPhone" class="form-control" placeholder="08x-xxx-xxxx" />
+                            </div>
+                            <div class="col-md-12">
+                                <label class="form-label">@locallizer["ที่อยู่ปัจจุบัน"]</label>
+                                @* แก้ไข: ใช้ CurrentAddress แทน Address *@
+                                <InputTextArea @bind-Value="NewEmployee.CurrentAddress" class="form-control" rows="3" placeholder="บ้านเลขที่, หมู่บ้าน, ถนน..." />
+                            </div>
+                        </div>
+                    </div>
+                }
+
+                @* --- Step 3: สรุปข้อมูล --- *@
+                else if (current == 3)
+                {
+                    <div class="animate-fade-in">
+                        <div class="text-center mb-4">
+                            <div class="bg-success text-white rounded-circle d-inline-flex justify-content-center align-items-center shadow-sm" style="width: 64px; height: 64px;">
+                                <i class="bi bi-check-lg fs-2"></i>
+                            </div>
+                            <h4 class="mt-3 fw-bold">@locallizer["ตรวจสอบความถูกต้อง"]</h4>
+                            <p class="text-muted">กรุณาตรวจสอบข้อมูลก่อนกดบันทึก</p>
+                        </div>
+
+                        <div class="card bg-light border-0 mb-3">
+                            <div class="card-body p-4">
+                                <div class="row">
+                                    <div class="col-md-6 border-end">
+                                        <h6 class="text-primary fw-bold mb-3 border-bottom pb-2"><i class="bi bi-person me-2"></i>ข้อมูลส่วนตัว</h6>
+                                        <div class="mb-2">
+                                            <span class="text-muted d-block small">ชื่อ-นามสกุล (ไทย)</span>
+                                            <span class="fw-bold fs-5">@NewEmployee.FirstNameThai @NewEmployee.LastNameThai</span>
+                                        </div>
+                                        <div class="mb-2">
+                                            <span class="text-muted d-block small">Name (Eng)</span>
+                                            <span>@NewEmployee.FirstNameEng @NewEmployee.LastNameEng</span>
+                                        </div>
+                                        <div class="mb-2">
+                                            <span class="text-muted d-block small">บัตรประชาชน</span>
+                                            <span>@NewEmployee.CitizenId</span>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6 ps-md-4">
+                                        <h6 class="text-primary fw-bold mb-3 border-bottom pb-2"><i class="bi bi-briefcase me-2"></i>การทำงาน</h6>
+                                        <div class="mb-2">
+                                            <span class="text-muted d-block small">สังกัด</span>
+                                            <span class="fw-bold">@GetDivisionName(NewEmployee.DivisionId)</span>
+                                            <div class="small text-secondary">@GetDeptName(NewEmployee.DeptId)</div>
+                                            <div class="small text-secondary">@GetUnitName(NewEmployee.UnitId)</div>
+                                        </div>
+                                        <div class="mb-2">
+                                            <span class="text-muted d-block small">เริ่มงาน</span>
+                                            @* แก้ไข: แสดง string โดยตรง *@
+                                            <span>@(string.IsNullOrEmpty(NewEmployee.StartDate) ? "-" : NewEmployee.StartDate)</span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="row mt-3 pt-3 border-top">
+                                    <div class="col-12">
+                                        <h6 class="text-primary fw-bold mb-3"><i class="bi bi-geo-alt me-2"></i>การติดต่อ</h6>
+                                        <div class="d-flex flex-wrap gap-3">
+                                            <div class="d-flex align-items-center bg-white border rounded px-3 py-2">
+                                                <i class="bi bi-envelope text-danger me-2"></i>
+                                                <span>@NewEmployee.Email</span>
+                                            </div>
+                                            <div class="d-flex align-items-center bg-white border rounded px-3 py-2">
+                                                <i class="bi bi-telephone text-success me-2"></i>
+                                                @* แก้ไข: ใช้ EmergencyContactPhone *@
+                                                <span>@(string.IsNullOrEmpty(NewEmployee.EmergencyContactPhone) ? "-" : NewEmployee.EmergencyContactPhone)</span>
+                                            </div>
+                                        </div>
+                                        @* แก้ไข: ใช้ CurrentAddress *@
+                                        @if (!string.IsNullOrEmpty(NewEmployee.CurrentAddress))
+                                        {
+                                            <div class="mt-2 text-muted small">
+                                                <i class="bi bi-house me-1"></i> @NewEmployee.CurrentAddress
+                                            </div>
+                                        }
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                }
+
+                @* --- Action Buttons --- *@
+                <div class="d-flex justify-content-between mt-5 pt-3 border-top">
+                    <button type="button" class="btn btn-outline-secondary px-4 rounded-pill" @onclick="Prev" disabled="@(current == 0)">
+                        <i class="bi bi-arrow-left me-1"></i> @locallizer["ย้อนกลับ"]
+                    </button>
+
+                    @if (current < Steps.Count - 1)
+                    {
+                        <button type="button" class="btn btn-primary px-4 rounded-pill" @onclick="Next">
+                            @locallizer["ถัดไป"] <i class="bi bi-arrow-right ms-1"></i>
+                        </button>
+                    }
+                    else
+                    {
+                        <button type="submit" class="btn btn-success px-4 rounded-pill">
+                            <i class="bi bi-check-circle me-1"></i> @locallizer["ยืนยันและบันทึก"]
+                        </button>
+                    }
+                </div>
+
+            </EditForm>
+        </div>
+    </div>
+</div>
+
+<style>
+    .animate-fade-in {
+        animation: fadeIn 0.4s ease-in-out;
+    }
+
+    @@keyframes fadeIn {
+        from {
+            opacity: 0;
+            transform: translateY(10px);
+        }
+
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+    /* แก้ CSS class small ที่หาไม่เจอ */
+    .small {
+        font-size: 0.875em;
+    }
+</style>

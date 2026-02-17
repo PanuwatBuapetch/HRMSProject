@@ -54,4 +54,34 @@ public partial class Employee
     public string? Pincode { get; set; }
 
     public decimal? SecretCode { get; set; }
+
+    public DateOnly? BirthDate { get; set; }
+
+    public string? Gender { get; set; }
+
+    public string? Nationality { get; set; }
+
+    public string? Religion { get; set; }
+
+    public string? MilitaryStatus { get; set; }
+
+    public string? EmergencyContactName { get; set; }
+
+    public string? EmergencyContactPhone { get; set; }
+
+    public string? EmergencyContactRelation { get; set; }
+
+    public string? CurrentAddress { get; set; }
+
+    public string? PermanentAddress { get; set; }
+
+    public string? BankName { get; set; }
+
+    public string? BankAccountNo { get; set; }
+
+    public string? SocialSecurityNo { get; set; }
+
+    public string? TaxId { get; set; }
+
+    public string? ManagerId { get; set; }
 }

@@ -1,326 +1,452 @@
 ﻿@page "/organization"
-@rendermode InteractiveServer
 @using Datamodels.Hrms
 @using HrmsSolution.Service
 @using AntDesign
+@using CurrieTechnologies.Razor.SweetAlert2
 @inject IOrganizationService OrganizationService
+@inject IVEmployeeDetailsService EmployeeService
+@inject JsonLocalizationService locallizer
 @inject MessageService MessageService
+@inject ModalService ModalService
+@inject NavigationManager NavigationManager
+@inject SweetAlertService Swal
+@rendermode InteractiveServer
 
-<PageTitle>โครงสร้างองค์กร</PageTitle>
+@using static AntDesign.IconType
+@using static AntDesign.ButtonType
+@using static AntDesign.AvatarSize
+@using static AntDesign.TagColor
+@using static AntDesign.SpinSize
 
-<style>
-    .org-chart-container {
-        padding: 24px;
-        background-color: #f8f9fa;
-        overflow-x: auto;
-        min-width: 900px;
-    }
+<PageTitle>@locallizer["โครงสร้างองค์กรและบุคลากร"]</PageTitle>
 
-    .org-chart-header {
-        display: flex;
-        align-items: center;
-        gap: 16px;
-        margin-bottom: 16px;
-    }
-
-    .org-chart-grid {
-        display: flex;
-        flex-direction: column;
-        gap: 12px;
-    }
-
-    .division-row {
-        display: flex;
-        gap: 12px;
-        flex-wrap: wrap;
-    }
-
-    .unit-tag {
-        margin-right: 6px;
-        margin-bottom: 6px;
-    }
-
-    .card-division {
-        min-width: 300px;
-        width: 320px;
-    }
-
-    .dept-card {
-        margin-top: 8px;
-    }
-
-    .search-box {
-        width: 320px;
-    }
-</style>
-
-<div class="org-chart-container">
-    <div class="org-chart-header">
-        <h3 style="margin:0;">โครงสร้างองค์กร</h3>
-
-        <div class="search-box">
-            <AntDesign.Input Placeholder="ค้นหาชื่อสำนัก/กอง..."
-                             Value="searchTerm"
-                             ValueChanged="@((string v) => { searchTerm = v ?? string.Empty; ApplyFilter(); })" />
-        </div>
-
-        <div style="margin-left:auto; display:flex; gap:8px; align-items:center;">
-            <Button Type="@ButtonType.Primary" OnClick="@LoadOrganizationData">รีเฟรช</Button>
-            <Button Type="@ButtonType.Default" OnClick="@SeedSampleDataAsync">สร้างข้อมูลตัวอย่าง</Button>
-        </div>
-    </div>
-
-    @if (isLoading)
+<div class="container-fluid px-4 py-3">
+    @if (IsLoading)
     {
-        <div style="text-align:center; padding:28px;">
-            <Spin Size="@SpinSize.Large" />
-        </div>
-    }
-    else if (filteredDivisions is null || !filteredDivisions.Any())
-    {
-        <div style="padding:16px;">
-            ไม่พบข้อมูลสำนัก/กอง
-            <div style="margin-top:8px;">
-                <Button Type="@ButtonType.Primary" OnClick="@SeedSampleDataAsync">สร้างข้อมูลตัวอย่าง</Button>
-            </div>
+        <div class="spinner-container d-flex justify-content-center align-items-center" style="height: 80vh;">
+            <Spin Size="SpinSize.Large" Tip="กำลังโหลดข้อมูล..." />
         </div>
     }
     else
     {
-        <div class="org-chart-grid">
-            @foreach (var division in filteredDivisions)
-            {
-                <Card Title="@(division.DivisionNameThai ?? division.DivisionNameEng)" Class="card-division">
-                    <div>
-                        <div style="font-size:0.9rem; color:#666; margin-bottom:8px;">
-                            รหัส: @division.DivisionId
-                        </div>
+        @* --- Header Section --- *@
+        <div class="d-flex justify-content-between align-items-center mb-4 bg-white p-3 rounded shadow-sm">
+            <div class="title">
+                <h3 class="fw-bold mb-1">@locallizer["โครงสร้างองค์กร"]</h3>
+                <Breadcrumb>
+                    <BreadcrumbItem Href=""><Icon Type="home" /> <span>@locallizer["หน้าแรก"]</span></BreadcrumbItem>
+                    <BreadcrumbItem><Icon Type="apartment" /> <span>@locallizer["โครงสร้างองค์กร"]</span></BreadcrumbItem>
+                </Breadcrumb>
+            </div>
+            <div class="header-actions gap-2 d-flex">
+                <Button Type="Primary" Icon="plus-circle" OnClick="() => _visibleDivision = true">
+                    @locallizer["เพิ่มสำนัก/กอง"]
+                </Button>
+                @if (CurrentDivision != null)
+                {
+                    <Button Type="ButtonType.Default" Icon="folder-add" OnClick="() => OpenAddDepartmentModal()">
+                        @locallizer["เพิ่มฝ่าย (ในสังกัดนี้)"]
+                    </Button>
+                }
+            </div>
+        </div>
 
-                        <div class="division-row">
-                            @{
-                                var depts = departments.Where(d => d.DivisionId == division.DivisionId).ToList();
-                            }
-
-                            @if (!depts.Any())
-                            {
-                                <div style="color:#999">ไม่มีฝ่าย/แผนก</div>
-                            }
-                            else
-                            {
-                                foreach (var dept in depts)
-                                {
-                                    <Card Size="@CardSize.Small" Title="@(dept.DeptNameThai ?? dept.DeptNameEng)" Class="dept-card">
-                                        <div style="font-size:0.85rem; color:#666; margin-bottom:6px;">รหัส: @dept.DeptId</div>
-                                        <div>
-                                            @{
-                                                var units = workUnits.Where(u => u.DeptId == dept.DeptId).ToList();
-                                            }
-                                            @if (!units.Any())
-                                            {
-                                                <div style="color:#999">ไม่มีหน่วย</div>
-                                            }
-                                            else
-                                            {
-                                                foreach (var u in units)
-                                                {
-                                                    <Tag Color="@TagColor.Blue" Class="unit-tag">@((u.UnitNameThai ?? u.UnitNameEng))</Tag>
-                                                }
-                                            }
-                                        </div>
-                                    </Card>
-                                }
-                            }
+        @* --- Navigation/Search --- *@
+        <div class="card shadow-sm border-0 mb-4">
+            <div class="card-body">
+                <div class="row align-items-center g-3">
+                    <div class="col-12 col-md-6">
+                        <div class="input-group">
+                            <Input Placeholder="@($"{locallizer["ค้นหาฝ่ายภายใน"]} {(CurrentDivision != null ? CurrentDivision.DivisionNameThai : "")}")"
+                                   @bind-Value="searchTerm" OnInput="HandleSearch" />
+                            <Button OnClick="ClearData">@locallizer["ล้าง"]</Button>
                         </div>
                     </div>
-                </Card>
+                    <div class="col-12 col-md-6 text-md-end">
+                        <div class="btn-group">
+                            <Button Disabled="@(currentIndex <= 0 || IsLoadingDATA)" OnClick="LoadPreviousData" Icon="left">@locallizer["ย้อนกลับ"]</Button>
+                            <Button Disabled="@(currentIndex >= ShowDivisions.Count - 1 || IsLoadingDATA)" OnClick="LoadNextData">
+                                @locallizer["ถัดไป"] <Icon Type="right" />
+                            </Button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        @* --- Content Area --- *@
+        <div class="row justify-content-center">
+            @if (CurrentDivision != null)
+            {
+                <div class="col-12 text-center mb-4">
+                    <Card Bordered Style="border-left: 5px solid #1890ff; max-width: 600px; margin: 0 auto;" Class="shadow-sm">
+                        <div class="d-flex align-items-center justify-content-between">
+                            <div class="d-flex align-items-center gap-3">
+                                <Avatar Icon="bank" Size="AvatarSize.Large" Style="background-color: #1890ff;" />
+                                <div class="text-start">
+                                    <h4 class="mb-0 fw-bold">@CurrentDivision.DivisionNameThai</h4>
+                                    <div style="font-size: 12px; color: #8c8c8c;">@CurrentDivision.DivisionNameEng</div>
+                                </div>
+                            </div>
+                            <div class="d-flex gap-1">
+                                <Tooltip Title="@locallizer["แก้ไขสำนัก/กอง"]">
+                                    <Button Type="ButtonType.Text" Shape="@ButtonShape.Circle" Icon="edit" OnClick="() => OpenEditDivision(CurrentDivision)" />
+                                </Tooltip>
+                                <Tooltip Title="@locallizer["ลบสำนัก/กอง"]">
+                                    <Button Type="ButtonType.Text" Danger Shape="@ButtonShape.Circle" Icon="delete" OnClick="() => HandleDeleteDivision(CurrentDivision)" />
+                                </Tooltip>
+                            </div>
+                        </div>
+                    </Card>
+                </div>
+            }
+
+            @if (IsLoadingDATA)
+            {
+                <div class="col-12 text-center p-5"><Spin Tip="กำลังโหลดรายชื่อฝ่าย..." /></div>
+            }
+            else
+            {
+                <div class="org-grid-wrapper w-100">
+                    @if (FilteredDepartments != null && FilteredDepartments.Any())
+                    {
+                        <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
+                            @foreach (var dept in FilteredDepartments.Skip(currentPage * pageSize).Take(pageSize))
+                            {
+                                <div class="col">
+                                    <Card Title="@dept.DeptNameThai" Class="h-100 shadow-sm dept-card">
+                                        <Extra>
+                                            <div class="d-flex align-items-center gap-1">
+                                                <Tag Color="Blue">@dept.DeptId</Tag>
+                                                <Dropdown>
+                                                    <Overlay>
+                                                        <Menu>
+                                                            <MenuItem OnClick="() => OpenEditDepartment(dept)">
+                                                                <Icon Type="edit" /> @locallizer["แก้ไขข้อมูลฝ่าย"]
+                                                            </MenuItem>
+                                                            <MenuItem OnClick="() => NavigateToAddEmployee(dept)">
+                                                                <Icon Type="user-add" /> @locallizer["เพิ่มบุคลากรใหม่"]
+                                                            </MenuItem>
+                                                            <MenuDivider />
+                                                            <MenuItem Danger OnClick="() => HandleDeleteDepartment(dept)">
+                                                                <Icon Type="delete" /> @locallizer["ลบฝ่าย"]
+                                                            </MenuItem>
+                                                        </Menu>
+                                                    </Overlay>
+                                                    <ChildContent>
+                                                        <Button Type="ButtonType.Text" Shape="@ButtonShape.Circle" Icon="more" />
+                                                    </ChildContent>
+                                                </Dropdown>
+                                            </div>
+                                        </Extra>
+                                        <Body>
+                                            <div class="mb-2"><span style="font-size: 12px; color: #8c8c8c;">@dept.DeptNameEng</span></div>
+
+                                            @* --- Employee Section (Click to Manage) --- *@
+                                            <div class="employee-section mb-3 p-2 rounded" style="background-color: #f9f9f9; cursor: pointer;" 
+                                                 @onclick="() => OpenManageEmployeesModal(dept)">
+                                                @{
+                                                    var deptEmps = allEmployees.Where(e => !string.IsNullOrEmpty(e.DeptId) && string.Equals(e.DeptId.Trim(), dept.DeptId.Trim(), StringComparison.OrdinalIgnoreCase)).ToList();
+                                                }
+                                                <div class="d-flex align-items-center justify-content-between">
+                                                    <div class="d-flex align-items-center">
+                                                        @if (deptEmps.Any())
+                                                        {
+                                                            <AvatarGroup>
+                                                                @foreach (var emp in deptEmps)
+                                                                {
+                                                                    <Tooltip Title="@($"{emp.FirstNameThai} {emp.LastNameThai}")">
+                                                                        <Avatar Src="@(string.IsNullOrEmpty(emp.PictureUrl) ? "/picture/user.png" : emp.PictureUrl)" Icon="user" Size="AvatarSize.Small" />
+                                                                    </Tooltip>
+                                                                }
+                                                            </AvatarGroup>
+                                                            <div class="ms-2"><Tag Color="Cyan">@deptEmps.Count @locallizer["คน"]</Tag></div>
+                                                        }
+                                                        else
+                                                        {
+                                                            <div class="d-flex align-items-center opacity-50">
+                                                                <Avatar Icon="user" Size="AvatarSize.Small" Style="background-color: #f5f5f5; color: #bfbfbf;" />
+                                                                <span class="ms-2 text-muted fst-italic" style="font-size: 12px;">@locallizer["ว่าง (คลิกเพื่อเพิ่ม)"]</span>
+                                                            </div>
+                                                        }
+                                                    </div>
+                                                    <div>
+                                                        <Icon Type="setting" Theme="IconThemeType.Outline" Style="color: #bfbfbf;" />
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                            @* --- Work Units --- *@
+                                            <div class="mt-2 pt-2 border-top">
+                                                <div class="d-flex justify-content-between align-items-center">
+                                                    <span class="text-secondary" style="font-size: 0.75rem;">@locallizer["กลุ่มงานภายใน"]:</span>
+                                                    <Tooltip Title="@locallizer["เพิ่มกลุ่มงาน"]">
+                                                        <Button Type="ButtonType.Text" Size="ButtonSize.Small" Icon="plus" Class="text-primary" OnClick="() => OpenAddUnitModal(dept)" />
+                                                    </Tooltip>
+                                                </div>
+
+                                                <div class="d-flex flex-wrap gap-1 mt-1">
+                                                    @{ var myUnits = workUnits.Where(u => u.DeptId?.Trim() == dept.DeptId?.Trim()).ToList(); }
+                                                    @if (myUnits.Any())
+                                                    {
+                                                        @foreach (var u in myUnits)
+                                                        {
+                                                            <div style="cursor: pointer;" @onclick="() => OpenEditUnit(u, dept)">
+                                                                <Tag Color="Purple" Style="font-size: 11px; margin-right:0;" Class="unit-tag">@u.UnitNameThai</Tag>
+                                                            </div>
+                                                        }
+                                                    }
+                                                    else
+                                                    {
+                                                        <span class="text-muted" style="font-size: 11px;">-</span>
+                                                    }
+                                                </div>
+                                            </div>
+                                        </Body>
+                                    </Card>
+                                </div>
+                            }
+                        </div>
+                        
+                        @* Pagination *@
+                        @if (FilteredDepartments.Count > pageSize)
+                        {
+                            <div class="text-center mt-4">
+                                <Pagination Simple Current="currentPage + 1" Total="FilteredDepartments.Count" PageSize="pageSize" OnChange="(PaginationEventArgs args) => { currentPage = (int)args.Page - 1; }" />
+                                <div class="mt-2 text-muted" style="font-size: 0.8rem;">แสดงข้อมูล @(currentPage * pageSize + 1) - @(Math.Min((currentPage + 1) * pageSize, FilteredDepartments.Count)) จากทั้งหมด @FilteredDepartments.Count</div>
+                            </div>
+                        }
+                    }
+                    else
+                    {
+                        <div class="text-center p-5">
+                            <Empty Description="@locallizer["ไม่พบข้อมูลฝ่ายในสำนักนี้"]">
+                                <Button Type="Primary" OnClick="OpenAddDepartmentModal">@locallizer["เพิ่มฝ่ายใหม่"]</Button>
+                            </Empty>
+                        </div>
+                    }
+                </div>
             }
         </div>
     }
 </div>
 
+@* --- Modal 1-3: Structure CRUD (Division, Dept, Unit) เหมือนเดิม --- *@
+<Modal Title="@(editingDivision.DivisionId == null ? locallizer["เพิ่มสำนัก/กอง"] : locallizer["แก้ไขสำนัก/กอง"])" @bind-Visible="@_visibleDivision" OnOk="HandleSaveDivision" OkText="@locallizer["บันทึก"]" CancelText="@locallizer["ยกเลิก"]">
+    <Form Model="@newDivision" Layout="@FormLayout.Vertical">
+        <FormItem Label="@locallizer["รหัสสำนัก/กอง"]"><Input @bind-Value="@context.DivisionId" MaxLength="10" Disabled="@(isEditingDivision)" /></FormItem>
+        <FormItem Label="@locallizer["ชื่อภาษาไทย"]"><Input @bind-Value="@context.DivisionNameThai" /></FormItem>
+        <FormItem Label="@locallizer["ชื่อภาษาอังกฤษ"]"><Input @bind-Value="@context.DivisionNameEng" /></FormItem>
+    </Form>
+</Modal>
+
+<Modal Title="@(isEditingDept ? locallizer["แก้ไขข้อมูลฝ่าย"] : locallizer["เพิ่มฝ่ายใหม่"])" @bind-Visible="@_visibleEditDept" OnOk="HandleSaveDepartment" OkText="@locallizer["บันทึก"]" CancelText="@locallizer["ยกเลิก"]">
+    <Form Model="@editingDept" Layout="@FormLayout.Vertical">
+        <FormItem Label="@locallizer["รหัสฝ่าย"]"><Input @bind-Value="@context.DeptId" MaxLength="10" Disabled="@isEditingDept" /></FormItem>
+        <FormItem Label="@locallizer["ชื่อฝ่าย (ไทย)"]"><Input @bind-Value="@context.DeptNameThai" /></FormItem>
+        <FormItem Label="@locallizer["ชื่อฝ่าย (อังกฤษ)"]"><Input @bind-Value="@context.DeptNameEng" /></FormItem>
+    </Form>
+</Modal>
+
+<Modal Title="@(isEditingUnit ? locallizer["แก้ไขกลุ่มงาน"] : locallizer["เพิ่มกลุ่มงานใหม่"])" @bind-Visible="@_visibleEditUnit" OnOk="HandleSaveUnit" OkText="@locallizer["บันทึก"]" CancelText="@locallizer["ยกเลิก"]">
+    <Form Model="@editingUnit" Layout="@FormLayout.Vertical">
+        <FormItem Label="@locallizer["รหัสกลุ่มงาน"]"><Input @bind-Value="@context.UnitId" Placeholder="เช่น IT-DEV" MaxLength="10" Disabled="@isEditingUnit" /></FormItem>
+        <FormItem Label="@locallizer["ชื่อกลุ่มงาน (ไทย)"]"><Input @bind-Value="@context.UnitNameThai" /></FormItem>
+        <FormItem Label="@locallizer["ชื่อกลุ่มงาน (อังกฤษ)"]"><Input @bind-Value="@context.UnitNameEng" /></FormItem>
+        <FormItem Label="@locallizer["สังกัดฝ่าย"]"><Input Value="@(editingUnitDeptName)" Disabled /></FormItem>
+        @if (isEditingUnit) { <div class="mt-3 text-end"><Button Danger Type="ButtonType.Text" Icon="delete" OnClick="() => HandleDeleteUnit(editingUnit)">@locallizer["ลบกลุ่มงานนี้"]</Button></div> }
+    </Form>
+</Modal>
+
+@* --- Modal 4: Manage Employees (จัดการบุคลากรในฝ่าย) --- *@
+<Modal Title="@($"จัดการบุคลากร: {manageEmpDeptName}")"
+       @bind-Visible="@_visibleManageEmps"
+       Footer="null"
+       Width="700">
+
+    <div class="mb-3 d-flex justify-content-end">
+        <Button Type="Primary" Icon="user-add" OnClick="() => NavigateToAddEmployee(manageEmpDept)">
+            @locallizer["เพิ่มบุคลากรใหม่ในฝ่ายนี้"]
+        </Button>
+    </div>
+
+    @* +++ แก้ไขบรรทัดนี้: เติม TItem="VEmployeeDetail" +++ *@
+    <Table TItem="VEmployeeDetail" DataSource="@currentDeptEmps" PageSize="5" Size="TableSize.Small">
+
+        @* คอลัมน์รูปภาพ *@
+        <Column @bind-Field="@context.PictureUrl" Title="" Width="60">
+            <Avatar Src="@(string.IsNullOrEmpty(context.PictureUrl) ? "/picture/user.png" : context.PictureUrl)" />
+        </Column>
+
+        @* คอลัมน์ชื่อ *@
+        <Column Title="@locallizer["ชื่อ-นามสกุล"]" TData="string">
+            @* สามารถใส่ TData="string" เพื่อความชัวร์ได้ *@
+            <div class="fw-bold">@context.FirstNameThai @context.LastNameThai</div>
+            <div class="text-muted" style="font-size: 0.8rem;">@context.EmployeeId</div>
+        </Column>
+
+        @* คอลัมน์ตำแหน่ง *@
+        <Column Title="@locallizer["ตำแหน่ง"]" DataIndex="PositionId" TData="string" />
+
+        @* คอลัมน์จัดการ *@
+        <ActionColumn Title="@locallizer["จัดการ"]">
+            <Space>
+                <SpaceItem>
+                    <Tooltip Title="@locallizer["แก้ไขข้อมูลส่วนตัว"]">
+                        <Button Shape="@ButtonShape.Circle" Icon="edit" OnClick="() => NavigateToEditEmployee(context.EmployeeId)" />
+                    </Tooltip>
+                </SpaceItem>
+                <SpaceItem>
+                    <Tooltip Title="@locallizer["นำออกจากฝ่ายนี้ (Unassign)"]">
+                        <Button Danger Shape="@ButtonShape.Circle" Icon="logout" OnClick="() => HandleUnassignEmployee(context)" />
+                    </Tooltip>
+                </SpaceItem>
+            </Space>
+        </ActionColumn>
+
+    </Table>
+</Modal>
+
+<style>
+    .dept-card { border-radius: 12px; transition: all 0.3s ease; }
+    .dept-card:hover { transform: translateY(-5px); border-color: #1890ff; }
+    .org-grid-wrapper { min-height: 400px; }
+    .employee-section { min-height: 32px; transition: background 0.3s; }
+    .employee-section:hover { background-color: #e6f7ff !important; }
+    .unit-tag { cursor: pointer; transition: 0.2s; }
+    .unit-tag:hover { opacity: 0.8; }
+</style>
+
 @code {
-    private bool isLoading = true;
-    private string searchTerm = string.Empty;
+    private bool IsLoading = true;
+    private bool IsLoadingDATA = false;
+    
+    // Modal Flags
+    private bool _visibleDivision = false;
+    private bool _visibleEditDept = false;
+    private bool _visibleEditUnit = false;
+    private bool _visibleManageEmps = false; // New!
 
-    private List<Division> divisions = new();
-    private List<Division> filteredDivisions = new();
-    private List<Department> departments = new();
+    private bool isEditingDept = false;
+    private bool isEditingDivision = false;
+    private bool isEditingUnit = false;
+
+    private string searchTerm = "";
+    private int currentIndex = 0;
+    private int currentPage = 0;
+    private int pageSize = 6;
+
+    private List<Division> ShowDivisions = new();
+    private List<Department> ShowDepartments = new();
+    private List<Department> FilteredDepartments = new();
     private List<WorkUnit> workUnits = new();
+    private List<VEmployeeDetail> allEmployees = new();
+    
+    // Variables for Manage Employees Modal
+    private List<VEmployeeDetail> currentDeptEmps = new();
+    private string manageEmpDeptName = "";
+    private Department manageEmpDept;
 
-    protected override async Task OnInitializedAsync()
-    {
-        await LoadOrganizationData();
-    }
+    private Division newDivision = new Division { Isactive = "1" };
+    private Division editingDivision = new Division();
+    private Department editingDept = new Department();
+    private WorkUnit editingUnit = new WorkUnit();
+    private string editingUnitDeptName = "";
 
+    private Division CurrentDivision => (ShowDivisions != null && ShowDivisions.Count > currentIndex) ? ShowDivisions[currentIndex] : null;
+
+    protected override async Task OnInitializedAsync() { await LoadOrganizationData(); }
+
+    // ... (LoadOrganizationData, LoadSubData, ApplyFilter, Navigation, CRUD Division/Dept/Unit - คงเดิม ไม่ต้องแก้) ...
+    // เพื่อประหยัดพื้นที่ ผมขอละส่วน CRUD Structure ไว้ เพราะคุณมีแล้ว
+    // *ให้ใช้โค้ดเดิมในส่วน LoadData และ CRUD Structure* // ...
+    
+    // =========================================================
+    // โค้ดเดิมที่คุณมีอยู่แล้ว (ใส่กลับเข้าไปตรงนี้)
+    // =========================================================
     private async Task LoadOrganizationData()
     {
-        try
+        try { IsLoading = true; ShowDivisions = await OrganizationService.GetAllDivisionsAsync() ?? new(); allEmployees = await EmployeeService.GetAllEmployeeDetailsAsync() ?? new(); if (ShowDivisions.Any()) { if (currentIndex >= ShowDivisions.Count) currentIndex = ShowDivisions.Count - 1; await LoadSubData(CurrentDivision?.DivisionId); } else { ShowDepartments.Clear(); FilteredDepartments.Clear(); } } catch (Exception ex) { MessageService.Error($"Error: {ex.Message}"); } finally { IsLoading = false; }
+    }
+    private async Task LoadSubData(string divisionId) { if (string.IsNullOrEmpty(divisionId)) return; try { IsLoadingDATA = true; StateHasChanged(); ShowDepartments = await OrganizationService.GetDepartmentsByDivisionIdAsync(divisionId) ?? new(); var unitTasks = ShowDepartments.Select(d => OrganizationService.GetWorkUnitsByDepartmentIdAsync(d.DeptId)); var results = await Task.WhenAll(unitTasks); workUnits = results.Where(r => r != null).SelectMany(r => r).ToList(); allEmployees = await EmployeeService.GetAllEmployeeDetailsAsync() ?? new(); ApplyFilter(); } finally { IsLoadingDATA = false; StateHasChanged(); } }
+    private void ApplyFilter() { if (string.IsNullOrWhiteSpace(searchTerm)) FilteredDepartments = ShowDepartments.ToList(); else FilteredDepartments = ShowDepartments.Where(d => (d.DeptNameThai?.Contains(searchTerm, StringComparison.OrdinalIgnoreCase) ?? false) || (d.DeptId?.Contains(searchTerm, StringComparison.OrdinalIgnoreCase) ?? false)).ToList(); int totalItems = FilteredDepartments.Count; int totalPages = (int)Math.Ceiling((double)totalItems / pageSize); if (totalPages == 0) currentPage = 0; else if (currentPage >= totalPages) currentPage = totalPages - 1; StateHasChanged(); }
+    private async Task LoadNextData() { if (currentIndex < ShowDivisions.Count - 1) { currentIndex++; currentPage = 0; searchTerm = ""; await LoadSubData(CurrentDivision?.DivisionId); } }
+    private async Task LoadPreviousData() { if (currentIndex > 0) { currentIndex--; currentPage = 0; searchTerm = ""; await LoadSubData(CurrentDivision?.DivisionId); } }
+    private void HandleSearch() { currentPage = 0; ApplyFilter(); }
+    private void ClearData() { searchTerm = ""; currentPage = 0; ApplyFilter(); }
+    private void OpenEditDivision(Division div) { newDivision = new Division { DivisionId = div.DivisionId, DivisionNameThai = div.DivisionNameThai, DivisionNameEng = div.DivisionNameEng, Isactive = div.Isactive }; isEditingDivision = true; editingDivision = newDivision; _visibleDivision = true; }
+    private async Task HandleSaveDivision() { newDivision.DivisionId = newDivision.DivisionId?.Trim(); bool success = isEditingDivision ? await OrganizationService.UpdateDivisionAsync(newDivision) : await OrganizationService.AddDivisionAsync(newDivision); if (success) { _visibleDivision = false; await LoadOrganizationData(); MessageService.Success("บันทึกสำเร็จ"); } else { MessageService.Error("บันทึกไม่สำเร็จ"); } }
+    private async Task HandleDeleteDivision(Division div) { var count = allEmployees.Count(e => e.DivisionId == div.DivisionId); if (count > 0) { await Swal.FireAsync("ไม่สามารถลบได้", $"มีบุคลากร {count} คน สังกัดอยู่\nกรุณาย้ายออกก่อน", SweetAlertIcon.Error); return; } var result = await Swal.FireAsync(new SweetAlertOptions { Title = $"ยืนยันการลบ '{div.DivisionNameThai}'?", Text = "ข้อมูลทั้งหมดจะถูกลบ", Icon = SweetAlertIcon.Warning, ShowCancelButton = true, ConfirmButtonText = "ลบข้อมูล", ConfirmButtonColor = "#d33" }); if (!string.IsNullOrEmpty(result.Value)) { if (await OrganizationService.DeleteDivisionAsync(div.DivisionId)) { await Swal.FireAsync("สำเร็จ", "ลบเรียบร้อย", SweetAlertIcon.Success); await LoadOrganizationData(); } else { await Swal.FireAsync("ผิดพลาด", "ลบไม่สำเร็จ", SweetAlertIcon.Error); } } }
+    private void OpenAddDepartmentModal() { editingDept = new Department { Isactive = "1", DivisionId = CurrentDivision?.DivisionId }; isEditingDept = false; _visibleEditDept = true; }
+    private void OpenEditDepartment(Department dept) { editingDept = new Department { DeptId = dept.DeptId, DeptNameThai = dept.DeptNameThai, DeptNameEng = dept.DeptNameEng, DivisionId = dept.DivisionId, Isactive = dept.Isactive }; isEditingDept = true; _visibleEditDept = true; }
+    private async Task HandleSaveDepartment() { editingDept.DeptId = editingDept.DeptId?.Trim(); bool success = isEditingDept ? await OrganizationService.UpdateDepartmentAsync(editingDept) : await OrganizationService.AddDepartmentAsync(editingDept); if (success) { _visibleEditDept = false; searchTerm = ""; await LoadSubData(CurrentDivision?.DivisionId); MessageService.Success("บันทึกสำเร็จ"); } else { MessageService.Error("บันทึกไม่สำเร็จ"); } }
+    private async Task HandleDeleteDepartment(Department dept) { var count = allEmployees.Count(e => e.DeptId == dept.DeptId); if (count > 0) { await Swal.FireAsync("ไม่สามารถลบได้", $"มีบุคลากร {count} คน สังกัดอยู่\nกรุณาย้ายออกก่อน", SweetAlertIcon.Error); return; } var result = await Swal.FireAsync(new SweetAlertOptions { Title = $"ยืนยันการลบฝ่าย '{dept.DeptNameThai}'?", Text = "กลุ่มงานภายในจะถูกลบไปด้วย", Icon = SweetAlertIcon.Warning, ShowCancelButton = true, ConfirmButtonText = "ลบข้อมูล", ConfirmButtonColor = "#d33" }); if (!string.IsNullOrEmpty(result.Value)) { if (await OrganizationService.DeleteDepartmentAsync(dept.DeptId)) { await Swal.FireAsync("สำเร็จ", "ลบเรียบร้อย", SweetAlertIcon.Success); await LoadSubData(CurrentDivision?.DivisionId); } else { await Swal.FireAsync("ผิดพลาด", "ลบไม่สำเร็จ", SweetAlertIcon.Error); } } }
+    private void OpenAddUnitModal(Department dept) { editingUnit = new WorkUnit { DeptId = dept.DeptId, Isactive = "1" }; editingUnitDeptName = dept.DeptNameThai; isEditingUnit = false; _visibleEditUnit = true; }
+    private void OpenEditUnit(WorkUnit unit, Department dept) { editingUnit = new WorkUnit { UnitId = unit.UnitId, UnitNameThai = unit.UnitNameThai, UnitNameEng = unit.UnitNameEng, DeptId = unit.DeptId, Isactive = unit.Isactive }; editingUnitDeptName = dept.DeptNameThai; isEditingUnit = true; _visibleEditUnit = true; }
+    private async Task HandleSaveUnit() { editingUnit.UnitId = editingUnit.UnitId?.Trim(); bool success = isEditingUnit ? await OrganizationService.UpdateWorkUnitAsync(editingUnit) : await OrganizationService.AddWorkUnitAsync(editingUnit); if (success) { _visibleEditUnit = false; searchTerm = ""; await LoadSubData(CurrentDivision?.DivisionId); MessageService.Success("บันทึกสำเร็จ"); } else { MessageService.Error("บันทึกไม่สำเร็จ"); } }
+    private async Task HandleDeleteUnit(WorkUnit unit) { _visibleEditUnit = false; var count = allEmployees.Count(e => e.UnitId == unit.UnitId); if (count > 0) { await Swal.FireAsync("ไม่สามารถลบได้", $"มีบุคลากร {count} คน สังกัดอยู่\nกรุณาย้ายออกก่อน", SweetAlertIcon.Error); return; } var result = await Swal.FireAsync(new SweetAlertOptions { Title = $"ลบกลุ่มงาน '{unit.UnitNameThai}'?", Icon = SweetAlertIcon.Warning, ShowCancelButton = true, ConfirmButtonText = "ยืนยันการลบ", ConfirmButtonColor = "#d33" }); if (!string.IsNullOrEmpty(result.Value)) { if (await OrganizationService.DeleteWorkUnitAsync(unit.UnitId)) { await Swal.FireAsync("สำเร็จ", "ลบเรียบร้อย", SweetAlertIcon.Success); await LoadSubData(CurrentDivision?.DivisionId); } else { await Swal.FireAsync("ผิดพลาด", "ลบไม่สำเร็จ", SweetAlertIcon.Error); } } }
+
+    // =========================================================
+    // +++ Feature ใหม่: จัดการบุคลากร (Manage Employees) +++
+    // =========================================================
+
+    // 1. เปิด Modal รายชื่อคนในฝ่าย
+    private void OpenManageEmployeesModal(Department dept)
+    {
+        manageEmpDept = dept;
+        manageEmpDeptName = dept.DeptNameThai;
+        // กรองเอาเฉพาะคนในฝ่ายนี้
+        currentDeptEmps = allEmployees
+            .Where(e => !string.IsNullOrEmpty(e.DeptId) && e.DeptId.Trim() == dept.DeptId.Trim())
+            .ToList();
+        _visibleManageEmps = true;
+    }
+
+    // 2. นำคนออกจากฝ่าย (Unassign)
+    private async Task HandleUnassignEmployee(VEmployeeDetail emp)
+    {
+        var result = await Swal.FireAsync(new SweetAlertOptions
         {
-            isLoading = true;
+            Title = $"นำ '{emp.FirstNameThai}' ออกจากฝ่าย?",
+            Text = "พนักงานจะไม่มีสังกัดชั่วคราว แต่ข้อมูลจะไม่ถูกลบ",
+            Icon = SweetAlertIcon.Warning,
+            ShowCancelButton = true,
+            ConfirmButtonText = "ยืนยัน",
+            CancelButtonColor = "#d33"
+        });
 
-            divisions = await OrganizationService.GetAllDivisionsAsync();
-            departments.Clear();
-            workUnits.Clear();
-
-            // load departments and units for each division (sequential for simplicity)
-            foreach (var div in divisions)
+        if (!string.IsNullOrEmpty(result.Value))
+        {
+            // แปลง VEmployeeDetail กลับเป็น Employee Model เพื่อส่งไป Update
+            // *หมายเหตุ: คุณต้องมี Method UpdateEmployee ใน Service ที่รับ Employee Object*
+            var empToUpdate = new Datamodels.Hrms.Employee
             {
-                try
-                {
-                    var divDepts = await OrganizationService.GetDepartmentsByDivisionIdAsync(div.DivisionId);
-                    if (divDepts != null && divDepts.Any())
-                    {
-                        departments.AddRange(divDepts);
+                EmployeeId = emp.EmployeeId,
+                // ... map field อื่นๆ ที่จำเป็น ...
+                // *** สำคัญ: Set DeptId = null ***
+                DeptId = null, 
+                UnitId = null 
+                // DivisionId อาจจะเก็บไว้หรือลบออกแล้วแต่ Business Logic
+            };
 
-                        foreach (var d in divDepts)
-                        {
-                            try
-                            {
-                                var deptUnits = await OrganizationService.GetWorkUnitsByDepartmentIdAsync(d.DeptId);
-                                if (deptUnits != null && deptUnits.Any())
-                                {
-                                    workUnits.AddRange(deptUnits);
-                                }
-                            }
-                            catch (Exception)
-                            {
-                                // ignore unit load errors for single dept to keep UI resilient
-                            }
-                        }
-                    }
-                }
-                catch (Exception)
-                {
-                    // ignore department load errors per division
-                }
-            }
-
-            ApplyFilter();
-        }
-        catch (Exception ex)
-        {
-            // MessageService.Error can be awaited but previously used without await - keep consistent
-             MessageService.Error($"โหลดข้อมูลล้มเหลว: {ex.Message}");
-        }
-        finally
-        {
-            isLoading = false;
-            StateHasChanged();
+            // เรียก API Update (สมมติว่ามี Method นี้)
+            // ถ้ายังไม่มี ให้บอกผม เดี๋ยวผมพาเขียนเพิ่ม
+            // bool success = await EmployeeService.UnassignEmployeeAsync(emp.EmployeeId); 
+            
+            // *Mockup Logic (ถ้ายังไม่มี API)*
+            MessageService.Warning("ฟีเจอร์ Unassign ต้องเชื่อม API UpdateEmployee ก่อนครับ");
         }
     }
 
-    private async Task SeedSampleDataAsync()
+    // 3. ไปหน้าสร้างพนักงานใหม่ (พร้อมส่ง Parameter ฝ่ายไปด้วย)
+    private void NavigateToAddEmployee(Department dept)
     {
-        if (divisions != null && divisions.Any())
-        {
-            MessageService.Info("มีข้อมูลอยู่แล้ว ไม่ต้องสร้างข้อมูลตัวอย่าง");
-            return;
-        }
-
-        isLoading = true;
-        try
-        {
-            // Define sample data
-            var sampleDivisions = new List<Division>
-            {
-                new Division { DivisionId = "D001", DivisionNameThai = "สำนักทรัพยากรบุคคล", DivisionNameEng = "Human Resources", Isactive = "1" },
-                new Division { DivisionId = "D002", DivisionNameThai = "สำนักการเงิน", DivisionNameEng = "Finance", Isactive = "1" }
-            };
-
-            var sampleDepartments = new List<Department>
-            {
-                new Department { DeptId = "DP001", DeptNameThai = "ฝ่ายสรรหา", DeptNameEng = "Recruitment", DivisionId = "D001", Isactive = "1" },
-                new Department { DeptId = "DP002", DeptNameThai = "ฝ่ายพัฒนาบุคลากร", DeptNameEng = "Staff Development", DivisionId = "D001", Isactive = "1" },
-                new Department { DeptId = "DP003", DeptNameThai = "ฝ่ายบัญชี", DeptNameEng = "Accounting", DivisionId = "D002", Isactive = "1" }
-            };
-
-            var sampleUnits = new List<WorkUnit>
-            {
-                new WorkUnit { UnitId = "U001", UnitNameThai = "หน่วยสรรหา 1", UnitNameEng = "Recruit Unit 1", DeptId = "DP001", Isactive = "1" },
-                new WorkUnit { UnitId = "U002", UnitNameThai = "หน่วยฝึกอบรม", UnitNameEng = "Training Unit", DeptId = "DP002", Isactive = "1" },
-                new WorkUnit { UnitId = "U003", UnitNameThai = "หน่วยบัญชี 1", UnitNameEng = "Accounting Unit 1", DeptId = "DP003", Isactive = "1" }
-            };
-
-            var anyCreatedOnServer = false;
-
-            // Try to add via OrganizationService; if service fails, fall back to local lists
-            foreach (var d in sampleDivisions)
-            {
-                try
-                {
-                    var ok = await OrganizationService.AddDivisionAsync(d);
-                    anyCreatedOnServer = anyCreatedOnServer || ok;
-                }
-                catch
-                {
-                    // ignore and fallback later
-                }
-            }
-
-            foreach (var dept in sampleDepartments)
-            {
-                try
-                {
-                    var ok = await OrganizationService.AddDepartmentAsync(dept);
-                    anyCreatedOnServer = anyCreatedOnServer || ok;
-                }
-                catch
-                {
-                }
-            }
-
-            foreach (var u in sampleUnits)
-            {
-                try
-                {
-                    var ok = await OrganizationService.AddWorkUnitAsync(u);
-                    anyCreatedOnServer = anyCreatedOnServer || ok;
-                }
-                catch
-                {
-                }
-            }
-
-            // If server calls didn't create anything (e.g., API unavailable), add locally so UI shows data
-            if (!anyCreatedOnServer)
-            {
-                divisions.AddRange(sampleDivisions);
-                departments.AddRange(sampleDepartments);
-                workUnits.AddRange(sampleUnits);
-                ApplyFilter();
-            }
-            else
-            {
-                // reload from server
-                await LoadOrganizationData();
-            }
-
-             MessageService.Success("สร้างข้อมูลตัวอย่างเรียบร้อย");
-        }
-        catch (Exception ex)
-        {
-             MessageService.Error($"ไม่สามารถสร้างข้อมูลตัวอย่างได้: {ex.Message}");
-        }
-        finally
-        {
-            isLoading = false;
-            StateHasChanged();
-        }
+        // ส่ง Query String ไปที่หน้า Create
+        NavigationManager.NavigateTo($"/employees/create?divisionId={dept.DivisionId}&deptId={dept.DeptId}");
     }
 
-    private void ApplyFilter()
-    {
-        if (string.IsNullOrWhiteSpace(searchTerm))
-        {
-            filteredDivisions = divisions.ToList();
-            return;
-        }
-
-        var q = searchTerm.Trim();
-        filteredDivisions = divisions.Where(d =>
-            (d.DivisionNameThai?.Contains(q, StringComparison.OrdinalIgnoreCase) ?? false) ||
-            (d.DivisionNameEng?.Contains(q, StringComparison.OrdinalIgnoreCase) ?? false) ||
-            (d.DivisionId?.Contains(q, StringComparison.OrdinalIgnoreCase) ?? false)
-        ).ToList();
+    private void NavigateToEditEmployee(string employeeId) 
+    { 
+        NavigationManager.NavigateTo($"/employees/edit/{employeeId}"); 
     }
 }

@@ -1,0 +1,69 @@
+﻿@page "/login"
+@inject AuthState State
+@inject NavigationManager Nav
+@inject IJSRuntime JSRuntime
+@inject SweetAlertService Swal 
+@using AntDesign
+@using Hrms_project.Models
+
+<div style="display: flex; justify-content: center; align-items: center; height: 100vh; background: #f0f2f5; flex-direction: column;">
+    
+    @* --- เพิ่มส่วนแสดง Mock Data เพื่อให้คนใช้งานรู้ว่าต้องกรอกอะไร --- *@
+    <Alert Type="@AlertType.Info"  Style="width: 350px; margin-bottom: 20px; border-radius: 10px;">
+        <DescriptionTemplate>
+            <strong>Mock Credentials:</strong><br/>
+            • <b>Admin:</b> admin / admin123<br/>
+            • <b>User:</b> poom / poom123
+        </DescriptionTemplate>
+    </Alert>
+
+    <Card Style="width: 350px; border-radius: 15px; shadow: 0 4px 10px rgba(0,0,0,0.1);">
+        <h3 style="text-align: center; margin-bottom: 30px;">HRMS LOGIN</h3>
+        <Form Model="@loginModel" Layout="@FormLayout.Vertical" OnFinish="OnLogin">
+            <FormItem Label="Username">
+                <Input @bind-Value="@loginModel.Username" Placeholder="กรอกชื่อผู้ใช้" />
+            </FormItem>
+            <FormItem Label="Password">
+                <InputPassword @bind-Value="@loginModel.Password" Placeholder="กรอกรหัสผ่าน" />
+            </FormItem>
+            <Button Type="@ButtonType.Primary" HtmlType="submit" Block>เข้าสู่ระบบ</Button>
+        </Form>
+    </Card>
+</div>
+
+@code {
+    private LoginModel loginModel = new LoginModel();
+
+    public class LoginModel { public string Username { get; set; } public string Password { get; set; } }
+
+    private async Task OnLogin()
+    {
+        if (loginModel.Username == "admin" && loginModel.Password == "admin123")
+        {
+            await ProcessLogin("Admin");
+        }
+        else if (loginModel.Username == "poom" && loginModel.Password == "poom123")
+        {
+            await ProcessLogin("User");
+        }
+        else
+        {
+            await Swal.FireAsync(new SweetAlertOptions
+            {
+                Title = "เข้าสู่ระบบไม่สำเร็จ",
+                Text = "ชื่อผู้ใช้งานหรือรหัสผ่านไม่ถูกต้อง",
+                Icon = SweetAlertIcon.Error
+            });
+        }
+    }
+
+    private async Task ProcessLogin(string role)
+    {
+        State.Login(role);
+        await JSRuntime.InvokeVoidAsync("localStorage.setItem", "isLoggedIn", "true");
+        await JSRuntime.InvokeVoidAsync("localStorage.setItem", "userRole", role);
+        
+        // เมื่อ Login สำเร็จ ให้ดีดไปที่หน้าแรก
+        Nav.NavigateTo("/", forceLoad: true);
+    }
+}

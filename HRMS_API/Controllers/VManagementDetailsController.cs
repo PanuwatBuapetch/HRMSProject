@@ -23,19 +23,23 @@ namespace HRMS_API.Controllers
             return Ok(data);
         }
 
-        // GET: api/VManagementDetails/ByStaff/1234567 (ค้นหาด้วย StaffId)
+        // GET: api/VManagementDetails/ByStaff/12345 (ค้นหาด้วย StaffId)
         [HttpGet("ByStaff/{staffId}")]
         public async Task<ActionResult<VManagementDetail>> GetManagementDetailsByStaff(string staffId)
         {
             var data = await _viewService.GetManagementDetailsByStaffIdAsync(staffId);
-            if (data == null)
-            {
-                return NotFound();
-            }
-            return Ok(data);
+            return data == null ? NotFound() : Ok(data);
         }
 
-        // GET: api/VManagementDetails/Search/John
+        // GET: api/VManagementDetails/ByKey/guid-id (ค้นหาด้วย ManagementId)
+        [HttpGet("ByKey/{key}")]
+        public async Task<ActionResult<VManagementDetail>> GetManagementDetailsByKey(string key)
+        {
+            var data = await _viewService.GetManagementDetailsByKeyAsync(key);
+            return data == null ? NotFound() : Ok(data);
+        }
+
+        // GET: api/VManagementDetails/Search/ภานุวัฒน์
         [HttpGet("Search/{name}")]
         public async Task<ActionResult<IEnumerable<VManagementDetail>>> SearchManagement(string name)
         {
