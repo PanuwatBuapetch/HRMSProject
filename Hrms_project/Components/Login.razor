@@ -13,7 +13,7 @@
         <DescriptionTemplate>
             <strong>Mock Credentials:</strong><br/>
             • <b>Admin:</b> admin / admin123<br/>
-            • <b>User:</b> poom / poom123
+            • <b>User:</b> user / user123
         </DescriptionTemplate>
     </Alert>
 
@@ -42,7 +42,7 @@
         {
             await ProcessLogin("Admin");
         }
-        else if (loginModel.Username == "poom" && loginModel.Password == "poom123")
+        else if (loginModel.Username == "user" && loginModel.Password == "user123")
         {
             await ProcessLogin("User");
         }
