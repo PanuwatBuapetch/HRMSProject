@@ -15,6 +15,8 @@ public partial class Hrms_dbContext : DbContext
     {
     }
 
+    public virtual DbSet<AuditLog> AuditLogs { get; set; }
+
     public virtual DbSet<Department> Departments { get; set; }
 
     public virtual DbSet<Division> Divisions { get; set; }
@@ -37,8 +39,6 @@ public partial class Hrms_dbContext : DbContext
 
     public virtual DbSet<Mission> Missions { get; set; }
 
-    public virtual DbSet<Studentlog> Studentlogs { get; set; }
-
     public virtual DbSet<Team> Teams { get; set; }
 
     public virtual DbSet<VEmployeeDetail> VEmployeeDetails { get; set; }
@@ -54,6 +54,28 @@ public partial class Hrms_dbContext : DbContext
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         modelBuilder.HasPostgresExtension("uuid-ossp");
+
+        modelBuilder.Entity<AuditLog>(entity =>
+        {
+            entity.HasKey(e => e.Logid).HasName("studentlog_pkey");
+
+            entity.ToTable("AuditLog", "person");
+
+            entity.Property(e => e.Logid)
+                .HasDefaultValueSql("nextval('person.studentlog_logid_seq'::regclass)")
+                .HasColumnName("logid");
+            entity.Property(e => e.Action)
+                .HasMaxLength(50)
+                .HasColumnName("action");
+            entity.Property(e => e.Actionat)
+                .HasDefaultValueSql("CURRENT_TIMESTAMP")
+                .HasColumnType("timestamp without time zone")
+                .HasColumnName("actionat");
+            entity.Property(e => e.Actionby)
+                .HasMaxLength(50)
+                .HasColumnName("actionby");
+            entity.Property(e => e.Studentid).HasColumnName("studentid");
+        });
 
         modelBuilder.Entity<Department>(entity =>
         {
@@ -426,26 +448,6 @@ public partial class Hrms_dbContext : DbContext
                 .HasColumnName("mission_name_thai");
         });
 
-        modelBuilder.Entity<Studentlog>(entity =>
-        {
-            entity.HasKey(e => e.Logid).HasName("studentlog_pkey");
-
-            entity.ToTable("studentlog", "person");
-
-            entity.Property(e => e.Logid).HasColumnName("logid");
-            entity.Property(e => e.Action)
-                .HasMaxLength(50)
-                .HasColumnName("action");
-            entity.Property(e => e.Actionat)
-                .HasDefaultValueSql("CURRENT_TIMESTAMP")
-                .HasColumnType("timestamp without time zone")
-                .HasColumnName("actionat");
-            entity.Property(e => e.Actionby)
-                .HasMaxLength(50)
-                .HasColumnName("actionby");
-            entity.Property(e => e.Studentid).HasColumnName("studentid");
-        });
-
         modelBuilder.Entity<Team>(entity =>
         {
             entity.HasKey(e => e.TeamId).HasName("team_pkey");
@@ -510,16 +512,15 @@ public partial class Hrms_dbContext : DbContext
 
         modelBuilder.Entity<VManagementDetail>(entity =>
         {
-            entity.HasNoKey();
-            entity.ToView("v_management_details", "person");
+            entity
+                .HasNoKey()
+                .ToView("v_management_details", "person");
 
-            // ระบุชื่อ Column ให้ตรงกับใน SQL View เป๊ะๆ
-            entity.Property(e => e.Key).HasColumnName("Key");
-            entity.Property(e => e.StaffId).HasColumnName("StaffId");
-            entity.Property(e => e.StaffNameThai).HasColumnName("StaffNameThai");
-            entity.Property(e => e.AdminNameThai).HasColumnName("AdminNameThai");
-            entity.Property(e => e.DivisionFull).HasColumnName("DivisionFull");
-            entity.Property(e => e.Isactive).HasColumnName("Isactive");
+            entity.Property(e => e.AdminNameThai).HasMaxLength(400);
+            entity.Property(e => e.DivisionFull).HasMaxLength(200);
+            entity.Property(e => e.Isactive).HasMaxLength(1);
+            entity.Property(e => e.Key).HasMaxLength(400);
+            entity.Property(e => e.StaffId).HasMaxLength(200);
         });
 
         modelBuilder.Entity<WorkUnit>(entity =>
