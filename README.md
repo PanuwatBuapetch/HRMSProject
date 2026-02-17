@@ -41,22 +41,6 @@
 
 ---
 
-## 📸 Screenshots
-
-**หน้ารายงาน Dashboard**
-<img width="1855" height="915" alt="image" src="https://github.com/user-attachments/assets/ddc65133-0ae0-4339-9a9e-0c03e96bad2a" />
-
-
-**หน้าต่างจัดการข้อมูลบุคลากร Employee**
-<img width="1856" height="915" alt="image" src="https://github.com/user-attachments/assets/bef016f6-67ee-47ce-ae83-cb7dc72a699f" />
-
-
-**หน้า Login เข้าสู่ระบบ HRMS**
-<img width="1849" height="906" alt="image" src="https://github.com/user-attachments/assets/6ada8910-4eb3-4edb-803f-48047d658d3c" />
-
-
----
-
 ## 🗄️ Database Setup (PostgreSQL)
 เพื่อให้ระบบทำงานได้สมบูรณ์ โปรดตั้งค่าฐานข้อมูลตามขั้นตอนดังนี้:
 
