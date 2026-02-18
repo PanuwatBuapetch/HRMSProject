@@ -75,7 +75,7 @@
 
 1. Clone the repository
 ```bash
-git clone [https://github.com/PanuwatBuapetch/HRMSProject.git](https://github.com/PanuwatBuapetch/HRMSProject.git)
+git clone https://github.com/PanuwatBuapetch/HRMSProject.git
 
 ```
 
