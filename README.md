@@ -102,7 +102,7 @@ dotnet watch run
 | Role | Username | Password |
 | --- | --- | --- |
 | **Admin** | admin | admin123 |
-| **User** | poom | poom123 |
+| **User** | user | user123 |
 
 ---
 
