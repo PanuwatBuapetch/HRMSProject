@@ -120,24 +120,94 @@ namespace Hrms_project.Components.Pages.Employee
 
         private async Task HandleSubmit()
         {
-            var confirm = await Swal.FireAsync(new SweetAlertOptions { Title = "ยืนยันการบันทึก?", Text = "กรุณาตรวจสอบข้อมูล", Icon = SweetAlertIcon.Question, ShowCancelButton = true, ConfirmButtonText = "ยืนยัน" });
+            var confirm = await Swal.FireAsync(new SweetAlertOptions
+            {
+                Title = "ยืนยันการบันทึก?",
+                Text = "กรุณาตรวจสอบข้อมูลก่อนบันทึก",
+                Icon = SweetAlertIcon.Question,
+                ShowCancelButton = true,
+                ConfirmButtonText = "ยืนยัน",
+                CancelButtonText = "ยกเลิก"
+            });
+
             if (!string.IsNullOrEmpty(confirm.Value))
             {
                 try
                 {
-                    if (string.IsNullOrEmpty(NewEmployee.EmployeeId)) NewEmployee.EmployeeId = Guid.NewGuid().ToString();
+                    // Generate EmployeeId
+                    if (string.IsNullOrEmpty(NewEmployee.EmployeeId))
+                    {
+                        NewEmployee.EmployeeId = Guid.NewGuid().ToString();
+                    }
 
-                    // แปลงค่าว่างให้เป็น null ก่อนส่ง (กัน Error Database)
-                    if (string.IsNullOrWhiteSpace(NewEmployee.UnitId)) NewEmployee.UnitId = null;
-                    if (string.IsNullOrWhiteSpace(NewEmployee.PositionId)) NewEmployee.PositionId = null;
+                    // Full Name Thai
+                    NewEmployee.FullNameThai =
+                        $"{NewEmployee.FirstNameThai ?? ""} {NewEmployee.LastNameThai ?? ""}"
+                        .Trim();
 
+                    // Full Name Eng
+                    NewEmployee.FullNameEng =
+                        $"{NewEmployee.FirstNameEng ?? ""} {NewEmployee.LastNameEng ?? ""}"
+                        .Trim();
+
+                    // Username = Email
+                    NewEmployee.Username = NewEmployee.Email;
+
+                    // Password = 4 ตัวท้ายของเลขบัตรประชาชน
+                    if (!string.IsNullOrWhiteSpace(NewEmployee.CitizenId)
+                        && NewEmployee.CitizenId.Length >= 4)
+                    {
+                        NewEmployee.Password =
+                            NewEmployee.CitizenId.Substring(
+                                NewEmployee.CitizenId.Length - 4);
+                    }
+                    else
+                    {
+                        NewEmployee.Password = "1234";
+                    }
+
+                    // กันค่าว่างเป็น null
+                    if (string.IsNullOrWhiteSpace(NewEmployee.UnitId))
+                        NewEmployee.UnitId = null;
+
+                    if (string.IsNullOrWhiteSpace(NewEmployee.PositionId))
+                        NewEmployee.PositionId = null;
+
+                    if (string.IsNullOrWhiteSpace(NewEmployee.TeamId))
+                        NewEmployee.TeamId = null;
+
+                    if (string.IsNullOrWhiteSpace(NewEmployee.LocationId))
+                        NewEmployee.LocationId = null;
+
+                    if (string.IsNullOrWhiteSpace(NewEmployee.ManagerId))
+                        NewEmployee.ManagerId = null;
+
+                    // Default Status
+                    if (string.IsNullOrWhiteSpace(NewEmployee.EmploymentStatus))
+                    {
+                        NewEmployee.EmploymentStatus = "Active";
+                    }
+
+                    // Save Database
                     await EmployeeService.AddEmployeeAsync(NewEmployee);
-                    await Swal.FireAsync("สำเร็จ", "เพิ่มบุคลากรเรียบร้อยแล้ว", SweetAlertIcon.Success);
-                    NavigationManager.NavigateTo("/organization");
+
+                    // Success Alert
+                    await Swal.FireAsync(
+                        "สำเร็จ",
+                        $"เพิ่มบุคลากรเรียบร้อย\n\nUsername: {NewEmployee.Username}\nPassword: {NewEmployee.Password}",
+                        SweetAlertIcon.Success
+                    );
+
+                    // Redirect
+                    NavigationManager.NavigateTo("/employees");
                 }
                 catch (Exception ex)
                 {
-                    await Swal.FireAsync("ผิดพลาด", $"บันทึกไม่สำเร็จ: {ex.Message}", SweetAlertIcon.Error);
+                    await Swal.FireAsync(
+                        "ผิดพลาด",
+                        $"บันทึกข้อมูลไม่สำเร็จ\n{ex.Message}",
+                        SweetAlertIcon.Error
+                    );
                 }
             }
         }

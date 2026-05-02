@@ -7,7 +7,7 @@ using HrmsSolution.Service;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// --- 1. Registration of Services (ต้องอยู่ก่อน builder.Build()) ---
+// --- 1. Registration of Services (builder.Build()) ---
 
 // Default HttpClient สำหรับโหลดไฟล์ Static เช่น JSON ใน wwwroot
 builder.Services.AddScoped(sp => new HttpClient

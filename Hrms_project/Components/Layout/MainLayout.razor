@@ -1,38 +1,41 @@
 ﻿@using Hrms_project.Components.Shared
 @using Hrms_project.Models
 @using System.Web
+
 @inherits LayoutComponentBase
+
 @inject AuthState State
 @inject NavigationManager NavigationManager
 @inject AuthManager AuthManager
 @inject IJSRuntime JS
 @inject JsonLocalizationService LocService
+
 <PageTitle>HRMS</PageTitle>
 
+<AntContainer />
 
 @if (!State.IsLoggedIn)
 {
-    @* ถ้ายังไม่ Login ให้แสดงหน้า Login (หรือดึง Component Login มาใช้) *@
-    <Login /> 
+    <Login />
 }
 else
 {
-<Head />
-    @* ถ้า Login แล้ว ถึงจะแสดงโครงสร้างระบบทั้งหมด *@
+    <Head />
+
     <div class="page">
+
         <div class="sidebar">
+
             <div class="p-3 text-center border-bottom border-secondary mb-2">
                 <h5 class="fw-bold mb-0">HRMS SYSTEM</h5>
-                <small class="text-info">Role: @State.Role</small>
+
+                <small class="text-info">
+                    Role: @State.Role
+                </small>
             </div>
+
             <NavMenu />
-            
-            @* ปุ่มออกจากระบบ (Logout) *@
-            @* <div class="mt-auto p-3">
-                <button class="btn btn-outline-danger btn-sm w-100" @onclick="Logout">
-                    <i class="bi bi-box-arrow-left"></i> ออกจากระบบ
-                </button>
-            </div> *@
+
         </div>
 
         <main>
@@ -40,17 +43,19 @@ else
                 @Body
             </article>
         </main>
+
     </div>
 }
 
 @code {
-    private bool isChecking = true;
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
         if (firstRender)
         {
-            var culture = await JS.InvokeAsync<string>("localStorage.getItem", "selectedCulture");
+            var culture = await JS.InvokeAsync<string>(
+                "localStorage.getItem",
+                "selectedCulture");
 
             if (!string.IsNullOrEmpty(culture))
                 await LocService.SetCulture(culture);

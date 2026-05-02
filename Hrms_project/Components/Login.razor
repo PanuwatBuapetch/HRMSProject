@@ -1,69 +1,119 @@
 ﻿@page "/login"
+
 @inject AuthState State
 @inject NavigationManager Nav
 @inject IJSRuntime JSRuntime
-@inject SweetAlertService Swal 
+@inject IHttpClientFactory HttpClientFactory
+@inject ModalService ModalService
+
 @using AntDesign
+@using System.Net.Http.Json
 @using Hrms_project.Models
 
 <div style="display: flex; justify-content: center; align-items: center; height: 100vh; background: #f0f2f5; flex-direction: column;">
-    
-    @* --- เพิ่มส่วนแสดง Mock Data เพื่อให้คนใช้งานรู้ว่าต้องกรอกอะไร --- *@
-    <Alert Type="@AlertType.Info"  Style="width: 350px; margin-bottom: 20px; border-radius: 10px;">
-        <DescriptionTemplate>
-            <strong>Mock Credentials:</strong><br/>
-            • <b>Admin:</b> admin / admin123<br/>
-            • <b>User:</b> user / user123
-        </DescriptionTemplate>
-    </Alert>
 
-    <Card Style="width: 350px; border-radius: 15px; shadow: 0 4px 10px rgba(0,0,0,0.1);">
+    <Card Style="width: 350px; border-radius: 15px; box-shadow: 0 4px 10px rgba(0,0,0,0.1);">
         <h3 style="text-align: center; margin-bottom: 30px;">HRMS LOGIN</h3>
-        <Form Model="@loginModel" Layout="@FormLayout.Vertical" OnFinish="OnLogin">
+
+        <Form Model="@loginModel"
+              Layout="@FormLayout.Vertical"
+              OnFinish="OnLogin">
+
             <FormItem Label="Username">
-                <Input @bind-Value="@loginModel.Username" Placeholder="กรอกชื่อผู้ใช้" />
+                <Input @bind-Value="@loginModel.Username"
+                       Placeholder="กรอกชื่อผู้ใช้" />
             </FormItem>
+
             <FormItem Label="Password">
-                <InputPassword @bind-Value="@loginModel.Password" Placeholder="กรอกรหัสผ่าน" />
+                <InputPassword @bind-Value="@loginModel.Password"
+                               Placeholder="กรอกรหัสผ่าน" />
             </FormItem>
-            <Button Type="@ButtonType.Primary" HtmlType="submit" Block>เข้าสู่ระบบ</Button>
+
+            <Button Type="@ButtonType.Primary"
+                    HtmlType="submit"
+                    Block>
+                เข้าสู่ระบบ
+            </Button>
+
         </Form>
     </Card>
 </div>
 
 @code {
-    private LoginModel loginModel = new LoginModel();
+    private LoginRequest loginModel = new();
 
-    public class LoginModel { public string Username { get; set; } public string Password { get; set; } }
+    public class LoginRequest
+    {
+        public string Username { get; set; } = string.Empty;
+        public string Password { get; set; } = string.Empty;
+    }
+
+    public class LoginResponse
+    {
+        public string EmployeeId { get; set; } = "";
+        public string FullNameThai { get; set; } = "";
+        public string Username { get; set; } = "";
+        public string Role { get; set; } = "";
+    }
 
     private async Task OnLogin()
     {
-        if (loginModel.Username == "admin" && loginModel.Password == "admin123")
+        try
         {
-            await ProcessLogin("Admin");
-        }
-        else if (loginModel.Username == "user" && loginModel.Password == "user123")
-        {
-            await ProcessLogin("User");
-        }
-        else
-        {
-            await Swal.FireAsync(new SweetAlertOptions
+            var client = HttpClientFactory.CreateClient("Api");
+
+            var response = await client.PostAsJsonAsync(
+                "api/auth/login",
+                loginModel);
+
+            if (response.IsSuccessStatusCode)
             {
-                Title = "เข้าสู่ระบบไม่สำเร็จ",
-                Text = "ชื่อผู้ใช้งานหรือรหัสผ่านไม่ถูกต้อง",
-                Icon = SweetAlertIcon.Error
+                var result = await response.Content
+                    .ReadFromJsonAsync<LoginResponse>();
+
+                if (result != null)
+                {
+                    State.Login(result.Role);
+
+                    await JSRuntime.InvokeVoidAsync(
+                        "localStorage.setItem",
+                        "isLoggedIn",
+                        "true");
+
+                    await JSRuntime.InvokeVoidAsync(
+                        "localStorage.setItem",
+                        "userRole",
+                        result.Role);
+
+                    await JSRuntime.InvokeVoidAsync(
+                        "localStorage.setItem",
+                        "employeeId",
+                        result.EmployeeId);
+
+                    await JSRuntime.InvokeVoidAsync(
+                        "localStorage.setItem",
+                        "fullName",
+                        result.FullNameThai);
+
+                    Nav.NavigateTo("/", true);
+                }
+            }
+            else
+            {
+                ModalService.Error(new ConfirmOptions()
+                {
+                    Title = "เข้าสู่ระบบไม่สำเร็จ",
+                    Content = "ชื่อผู้ใช้งานหรือรหัสผ่านไม่ถูกต้อง"
+                });
+            }
+        }
+        catch (Exception ex)
+        {
+            ModalService.Error(new ConfirmOptions()
+            {
+                Title = "เกิดข้อผิดพลาด",
+                Content = ex.Message
             });
         }
-    }
-
-    private async Task ProcessLogin(string role)
-    {
-        State.Login(role);
-        await JSRuntime.InvokeVoidAsync("localStorage.setItem", "isLoggedIn", "true");
-        await JSRuntime.InvokeVoidAsync("localStorage.setItem", "userRole", role);
-        
-        // เมื่อ Login สำเร็จ ให้ดีดไปที่หน้าแรก
-        Nav.NavigateTo("/", forceLoad: true);
     }
 }

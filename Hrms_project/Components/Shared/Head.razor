@@ -48,7 +48,9 @@
                         <div class="nav-item px-3" style="cursor: pointer;">
                             <span class="text-white">
                                 <Icon Type="user" Class="me-1"></Icon>
-                                @(State.IsLoggedIn? State.Role: "Guest")
+                                @(State.IsLoggedIn
+                                 ? $"{fullName} ({State.Role})"
+                                 : "Guest")
                                 <Icon Type="down" Style="font-size: 10px;"></Icon>
                             </span>
                         </div>
@@ -60,15 +62,18 @@
 </nav>
 
 @code {
+
+    private string fullName = "";
+
     protected override async Task OnInitializedAsync()
     {
-        // โหลดภาษาเริ่มต้น
-        // await locallizer.SetCulture("th-TH");
+        fullName = await JSRuntime.InvokeAsync<string>(
+            "localStorage.getItem",
+            "fullName") ?? "";
     }
 
     private async Task ShowLogoutConfirmation()
     {
-        // 1. แสดง Popup ยืนยัน
         SweetAlertResult result = await Swal.FireAsync(new SweetAlertOptions
         {
             Title = locallizer["ออกจากระบบ"],
@@ -80,21 +85,33 @@
             ConfirmButtonColor = "#001529"
         });
 
-        // 2. ถ้ากดยืนยัน (Confirm)
         if (result.IsConfirmed)
         {
-            // 1. ล้างค่าในโปรแกรม
+            // Logout State
             State.Logout();
 
-            // 2. ล้างค่าใน Browser
-            await JSRuntime.InvokeVoidAsync("localStorage.removeItem", "isLoggedIn");
-            await JSRuntime.InvokeVoidAsync("localStorage.removeItem", "userRole");
+            // Clear LocalStorage
+            await JSRuntime.InvokeVoidAsync(
+                "localStorage.removeItem",
+                "isLoggedIn");
 
-            // 3. แสดง Alert สำเร็จ
-            await Swal.FireAsync("สำเร็จ", "ออกจากระบบเรียบร้อย", SweetAlertIcon.Success);
+            await JSRuntime.InvokeVoidAsync(
+                "localStorage.removeItem",
+                "userRole");
 
-            // 4. ดีดกลับไปหน้าแรก
-            Nav.NavigateTo("/", forceLoad: true);
+            await JSRuntime.InvokeVoidAsync(
+                "localStorage.removeItem",
+                "fullName");
+
+            // Success Alert
+            await Swal.FireAsync(
+                "สำเร็จ",
+                "ออกจากระบบเรียบร้อยแล้ว",
+                SweetAlertIcon.Success
+            );
+
+            // Redirect
+            Nav.NavigateTo("/", true);
         }
     }
 }
