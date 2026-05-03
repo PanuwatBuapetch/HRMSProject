@@ -1,6 +1,7 @@
 ﻿@using Hrms_project.Components.Shared
 @using Hrms_project.Models
 @using System.Web
+@using Hrms_project.Service
 
 @inherits LayoutComponentBase
 
@@ -11,7 +12,6 @@
 @inject JsonLocalizationService LocService
 
 <PageTitle>HRMS</PageTitle>
-
 <AntContainer />
 
 @if (!State.IsLoggedIn)
@@ -49,6 +49,17 @@ else
 
 @code {
 
+    protected override async Task OnInitializedAsync()
+    {
+        // 1. โหลดข้อมูล
+        await AuthManager.Initialize();
+        
+        // 2. สำคัญมาก: สั่งให้ Layout อัปเดต UI ใหม่หลังจากเช็คสถานะเสร็จ
+        StateHasChanged();
+        
+        LocService.OnLanguageChanged += StateHasChanged;
+    }
+
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
         if (firstRender)
@@ -62,11 +73,6 @@ else
             else
                 await LocService.SetCulture("th-TH");
         }
-    }
-
-    protected override void OnInitialized()
-    {
-        LocService.OnLanguageChanged += StateHasChanged;
     }
 
     public void Dispose()

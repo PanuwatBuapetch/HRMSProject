@@ -1,0 +1,86 @@
+﻿@page "/create-document"
+@inject HttpClient Http
+@inject NavigationManager Nav
+@inject ModalService ModalService
+
+<h3>สร้างเอกสารใหม่</h3>
+
+<Form Model="@document" OnFinish="HandleCreate" Layout="@FormLayout.Vertical">
+    <FormItem Label="ชื่อเอกสาร">
+        <Input @bind-Value="@document.Title" Placeholder="ระบุชื่อเอกสาร..." />
+    </FormItem>
+
+    <FormItem Label="เลือกผู้อนุมัติ">
+        @* เพิ่ม TItemValue และ TItem ตรงนี้ *@
+        <Select TItemValue="string" TItem="UserOption" @bind-Value="@document.ApproverId" Placeholder="เลือกผู้อนุมัติ">
+            @foreach (var user in approvers)
+            {
+                <SelectOption TItemValue="string" TItem="UserOption" Value="@user.Id" Label="@user.Name" />
+            }
+        </Select>
+    </FormItem>
+
+    <Button HtmlType="submit" Type="@ButtonType.Primary" Loading="isSubmitting">
+        สร้างเอกสาร
+    </Button>
+</Form>
+
+@code {
+    private DocumentRequest document = new();
+    private List<UserOption> approvers = new();
+    private bool isSubmitting = false;
+
+    protected override void OnInitialized()
+    {
+        approvers = new List<UserOption>
+        {
+            new UserOption { Id = "emp001", Name = "คุณสมชาย (ผู้บริหาร A)" },
+            new UserOption { Id = "emp002", Name = "คุณสมหญิง (ผู้บริหาร B)" }
+        };
+    }
+
+    private async Task HandleCreate()
+    {
+        isSubmitting = true;
+        try
+        {
+            // พิมพ์ Log ออก Console ของ Browser (กด F12 ดูแถบ Console)
+            Console.WriteLine($"กำลังส่งข้อมูลไปที่: api/workflow/create");
+            Console.WriteLine($"ข้อมูลที่จะส่ง: {document.Title}, {document.ApproverId}");
+
+            var response = await Http.PostAsJsonAsync("api/workflow/create", document);
+            
+            // อ่านค่า Error กลับมา
+            var responseContent = await response.Content.ReadAsStringAsync();
+            Console.WriteLine($"Response Status: {response.StatusCode}");
+            Console.WriteLine($"Response Content: {responseContent}");
+
+            if (response.IsSuccessStatusCode)
+            {
+                var result = await response.Content.ReadFromJsonAsync<CreateResponse>();
+                Nav.NavigateTo(result.Url);
+            }
+            else
+            {
+                ModalService.Error(new ConfirmOptions
+                {
+                    Title = "API Error",
+                    Content = $"สถานะ: {response.StatusCode}, รายละเอียด: {responseContent}"
+                });
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Exception: {ex.Message}");
+            ModalService.Error(new ConfirmOptions { Title = "Exception", Content = ex.Message });
+        }
+        finally
+        {
+            isSubmitting = false;
+        }
+    }
+
+    public class DocumentRequest { public string Title { get; set; } = ""; public string ApproverId { get; set; } = ""; }
+    public class UserOption { public string Id { get; set; } = ""; public string Name { get; set; } = ""; }
+    public class CreateResponse { public string Url { get; set; } = ""; }
+}

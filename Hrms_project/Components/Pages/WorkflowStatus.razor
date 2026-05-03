@@ -1,0 +1,86 @@
+﻿@page "/workflow-status"
+@using System.Net.Http.Json
+@using Hrms_project.Service
+@inject IHttpClientFactory ClientFactory
+
+<h3>สถานะ Workflow ของเอกสาร</h3>
+
+<div class="mb-3">
+    <input @bind="documentId" class="form-control" placeholder="ใส่ Document ID ที่นี่..." />
+    <button @onclick="GetWorkflowStatus" class="btn btn-primary mt-2">ตรวจสอบสถานะ</button>
+</div>
+
+@if (statusMessage != null)
+{
+    <div class="alert alert-info">
+        @statusMessage
+    </div>
+
+    @if (canApprove)
+    {
+        <button @onclick="ApproveDocument" class="btn btn-success">อนุมัติเอกสาร</button>
+    }
+}
+
+@code {
+    private string documentId;
+    private string statusMessage;
+    private bool canApprove = false;
+
+    private async Task GetWorkflowStatus()
+    {
+        try
+        {
+            var client = ClientFactory.CreateClient("Api");
+            var response = await client.GetFromJsonAsync<WorkflowResponse>($"api/Workflow/status/{documentId}");
+
+            if (response != null)
+            {
+                string timeDisplay = response.UpdatedAt.HasValue
+                    ? response.UpdatedAt.Value.ToString("yyyy-MM-dd HH:mm:ss")
+                    : "ยังไม่มีการอัปเดต";
+
+                statusMessage = $"สถานะ: {response.Status}, อัปเดตล่าสุด: {timeDisplay}";
+                
+                // ถ้าสถานะเป็น Pending ให้แสดงปุ่มอนุมัติ
+                canApprove = response.Status == "Pending";
+            }
+        }
+        catch (Exception ex)
+        {
+            statusMessage = $"Error: {ex.Message}";
+            canApprove = false;
+        }
+    }
+
+    private async Task ApproveDocument()
+    {
+        try
+        {
+            var client = ClientFactory.CreateClient("Api");
+            // สมมติว่าคุณมี API Endpoint สำหรับการ Approve
+            var response = await client.PostAsync($"api/Workflow/approve/{documentId}", null);
+            
+            if (response.IsSuccessStatusCode)
+            {
+                statusMessage = "อนุมัติเรียบร้อยแล้ว!";
+                canApprove = false;
+                await GetWorkflowStatus(); // รีเฟรชสถานะใหม่
+            }
+            else
+            {
+                statusMessage = "เกิดข้อผิดพลาดในการอนุมัติ";
+            }
+        }
+        catch (Exception ex)
+        {
+            statusMessage = $"Error: {ex.Message}";
+        }
+    }
+
+    public class WorkflowResponse
+    {
+        public string Status { get; set; }
+        public DateTime? UpdatedAt { get; set; }
+    }
+}

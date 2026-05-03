@@ -47,14 +47,28 @@ public partial class Hrms_dbContext : DbContext
 
     public virtual DbSet<WorkUnit> WorkUnits { get; set; }
 
+    public virtual DbSet<WorkflowAttachment> WorkflowAttachments { get; set; }
+
+    public virtual DbSet<WorkflowComment> WorkflowComments { get; set; }
+
+    public virtual DbSet<WorkflowDefinition> WorkflowDefinitions { get; set; }
+
+    public virtual DbSet<WorkflowDocument> WorkflowDocuments { get; set; }
+
+    public virtual DbSet<WorkflowInbox> WorkflowInboxes { get; set; }
+
+    public virtual DbSet<WorkflowInstance> WorkflowInstances { get; set; }
+
+    public virtual DbSet<WorkflowStep> WorkflowSteps { get; set; }
+
+    public virtual DbSet<WorkflowTransaction> WorkflowTransactions { get; set; }
+
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
 #warning To protect potentially sensitive information in your connection string, you should move it out of source code. You can avoid scaffolding the connection string by using the Name= syntax to read it from configuration - see https://go.microsoft.com/fwlink/?linkid=2131148. For more guidance on storing connection strings, see https://go.microsoft.com/fwlink/?LinkId=723263.
-        => optionsBuilder.UseNpgsql("Host=localhost;Database=HRMS;Username=postgres;Password=1234");
+        => optionsBuilder.UseNpgsql("Host=localhost;Port=5432;Database=HRMS;Username=postgres;Password=1234");
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
-        modelBuilder.HasPostgresExtension("uuid-ossp");
-
         modelBuilder.Entity<AuditLog>(entity =>
         {
             entity.HasKey(e => e.Logid).HasName("studentlog_pkey");
@@ -556,6 +570,341 @@ public partial class Hrms_dbContext : DbContext
             entity.Property(e => e.UnitNameThai)
                 .HasMaxLength(70)
                 .HasColumnName("unit_name_thai");
+        });
+
+        modelBuilder.Entity<WorkflowAttachment>(entity =>
+        {
+            entity.HasKey(e => e.WorkflowAttachmentId).HasName("workflow_attachments_pkey");
+
+            entity.ToTable("workflow_attachments", "person");
+
+            entity.Property(e => e.WorkflowAttachmentId)
+                .HasMaxLength(36)
+                .HasColumnName("workflow_attachment_id");
+            entity.Property(e => e.FileName)
+                .HasMaxLength(255)
+                .HasColumnName("file_name");
+            entity.Property(e => e.FilePath).HasColumnName("file_path");
+            entity.Property(e => e.FileSize).HasColumnName("file_size");
+            entity.Property(e => e.UploadedAt)
+                .HasDefaultValueSql("CURRENT_TIMESTAMP")
+                .HasColumnType("timestamp without time zone")
+                .HasColumnName("uploaded_at");
+            entity.Property(e => e.UploadedBy)
+                .HasMaxLength(100)
+                .HasColumnName("uploaded_by");
+            entity.Property(e => e.WorkflowDocumentId)
+                .HasMaxLength(36)
+                .HasColumnName("workflow_document_id");
+
+            entity.HasOne(d => d.WorkflowDocument).WithMany(p => p.WorkflowAttachments)
+                .HasForeignKey(d => d.WorkflowDocumentId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("fk_attachment_document");
+        });
+
+        modelBuilder.Entity<WorkflowComment>(entity =>
+        {
+            entity.HasKey(e => e.WorkflowCommentId).HasName("workflow_comments_pkey");
+
+            entity.ToTable("workflow_comments", "person");
+
+            entity.Property(e => e.WorkflowCommentId)
+                .HasMaxLength(36)
+                .HasColumnName("workflow_comment_id");
+            entity.Property(e => e.Comment).HasColumnName("comment");
+            entity.Property(e => e.CreatedAt)
+                .HasDefaultValueSql("CURRENT_TIMESTAMP")
+                .HasColumnType("timestamp without time zone")
+                .HasColumnName("created_at");
+            entity.Property(e => e.EmployeeId)
+                .HasMaxLength(100)
+                .HasColumnName("employee_id");
+            entity.Property(e => e.WorkflowDocumentId)
+                .HasMaxLength(36)
+                .HasColumnName("workflow_document_id");
+
+            entity.HasOne(d => d.WorkflowDocument).WithMany(p => p.WorkflowComments)
+                .HasForeignKey(d => d.WorkflowDocumentId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("fk_comment_document");
+        });
+
+        modelBuilder.Entity<WorkflowDefinition>(entity =>
+        {
+            entity.HasKey(e => e.WorkflowDefinitionId).HasName("workflow_definitions_pkey");
+
+            entity.ToTable("workflow_definitions", "person");
+
+            entity.HasIndex(e => e.WorkflowCode, "workflow_definitions_workflow_code_key").IsUnique();
+
+            entity.Property(e => e.WorkflowDefinitionId)
+                .HasMaxLength(36)
+                .HasColumnName("workflow_definition_id");
+            entity.Property(e => e.CreatedAt)
+                .HasDefaultValueSql("CURRENT_TIMESTAMP")
+                .HasColumnType("timestamp without time zone")
+                .HasColumnName("created_at");
+            entity.Property(e => e.CreatedBy)
+                .HasMaxLength(100)
+                .HasColumnName("created_by");
+            entity.Property(e => e.DefinitionJson).HasColumnName("definition_json");
+            entity.Property(e => e.Description).HasColumnName("description");
+            entity.Property(e => e.IsActive)
+                .HasDefaultValue(true)
+                .HasColumnName("is_active");
+            entity.Property(e => e.UpdatedAt)
+                .HasColumnType("timestamp without time zone")
+                .HasColumnName("updated_at");
+            entity.Property(e => e.WorkflowCode)
+                .HasMaxLength(100)
+                .HasColumnName("workflow_code");
+            entity.Property(e => e.WorkflowName)
+                .HasMaxLength(255)
+                .HasColumnName("workflow_name");
+        });
+
+        modelBuilder.Entity<WorkflowDocument>(entity =>
+        {
+            entity.HasKey(e => e.WorkflowDocumentId).HasName("workflow_documents_pkey");
+
+            entity.ToTable("workflow_documents", "person");
+
+            entity.HasIndex(e => e.RequesterEmployeeId, "idx_workflow_documents_requester");
+
+            entity.HasIndex(e => e.Status, "idx_workflow_documents_status");
+
+            entity.Property(e => e.WorkflowDocumentId)
+                .HasMaxLength(36)
+                .HasColumnName("workflow_document_id");
+            entity.Property(e => e.CompletedAt)
+                .HasColumnType("timestamp without time zone")
+                .HasColumnName("completed_at");
+            entity.Property(e => e.CreatedAt)
+                .HasDefaultValueSql("CURRENT_TIMESTAMP")
+                .HasColumnType("timestamp without time zone")
+                .HasColumnName("created_at");
+            entity.Property(e => e.CurrentStep)
+                .HasDefaultValue(1)
+                .HasColumnName("current_step");
+            entity.Property(e => e.DocumentData)
+                .HasColumnType("jsonb")
+                .HasColumnName("document_data");
+            entity.Property(e => e.DocumentNo)
+                .HasMaxLength(100)
+                .HasColumnName("document_no");
+            entity.Property(e => e.DocumentTitle)
+                .HasMaxLength(255)
+                .HasColumnName("document_title");
+            entity.Property(e => e.DocumentType)
+                .HasMaxLength(100)
+                .HasColumnName("document_type");
+            entity.Property(e => e.RequesterEmployeeId)
+                .HasMaxLength(100)
+                .HasColumnName("requester_employee_id");
+            entity.Property(e => e.Status)
+                .HasMaxLength(50)
+                .HasDefaultValueSql("'Pending'::character varying")
+                .HasColumnName("status");
+            entity.Property(e => e.UpdatedAt)
+                .HasColumnType("timestamp without time zone")
+                .HasColumnName("updated_at");
+            entity.Property(e => e.WorkflowDefinitionId)
+                .HasMaxLength(36)
+                .HasColumnName("workflow_definition_id");
+
+            entity.HasOne(d => d.WorkflowDefinition).WithMany(p => p.WorkflowDocuments)
+                .HasForeignKey(d => d.WorkflowDefinitionId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("fk_document_definition");
+        });
+
+        modelBuilder.Entity<WorkflowInbox>(entity =>
+        {
+            entity.HasKey(e => e.WorkflowInboxId).HasName("workflow_inbox_pkey");
+
+            entity.ToTable("workflow_inbox", "person");
+
+            entity.HasIndex(e => e.ReceiverEmployeeId, "idx_workflow_inbox_receiver");
+
+            entity.Property(e => e.WorkflowInboxId)
+                .HasMaxLength(36)
+                .HasColumnName("workflow_inbox_id");
+            entity.Property(e => e.IsRead)
+                .HasDefaultValue(false)
+                .HasColumnName("is_read");
+            entity.Property(e => e.ReceivedAt)
+                .HasDefaultValueSql("CURRENT_TIMESTAMP")
+                .HasColumnType("timestamp without time zone")
+                .HasColumnName("received_at");
+            entity.Property(e => e.ReceiverEmployeeId)
+                .HasMaxLength(100)
+                .HasColumnName("receiver_employee_id");
+            entity.Property(e => e.ReceiverRole)
+                .HasMaxLength(100)
+                .HasColumnName("receiver_role");
+            entity.Property(e => e.Status)
+                .HasMaxLength(50)
+                .HasDefaultValueSql("'Pending'::character varying")
+                .HasColumnName("status");
+            entity.Property(e => e.WorkflowDocumentId)
+                .HasMaxLength(36)
+                .HasColumnName("workflow_document_id");
+            entity.Property(e => e.WorkflowInstanceId)
+                .HasMaxLength(36)
+                .HasColumnName("workflow_instance_id");
+
+            entity.HasOne(d => d.WorkflowDocument).WithMany(p => p.WorkflowInboxes)
+                .HasForeignKey(d => d.WorkflowDocumentId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("fk_inbox_document");
+
+            entity.HasOne(d => d.WorkflowInstance).WithMany(p => p.WorkflowInboxes)
+                .HasForeignKey(d => d.WorkflowInstanceId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("fk_inbox_instance");
+        });
+
+        modelBuilder.Entity<WorkflowInstance>(entity =>
+        {
+            entity.HasKey(e => e.WorkflowInstanceId).HasName("workflow_instances_pkey");
+
+            entity.ToTable("workflow_instances", "person");
+
+            entity.HasIndex(e => e.Status, "idx_workflow_instances_status");
+
+            entity.Property(e => e.WorkflowInstanceId)
+                .HasMaxLength(36)
+                .HasColumnName("workflow_instance_id");
+            entity.Property(e => e.CurrentApproverEmployeeId)
+                .HasMaxLength(100)
+                .HasColumnName("current_approver_employee_id");
+            entity.Property(e => e.CurrentApproverRole)
+                .HasMaxLength(100)
+                .HasColumnName("current_approver_role");
+            entity.Property(e => e.CurrentStepNo)
+                .HasDefaultValue(1)
+                .HasColumnName("current_step_no");
+            entity.Property(e => e.EndedAt)
+                .HasColumnType("timestamp without time zone")
+                .HasColumnName("ended_at");
+            entity.Property(e => e.StartedAt)
+                .HasDefaultValueSql("CURRENT_TIMESTAMP")
+                .HasColumnType("timestamp without time zone")
+                .HasColumnName("started_at");
+            entity.Property(e => e.Status)
+                .HasMaxLength(50)
+                .HasDefaultValueSql("'Pending'::character varying")
+                .HasColumnName("status");
+            entity.Property(e => e.WorkflowDefinitionId)
+                .HasMaxLength(36)
+                .HasColumnName("workflow_definition_id");
+            entity.Property(e => e.WorkflowDocumentId)
+                .HasMaxLength(36)
+                .HasColumnName("workflow_document_id");
+
+            entity.HasOne(d => d.WorkflowDefinition).WithMany(p => p.WorkflowInstances)
+                .HasForeignKey(d => d.WorkflowDefinitionId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("fk_instance_definition");
+
+            entity.HasOne(d => d.WorkflowDocument).WithMany(p => p.WorkflowInstances)
+                .HasForeignKey(d => d.WorkflowDocumentId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("fk_instance_document");
+        });
+
+        modelBuilder.Entity<WorkflowStep>(entity =>
+        {
+            entity.HasKey(e => e.WorkflowStepId).HasName("workflow_steps_pkey");
+
+            entity.ToTable("workflow_steps", "person");
+
+            entity.Property(e => e.WorkflowStepId)
+                .HasMaxLength(36)
+                .HasColumnName("workflow_step_id");
+            entity.Property(e => e.ApproverEmployeeId)
+                .HasMaxLength(100)
+                .HasColumnName("approver_employee_id");
+            entity.Property(e => e.ApproverRole)
+                .HasMaxLength(100)
+                .HasColumnName("approver_role");
+            entity.Property(e => e.CreatedAt)
+                .HasDefaultValueSql("CURRENT_TIMESTAMP")
+                .HasColumnType("timestamp without time zone")
+                .HasColumnName("created_at");
+            entity.Property(e => e.Expression).HasColumnName("expression");
+            entity.Property(e => e.IsRequired)
+                .HasDefaultValue(true)
+                .HasColumnName("is_required");
+            entity.Property(e => e.OnApprove)
+                .HasMaxLength(100)
+                .HasColumnName("on_approve");
+            entity.Property(e => e.OnReject)
+                .HasMaxLength(100)
+                .HasColumnName("on_reject");
+            entity.Property(e => e.StepName)
+                .HasMaxLength(255)
+                .HasColumnName("step_name");
+            entity.Property(e => e.StepNo).HasColumnName("step_no");
+            entity.Property(e => e.StepType)
+                .HasMaxLength(100)
+                .HasColumnName("step_type");
+            entity.Property(e => e.WorkflowDefinitionId)
+                .HasMaxLength(36)
+                .HasColumnName("workflow_definition_id");
+
+            entity.HasOne(d => d.WorkflowDefinition).WithMany(p => p.WorkflowSteps)
+                .HasForeignKey(d => d.WorkflowDefinitionId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("fk_workflow_definition");
+        });
+
+        modelBuilder.Entity<WorkflowTransaction>(entity =>
+        {
+            entity.HasKey(e => e.WorkflowTransactionId).HasName("workflow_transactions_pkey");
+
+            entity.ToTable("workflow_transactions", "person");
+
+            entity.HasIndex(e => e.WorkflowDocumentId, "idx_workflow_transactions_document");
+
+            entity.Property(e => e.WorkflowTransactionId)
+                .HasMaxLength(36)
+                .HasColumnName("workflow_transaction_id");
+            entity.Property(e => e.Action)
+                .HasMaxLength(50)
+                .HasColumnName("action");
+            entity.Property(e => e.ActionDate)
+                .HasDefaultValueSql("CURRENT_TIMESTAMP")
+                .HasColumnType("timestamp without time zone")
+                .HasColumnName("action_date");
+            entity.Property(e => e.ApproverEmployeeId)
+                .HasMaxLength(100)
+                .HasColumnName("approver_employee_id");
+            entity.Property(e => e.ApproverRole)
+                .HasMaxLength(100)
+                .HasColumnName("approver_role");
+            entity.Property(e => e.Comment).HasColumnName("comment");
+            entity.Property(e => e.StepName)
+                .HasMaxLength(255)
+                .HasColumnName("step_name");
+            entity.Property(e => e.StepNo).HasColumnName("step_no");
+            entity.Property(e => e.WorkflowDocumentId)
+                .HasMaxLength(36)
+                .HasColumnName("workflow_document_id");
+            entity.Property(e => e.WorkflowInstanceId)
+                .HasMaxLength(36)
+                .HasColumnName("workflow_instance_id");
+
+            entity.HasOne(d => d.WorkflowDocument).WithMany(p => p.WorkflowTransactions)
+                .HasForeignKey(d => d.WorkflowDocumentId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("fk_transaction_document");
+
+            entity.HasOne(d => d.WorkflowInstance).WithMany(p => p.WorkflowTransactions)
+                .HasForeignKey(d => d.WorkflowInstanceId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("fk_transaction_instance");
         });
 
         OnModelCreatingPartial(modelBuilder);

@@ -4,7 +4,7 @@ using Hrms_project.Components;
 using Hrms_project.Models;
 using Hrms_project.Service;
 using HrmsSolution.Service;
-
+Console.OutputEncoding = System.Text.Encoding.UTF8;
 var builder = WebApplication.CreateBuilder(args);
 
 // --- 1. Registration of Services (builder.Build()) ---
