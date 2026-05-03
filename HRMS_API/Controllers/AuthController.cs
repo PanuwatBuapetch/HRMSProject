@@ -38,8 +38,13 @@ public class AuthController : ControllerBase
             employee.EmployeeId,
             FullNameThai = $"{employee.FirstNameThai} {employee.LastNameThai}",
             employee.Username,
-            Role = "User"
-        });
+            Role =
+            employee.Username == "superadmin"
+                ? "SuperAdmin"
+                : employee.PositionId == "ADMIN"
+                    ? "Admin"
+                    : "User"
+                });
     }
 }
 

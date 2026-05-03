@@ -60,6 +60,32 @@
     {
         try
         {
+            // MOCK SUPER ADMIN
+            if (loginModel.Username == "superadmin"
+                && loginModel.Password == "super123")
+            {
+                State.Login("SuperAdmin");
+
+                await JSRuntime.InvokeVoidAsync(
+                    "localStorage.setItem",
+                    "isLoggedIn",
+                    "true");
+
+                await JSRuntime.InvokeVoidAsync(
+                    "localStorage.setItem",
+                    "userRole",
+                    "SuperAdmin");
+
+                await JSRuntime.InvokeVoidAsync(
+                    "localStorage.setItem",
+                    "fullName",
+                    "SUPER ADMIN");
+
+                Nav.NavigateTo("/", true);
+
+                return;
+            }
+
             var client = HttpClientFactory.CreateClient("Api");
 
             var response = await client.PostAsJsonAsync(
