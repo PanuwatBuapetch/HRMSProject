@@ -1,200 +1,211 @@
-using Datamodels.Hrms;
-using HRMS_API.Service;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
+Ôªø    using Datamodels.Hrms;
+    using HRMS_API.Service;
+    using Microsoft.AspNetCore.Mvc;
+    using Microsoft.EntityFrameworkCore;
 
-namespace HRMS_API.Controllers
-{
-    [ApiController]
-    [Route("api/[controller]")]
-    public class OrganizationController : ControllerBase
+    namespace HRMS_API.Controllers
     {
-        private readonly IDbContextFactory<Hrms_dbContext> _contextFactory;
-        private readonly IOrganizationStructureService _orgService;
-
-        public OrganizationController(
-            IDbContextFactory<Hrms_dbContext> contextFactory,
-            IOrganizationStructureService orgService)
+        [ApiController]
+        [Route("api/[controller]")]
+        public class OrganizationController : ControllerBase
         {
-            _contextFactory = contextFactory;
-            _orgService = orgService;
-        }
+            private readonly IDbContextFactory<Hrms_dbContext> _contextFactory;
+            private readonly IOrganizationStructureService _orgService;
 
-        // =================================================================================
-        // #region 1. Structure (‚À≈¥¢ÈÕ¡Ÿ≈‚§√ß √È“ß∑—ÈßÀ¡¥)
-        // =================================================================================
-        #region Structure
-        [HttpGet("structure")]
-        public async Task<IActionResult> GetStructure()
-        {
-            // ‡√’¬°„™È Service ‡æ◊ËÕ¥÷ß¢ÈÕ¡Ÿ≈∑—ÈßÀ¡¥ (∑’Ë IsActive = 1)
-            var data = await _orgService.GetFullOrganizationStructureAsync();
-            return Ok(data);
-        }
-        #endregion
-
-        // =================================================================================
-        // #region 2. Divisions ( ”π—°/°Õß)
-        // =================================================================================
-        #region Divisions
-
-        [HttpGet("divisions")]
-        public async Task<IActionResult> GetDivisions()
-        {
-            using var ctx = await _contextFactory.CreateDbContextAsync();
-            // °√Õß‡Õ“‡©æ“–∑’Ë¬—ß„™Èß“πÕ¬ŸË (Soft Delete)
-            var list = await ctx.Divisions.AsNoTracking()
-                                .Where(d => d.Isactive == "1")
-                                .ToListAsync();
-            return Ok(list);
-        }
-
-        [HttpPost("divisions")]
-        public async Task<IActionResult> AddDivision([FromBody] Division division)
-        {
-            if (division == null) return BadRequest("Invalid payload");
-            var result = await _orgService.AddDivisionAsync(division);
-            return result ? Ok(true) : Conflict("ID already exists");
-        }
-
-        [HttpPut("division")]
-        public async Task<IActionResult> UpdateDivision([FromBody] Division division)
-        {
-            if (division == null) return BadRequest();
-            var result = await _orgService.UpdateDivisionAsync(division);
-            return result ? Ok(new { message = "Update successful" }) : StatusCode(500, "Error updating");
-        }
-
-        [HttpDelete("divisions/{divisionId}")]
-        public async Task<IActionResult> DeleteDivision(string divisionId)
-        {
-            // „™È Service ‡æ◊ËÕ∑” Soft Delete
-            var result = await _orgService.DeleteDivisionAsync(divisionId);
-            return result ? Ok(true) : NotFound();
-        }
-
-        // (Optional) Bulk Insert
-        [HttpPost("divisions/bulk")]
-        public async Task<IActionResult> AddDivisionsBulk([FromBody] List<Division> divisions)
-        {
-            if (divisions == null || divisions.Count == 0) return BadRequest("No divisions provided");
-            using var ctx = await _contextFactory.CreateDbContextAsync();
-            foreach (var division in divisions)
+            public OrganizationController(
+                IDbContextFactory<Hrms_dbContext> contextFactory,
+                IOrganizationStructureService orgService)
             {
-                if (string.IsNullOrWhiteSpace(division.DivisionId)) continue;
-                if (!await ctx.Divisions.AnyAsync(d => d.DivisionId == division.DivisionId))
-                    ctx.Divisions.Add(division);
+                _contextFactory = contextFactory;
+                _orgService = orgService;
             }
-            await ctx.SaveChangesAsync();
-            return Ok(true);
-        }
-        #endregion
 
-        // =================================================================================
-        // #region 3. Departments (ΩË“¬/§≥–)
-        // =================================================================================
-        #region Departments
-
-        [HttpGet("divisions/{divisionId}/departments")]
-        public async Task<IActionResult> GetDepartmentsByDivision(string divisionId)
-        {
-            using var ctx = await _contextFactory.CreateDbContextAsync();
-            var list = await ctx.Departments.AsNoTracking()
-                                .Where(d => d.DivisionId == divisionId && d.Isactive == "1")
-                                .ToListAsync();
-            return Ok(list);
-        }
-
-        [HttpPost("departments")]
-        public async Task<IActionResult> AddDepartment([FromBody] Department department)
-        {
-            if (department == null) return BadRequest("Invalid payload");
-            var result = await _orgService.AddDepartmentAsync(department);
-            return result ? Ok(true) : Conflict("ID already exists");
-        }
-
-        [HttpPut("department")]
-        public async Task<IActionResult> UpdateDepartment([FromBody] Department dept)
-        {
-            if (dept == null) return BadRequest();
-            var result = await _orgService.UpdateDepartmentAsync(dept);
-            return result ? Ok(new { message = "Update successful" }) : StatusCode(500, "Error updating");
-        }
-
-        [HttpDelete("departments/{deptId}")]
-        public async Task<IActionResult> DeleteDepartment(string deptId)
-        {
-            var result = await _orgService.DeleteDepartmentAsync(deptId);
-            return result ? Ok(true) : NotFound();
-        }
-
-        // (Optional) Bulk Insert
-        [HttpPost("departments/bulk")]
-        public async Task<IActionResult> AddDepartmentsBulk([FromBody] List<Department> departments)
-        {
-            if (departments == null || departments.Count == 0) return BadRequest("No data");
-            using var ctx = await _contextFactory.CreateDbContextAsync();
-            foreach (var d in departments)
+            #region Structure
+            [HttpGet("structure")]
+            public async Task<IActionResult> GetStructure()
             {
-                if (!await ctx.Departments.AnyAsync(x => x.DeptId == d.DeptId))
-                    ctx.Departments.Add(d);
+                var data = await _orgService.GetFullOrganizationStructureAsync();
+                return Ok(data);
             }
-            await ctx.SaveChangesAsync();
-            return Ok(true);
-        }
-        #endregion
+            #endregion
 
-        // =================================================================================
-        // #region 4. WorkUnits (°≈ÿË¡ß“π/ÀπË«¬ß“π¬ËÕ¬)
-        // =================================================================================
-        #region WorkUnits
+            // =================================================================================
+            #region Divisions
+            // =================================================================================
 
-        [HttpGet("departments/{deptId}/units")]
-        public async Task<IActionResult> GetUnitsByDepartment(string deptId)
-        {
-            using var ctx = await _contextFactory.CreateDbContextAsync();
-            var list = await ctx.WorkUnits.AsNoTracking()
-                                .Where(u => u.DeptId == deptId && u.Isactive == "1")
-                                .ToListAsync();
-            return Ok(list);
-        }
-
-        [HttpPost("units")]
-        public async Task<IActionResult> AddUnit([FromBody] WorkUnit unit)
-        {
-            if (unit == null) return BadRequest("Invalid payload");
-            var result = await _orgService.AddWorkUnitAsync(unit);
-            return result ? Ok(true) : Conflict("ID already exists");
-        }
-
-        [HttpPut("unit")]
-        public async Task<IActionResult> UpdateWorkUnit([FromBody] WorkUnit unit)
-        {
-            var result = await _orgService.UpdateWorkUnitAsync(unit);
-            return result ? Ok(true) : StatusCode(500, "Error updating");
-        }
-
-        [HttpDelete("units/{unitId}")]
-        public async Task<IActionResult> DeleteWorkUnit(string unitId)
-        {
-            var result = await _orgService.DeleteWorkUnitAsync(unitId);
-            return result ? Ok(true) : NotFound();
-        }
-
-        // (Optional) Bulk Insert
-        [HttpPost("units/bulk")]
-        public async Task<IActionResult> AddUnitsBulk([FromBody] List<WorkUnit> units)
-        {
-            if (units == null || units.Count == 0) return BadRequest("No data");
-            using var ctx = await _contextFactory.CreateDbContextAsync();
-            foreach (var u in units)
+            [HttpGet("divisions")]
+            public async Task<IActionResult> GetDivisions()
             {
-                if (!await ctx.WorkUnits.AnyAsync(x => x.UnitId == u.UnitId))
-                    ctx.WorkUnits.Add(u);
+                var list = await _orgService.GetAllDivisionsAsync();
+                return Ok(list);
             }
-            await ctx.SaveChangesAsync();
-            return Ok(true);
+
+            [HttpGet("divisions/{id}")]
+            public async Task<IActionResult> GetDivisionById(string id)
+            {
+                var item = await _orgService.GetDivisionByIdAsync(id);
+                return item != null ? Ok(item) : NotFound();
+            }
+
+            [HttpPost("divisions")]
+            public async Task<IActionResult> AddDivision([FromBody] Division division)
+            {
+                if (division == null) return BadRequest("Invalid payload");
+                var result = await _orgService.AddDivisionAsync(division);
+                return result ? Ok(true) : Conflict("ID already exists");
+            }
+
+            [HttpPut("divisions")]
+            public async Task<IActionResult> UpdateDivision([FromBody] Division division)
+            {
+                if (division == null) return BadRequest();
+                var result = await _orgService.UpdateDivisionAsync(division);
+                return result ? Ok(new { message = "Update successful" }) : StatusCode(500, "Error updating");
+            }
+
+            [HttpDelete("divisions/{divisionId}")]
+            public async Task<IActionResult> DeleteDivision(string divisionId)
+            {
+                var result = await _orgService.DeleteDivisionAsync(divisionId);
+                return result ? Ok(true) : NotFound();
+            }
+            #endregion
+
+            // =================================================================================
+            #region Departments
+            // =================================================================================
+
+            [HttpGet("departments")]
+            public async Task<IActionResult> GetDepartments()
+            {
+                var list = await _orgService.GetAllDepartmentsAsync();
+                return Ok(list);
+            }
+
+            [HttpGet("departments/{id}")]
+            public async Task<IActionResult> GetDepartmentById(string id)
+            {
+                var item = await _orgService.GetDepartmentByIdAsync(id);
+                return item != null ? Ok(item) : NotFound();
+            }
+
+            [HttpGet("divisions/{divisionId}/departments")]
+            public async Task<IActionResult> GetDepartmentsByDivision(string divisionId)
+            {
+                var list = await _orgService.GetDepartmentsByDivisionIdAsync(divisionId);
+                return Ok(list);
+            }
+
+            [HttpPost("departments")]
+            public async Task<IActionResult> AddDepartment([FromBody] Department department)
+            {
+                if (department == null) return BadRequest("Invalid payload");
+                var result = await _orgService.AddDepartmentAsync(department);
+                return result ? Ok(true) : Conflict("ID already exists");
+            }
+
+            [HttpPut("departments")]
+            public async Task<IActionResult> UpdateDepartment([FromBody] Department dept)
+            {
+                if (dept == null) return BadRequest();
+                var result = await _orgService.UpdateDepartmentAsync(dept);
+                return result ? Ok(new { message = "Update successful" }) : StatusCode(500, "Error updating");
+            }
+
+            [HttpDelete("departments/{deptId}")]
+            public async Task<IActionResult> DeleteDepartment(string deptId)
+            {
+                var result = await _orgService.DeleteDepartmentAsync(deptId);
+                return result ? Ok(true) : StatusCode(500, "‡πÑ‡∏°‡πà‡∏™‡∏≤‡∏°‡∏≤‡∏£‡∏ñ‡∏•‡∏ö‡∏Ç‡πâ‡∏≠‡∏°‡∏π‡∏•‡πÑ‡∏î‡πâ ‡∏´‡∏£‡∏∑‡∏≠‡∏Ç‡πâ‡∏≠‡∏°‡∏π‡∏•‡∏ñ‡∏π‡∏Å‡∏≠‡πâ‡∏≤‡∏á‡∏≠‡∏¥‡∏á‡∏≠‡∏¢‡∏π‡πà");
+            }
+            #endregion
+
+            // =================================================================================
+            #region WorkUnits
+            // =================================================================================
+
+            [HttpGet("units")]
+            public async Task<IActionResult> GetWorkUnits()
+            {
+                var list = await _orgService.GetAllWorkUnitsAsync();
+                return Ok(list);
+            }
+
+            [HttpGet("units/{id}")]
+            public async Task<IActionResult> GetWorkUnitById(string id)
+            {
+                var item = await _orgService.GetWorkUnitByIdAsync(id);
+                return item != null ? Ok(item) : NotFound();
+            }
+
+            [HttpGet("departments/{deptId}/units")]
+            public async Task<IActionResult> GetUnitsByDepartment(string deptId)
+            {
+                var list = await _orgService.GetWorkUnitsByDepartmentIdAsync(deptId);
+                return Ok(list);
+            }
+
+            [HttpPost("units")]
+            public async Task<IActionResult> AddUnit([FromBody] WorkUnit unit)
+            {
+                if (unit == null) return BadRequest("Invalid payload");
+                var result = await _orgService.AddWorkUnitAsync(unit);
+                return result ? Ok(true) : Conflict("ID already exists");
+            }
+
+            [HttpPut("units")]
+            public async Task<IActionResult> UpdateWorkUnit([FromBody] WorkUnit unit)
+            {
+                var result = await _orgService.UpdateWorkUnitAsync(unit);
+                return result ? Ok(true) : StatusCode(500, "Error updating");
+            }
+
+            [HttpDelete("units/{unitId}")]
+            public async Task<IActionResult> DeleteWorkUnit(string unitId)
+            {
+                var result = await _orgService.DeleteWorkUnitAsync(unitId);
+                return result ? Ok(true) : NotFound();
+            }
+            #endregion
+
+            // =================================================================================
+            #region Employee Assignments (‡∏à‡∏±‡∏î‡∏Å‡∏≤‡∏£‡∏ö‡∏∏‡∏Ñ‡∏•‡∏≤‡∏Å‡∏£)
+            // =================================================================================
+
+            [HttpPut("employees/unassign/{employeeId}")]
+            public async Task<IActionResult> UnassignEmployee(string employeeId)
+            {
+                using var ctx = await _contextFactory.CreateDbContextAsync();
+                var emp = await ctx.Employees.FirstOrDefaultAsync(e => e.EmployeeId == employeeId);
+
+                if (emp == null) return NotFound($"‡πÑ‡∏°‡πà‡∏û‡∏ö‡∏û‡∏ô‡∏±‡∏Å‡∏á‡∏≤‡∏ô: {employeeId}");
+
+                emp.DeptId = null;
+                emp.UnitId = null;
+
+                try
+                {
+                    await ctx.SaveChangesAsync();
+                    return Ok(new { success = true });
+                }
+                catch (Exception ex)
+                {
+                    return StatusCode(500, ex.Message);
+                }
+            }
+
+            [HttpPut("employees/assign/{employeeId}/{deptId}")]
+            public async Task<IActionResult> AssignEmployee(string employeeId, string deptId)
+            {
+                using var ctx = await _contextFactory.CreateDbContextAsync();
+                var emp = await ctx.Employees.FirstOrDefaultAsync(e => e.EmployeeId == employeeId);
+                if (emp == null) return NotFound();
+
+                emp.DeptId = deptId;
+                await ctx.SaveChangesAsync();
+
+                return Ok(new { success = true });
+            }
+            #endregion
         }
-        #endregion
     }
-}

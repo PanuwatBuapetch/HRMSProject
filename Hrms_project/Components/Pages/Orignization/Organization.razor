@@ -143,36 +143,30 @@
                                             <div class="mb-2"><span style="font-size: 12px; color: #8c8c8c;">@dept.DeptNameEng</span></div>
 
                                             @* --- Employee Section (Click to Manage) --- *@
-                                            <div class="employee-section mb-3 p-2 rounded" style="background-color: #f9f9f9; cursor: pointer;" 
-                                                 @onclick="() => OpenManageEmployeesModal(dept)">
-                                                @{
-                                                    var deptEmps = allEmployees.Where(e => !string.IsNullOrEmpty(e.DeptId) && string.Equals(e.DeptId.Trim(), dept.DeptId.Trim(), StringComparison.OrdinalIgnoreCase)).ToList();
+                                                <div class="employee-section p-2 rounded bg-light" style="cursor: pointer;" @onclick="() => OpenManageEmployeesModal(dept)">
+                                                @{ 
+                                                    var deptEmps = allEmployees
+                                                        .Where(e => !string.IsNullOrEmpty(e.DeptId) && e.DeptId.Trim() == dept.DeptId.Trim())
+                                                        .ToList(); 
                                                 }
+    
                                                 <div class="d-flex align-items-center justify-content-between">
                                                     <div class="d-flex align-items-center">
                                                         @if (deptEmps.Any())
                                                         {
-                                                            <AvatarGroup>
-                                                                @foreach (var emp in deptEmps)
-                                                                {
-                                                                    <Tooltip Title="@($"{emp.FirstNameThai} {emp.LastNameThai}")">
-                                                                        <Avatar Src="@(string.IsNullOrEmpty(emp.PictureUrl) ? "/picture/user.png" : emp.PictureUrl)" Icon="user" Size="AvatarSize.Small" />
-                                                                    </Tooltip>
-                                                                }
-                                                            </AvatarGroup>
-                                                            <div class="ms-2"><Tag Color="Cyan">@deptEmps.Count @locallizer["คน"]</Tag></div>
+                                                            // โชว์แค่รูปเดียวของพนักงานคนแรกในฝ่าย
+                                                            <Avatar Src="@deptEmps.First().PictureUrl" Icon="user" Size="@AntDesign.AvatarSize.Small" />
+                                                            <span class="ms-2" style="font-size: 13px; color: #555;">พนักงานในฝ่าย</span>
                                                         }
                                                         else
                                                         {
-                                                            <div class="d-flex align-items-center opacity-50">
-                                                                <Avatar Icon="user" Size="AvatarSize.Small" Style="background-color: #f5f5f5; color: #bfbfbf;" />
-                                                                <span class="ms-2 text-muted fst-italic" style="font-size: 12px;">@locallizer["ว่าง (คลิกเพื่อเพิ่ม)"]</span>
-                                                            </div>
+                                                            <Avatar Icon="user" Size="@AntDesign.AvatarSize.Small" Style="background-color: #f5f5f5; color: #bfbfbf;" />
+                                                            <span class="ms-2" style="font-size: 13px; color: #999;">ยังไม่มีบุคลากร</span>
                                                         }
                                                     </div>
-                                                    <div>
-                                                        <Icon Type="setting" Theme="IconThemeType.Outline" Style="color: #bfbfbf;" />
-                                                    </div>
+        
+                                                    @* แสดงจำนวนคนไว้ด้านขวา ให้ดูสะอาดตา *@
+                                                    <Tag Color="Cyan">@deptEmps.Count @locallizer["คน"]</Tag>
                                                 </div>
                                             </div>
 
@@ -258,54 +252,76 @@
     </Form>
 </Modal>
 
-@* --- Modal 4: Manage Employees (จัดการบุคลากรในฝ่าย) --- *@
-<Modal Title="@($"จัดการบุคลากร: {manageEmpDeptName}")"
-       @bind-Visible="@_visibleManageEmps"
-       Footer="null"
-       Width="700">
+@* --- Modal เดียวสำหรับจัดการบุคลากร --- *@
+<Modal Title="@($"จัดการบุคลากร: {manageEmpDeptName}")" @bind-Visible="@_visibleManageEmps" Width="1000" CancelText="@locallizer["ปิด"]" Footer="null">
+    <Tabs>
+        @* Tab 1: รายชื่อปัจจุบัน *@
+        <TabPane Tab="@locallizer["รายชื่อปัจจุบัน"]">
+            <div class="mb-3">
+                <Input Placeholder="ค้นหารายชื่อพนักงาน..." 
+                       @bind-Value="searchEmpTerm" 
+                       OnInput="@((ChangeEventArgs e) => { searchEmpTerm = e.Value?.ToString() ?? ""; HandleEmpSearch(); })">
+                    <PrefixTemplate><Icon Type="search" /></PrefixTemplate>
+                </Input>
+            </div>
 
-    <div class="mb-3 d-flex justify-content-end">
-        <Button Type="Primary" Icon="user-add" OnClick="() => NavigateToAddEmployee(manageEmpDept)">
-            @locallizer["เพิ่มบุคลากรใหม่ในฝ่ายนี้"]
-        </Button>
-    </div>
-
-    @* +++ แก้ไขบรรทัดนี้: เติม TItem="VEmployeeDetail" +++ *@
-    <Table TItem="VEmployeeDetail" DataSource="@currentDeptEmps" PageSize="5" Size="TableSize.Small">
-
-        @* คอลัมน์รูปภาพ *@
-        <Column @bind-Field="@context.PictureUrl" Title="" Width="60">
-            <Avatar Src="@(string.IsNullOrEmpty(context.PictureUrl) ? "/picture/user.png" : context.PictureUrl)" />
-        </Column>
-
-        @* คอลัมน์ชื่อ *@
-        <Column Title="@locallizer["ชื่อ-นามสกุล"]" TData="string">
-            @* สามารถใส่ TData="string" เพื่อความชัวร์ได้ *@
-            <div class="fw-bold">@context.FirstNameThai @context.LastNameThai</div>
-            <div class="text-muted" style="font-size: 0.8rem;">@context.EmployeeId</div>
-        </Column>
-
-        @* คอลัมน์ตำแหน่ง *@
-        <Column Title="@locallizer["ตำแหน่ง"]" DataIndex="PositionId" TData="string" />
-
-        @* คอลัมน์จัดการ *@
-        <ActionColumn Title="@locallizer["จัดการ"]">
-            <Space>
-                <SpaceItem>
-                    <Tooltip Title="@locallizer["แก้ไขข้อมูลส่วนตัว"]">
-                        <Button Shape="@ButtonShape.Circle" Icon="edit" OnClick="() => NavigateToEditEmployee(context.EmployeeId)" />
+            <Table TItem="VEmployeeDetail" DataSource="@FilteredDeptEmps" PageSize="8" Size="@AntDesign.TableSize.Small">
+                <Column TData="string" Title="รูป" Width="60px"><Avatar Src="@context.PictureUrl" Icon="user" /></Column>
+                <Column TData="string" Title="ชื่อ-นามสกุล">
+                    <div class="fw-bold">@context.FirstNameThai @context.LastNameThai</div>
+                </Column>
+                <Column TData="string" Title="ตำแหน่ง" Field="@context.PositionId" />
+                <ActionColumn Title="จัดการ" Width="80px">
+                    <Tooltip Title="@locallizer["นำออกจากฝ่าย"]">
+                        <Button Danger Shape="@AntDesign.ButtonShape.Circle" Icon="logout" OnClick="() => HandleUnassignEmployee(context)" />
                     </Tooltip>
-                </SpaceItem>
-                <SpaceItem>
-                    <Tooltip Title="@locallizer["นำออกจากฝ่ายนี้ (Unassign)"]">
-                        <Button Danger Shape="@ButtonShape.Circle" Icon="logout" OnClick="() => HandleUnassignEmployee(context)" />
-                    </Tooltip>
-                </SpaceItem>
-            </Space>
-        </ActionColumn>
+                </ActionColumn>
+            </Table>
+        </TabPane>
 
-    </Table>
+        @* Tab 2: เพิ่มพนักงาน *@
+        <TabPane Tab="@locallizer["เพิ่มพนักงาน"]">
+            <div class="mb-3">
+                <Input Placeholder="ค้นหาพนักงานที่ต้องการเพิ่ม..." 
+                       @bind-Value="searchNewEmpTerm" 
+                       OnInput="@((ChangeEventArgs e) => { searchNewEmpTerm = e.Value?.ToString() ?? ""; HandleSearchNewEmployee(); })">
+                    <PrefixTemplate><Icon Type="search" /></PrefixTemplate>
+                </Input>
+            </div>
+
+            <Table TItem="VEmployeeDetail" 
+                   DataSource="@FilteredNewEmployees" 
+                   PageSize="8" 
+                   Size="@AntDesign.TableSize.Small"
+                   @bind-SelectedRows="selectedEmployeesToAdd" 
+                   RowKey="x => x.EmployeeId">
+                <Selection Type="@AntDesign.SelectionType.Checkbox" />
+                <Column TData="string" Title="รูป" Width="60px"><Avatar Src="@context.PictureUrl" Icon="user" Size="@AntDesign.AvatarSize.Small" /></Column>
+                <Column TData="string" Title="ชื่อ-นามสกุล">@context.FirstNameThai @context.LastNameThai</Column>
+                <Column TData="string" Title="ตำแหน่ง" Field="@context.PositionId" />
+                <Column TData="string" Title="สังกัดปัจจุบัน">
+                    @if (!string.IsNullOrEmpty(context.DeptId))
+                    {
+                        var deptName = ShowDepartments.FirstOrDefault(d => d.DeptId == context.DeptId)?.DeptNameThai ?? context.DeptId;
+                        <span>@deptName</span>
+                    }
+                    else
+                    {
+                        <span class="text-muted">ไม่มีสังกัด</span>
+                    }
+                </Column>
+            </Table>
+
+            <div class="mt-3 text-end">
+                <Button Type="@AntDesign.ButtonType.Primary" Icon="check" OnClick="HandleAssignExistingEmployee" Disabled="@(selectedEmployeesToAdd == null || !selectedEmployeesToAdd.Any())">
+                    @locallizer["ยืนยันการเพิ่ม"] (@(selectedEmployeesToAdd?.Count() ?? 0))
+                </Button>
+            </div>
+        </TabPane>
+    </Tabs>
 </Modal>
+
+@* --- Modal สำหรับเลือกพนักงานเข้าฝ่าย --- *@
 
 <style>
     .dept-card { border-radius: 12px; transition: all 0.3s ease; }

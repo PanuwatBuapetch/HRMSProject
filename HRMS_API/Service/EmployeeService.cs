@@ -66,19 +66,66 @@ namespace HRMS_API.Service
         }
 
         // ฟังก์ชันใหม่: สำหรับระบบ Organization Chart (ย้ายคนออก)
+
+        public async Task<bool> AssignEmployeeToDeptAsync(string employeeId, string deptId, string divisionId)
+        {
+            try
+            {
+                using var context = await _contextFactory.CreateDbContextAsync();
+                var emp = await context.Employees.FindAsync(employeeId);
+
+                if (emp == null)
+                {
+                    Console.WriteLine($"DEBUG: ไม่พบพนักงาน ID {employeeId}");
+                    return false;
+                }
+
+                emp.DeptId = deptId;
+                emp.DivisionId = divisionId;
+
+                await context.SaveChangesAsync();
+                return true;
+            }
+            catch (Exception ex)
+            {
+                // ตรงนี้สำคัญ: ให้ดูใน Output Window ของ Visual Studio
+                Console.WriteLine($"DEBUG: เกิด Error ตอน Update DB: {ex.Message}");
+                // ถ้ามี InnerException ให้ดูด้วย
+                if (ex.InnerException != null)
+                    Console.WriteLine($"DEBUG: Inner Error: {ex.InnerException.Message}");
+
+                return false;
+            }
+        }
+
+
         public async Task<bool> UnassignEmployeeAsync(string id)
         {
             using var context = await _contextFactory.CreateDbContextAsync();
+
+            // ดูว่าหาพนักงานเจอไหม
             var emp = await context.Employees.FindAsync(id);
-            if (emp == null) return false;
+            if (emp == null)
+            {
+                Console.WriteLine($"DEBUG: ไม่พบพนักงาน ID {id} ในระบบ");
+                return false;
+            }
 
             // ปลดสังกัด
             emp.DivisionId = null;
             emp.DeptId = null;
             emp.UnitId = null;
 
-            await context.SaveChangesAsync();
-            return true;
+            try
+            {
+                await context.SaveChangesAsync();
+                return true;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"DEBUG: Error SaveChanges: {ex.Message}");
+                return false;
+            }
         }
 
         public async Task<bool> DeleteEmployeeAsync(string id)

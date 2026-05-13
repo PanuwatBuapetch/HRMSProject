@@ -58,6 +58,25 @@ namespace HRMS_API.Controllers
             }
         }
 
+
+        [HttpPut("assign/{employeeId}/{deptId}/{divisionId}")]
+        public async Task<IActionResult> AssignEmployee(string employeeId, string deptId, string divisionId)
+        {
+            try
+            {
+                // เรียกใช้ Service ที่คุณเขียนไว้
+                var success = await _employeeService.AssignEmployeeToDeptAsync(employeeId, deptId, divisionId);
+
+                return success ? Ok(true) : NotFound("ไม่พบพนักงาน");
+            }
+            catch (Exception ex)
+            {
+                // ถ้าเข้า Catch นี้ คือสาเหตุที่ทำให้คุณเห็น Error "API ส่งค่ากลับมาว่าผิดพลาด" ในหน้าเว็บ
+                return StatusCode(500, new { message = ex.Message });
+            }
+        }
+
+
         // Endpoint พิเศษ: สำหรับ Unassign (Organization Chart)
         [HttpPatch("unassign/{id}")]
         public async Task<IActionResult> UnassignEmployee(string id)
