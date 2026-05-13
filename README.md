@@ -97,12 +97,12 @@ dotnet watch run
 
 ---
 
-## 🔑 ข้อมูลเข้าใช้งาน (Mockup)
+## 🔑 ข้อมูลเข้าใช้งาน
 
 | Role | Username | Password |
 | --- | --- | --- |
-| **Admin** | admin | admin123 |
-| **User** | user | user123 |
+| **Admin** | superadmin | super123 |
+
 
 ---
 
