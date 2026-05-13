@@ -60,13 +60,41 @@ namespace HrmsApp.Pages
         {
             var res = await Swal.FireAsync(new SweetAlertOptions
             {
-                Title = "ลบแผนกนี้?",
-                Text = "ระวัง: แผนกที่มีพนักงานสังกัดอยู่จะไม่สามารถลบได้",
+                Title = "คุณแน่ใจหรือไม่?",
+                Text = "ข้อมูลแผนกนี้จะถูกลบออกจากระบบอย่างถาวร",
                 Icon = SweetAlertIcon.Warning,
-                ShowCancelButton = true
+                ShowCancelButton = true,
+                ConfirmButtonText = "ยืนยันการลบ",
+                CancelButtonColor = "#d33"
             });
-            if (res.IsConfirmed) await LoadAllData();
+
+            if (res.IsConfirmed)
+            {
+                try
+                {
+                    // เรียกใช้ Service เพื่อลบ
+                    bool success = await DepartmentService.DeleteDepartmentAsync(id);
+
+                    if (success)
+                    {
+                        await Swal.FireAsync("สำเร็จ", "ลบแผนกเรียบร้อยแล้ว", SweetAlertIcon.Success);
+                        await LoadAllData(); // โหลดข้อมูลใหม่หลังจากลบสำเร็จ
+                    }
+                    else
+                    {
+                        // กรณีลบไม่สำเร็จ (เช่น มีพนักงานสังกัดอยู่)
+                        await Swal.FireAsync("ไม่สามารถลบได้", "แผนกนี้อาจมีพนักงานสังกัดอยู่ หรือถูกใช้งานในส่วนอื่น", SweetAlertIcon.Error);
+                    }
+                }
+                catch (Exception ex)
+                {
+                    // ดัก Error กรณีเชื่อมต่อ Database มีปัญหา
+                    await Swal.FireAsync("เกิดข้อผิดพลาด", $"ไม่สามารถลบได้: {ex.Message}", SweetAlertIcon.Error);
+                }
+            }
         }
+
+
 
         // --- Position Logic ---
         protected void ShowPosModal(ManagementPosition? pos = null)

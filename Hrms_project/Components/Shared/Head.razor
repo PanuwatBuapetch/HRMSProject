@@ -34,13 +34,15 @@
                 </div>
 
                 @* Dropdown ข้อมูลผู้ใช้งาน *@
+                @* Dropdown ข้อมูลผู้ใช้งาน *@
                 <Dropdown Trigger="@(new Trigger[] { Trigger.Click })" Placement="Placement.BottomRight">
                     <Overlay>
                         <Menu Style="width: 12rem;">
-                            <MenuItem Icon="logout">
-                                <a class="text-danger" @onclick="ShowLogoutConfirmation" style="text-decoration: none;">
+                            @* แก้ไข: ย้าย OnClick มาไว้ที่ตัว MenuItem และลบแท็ก <a> ออก *@
+                            <MenuItem Icon="logout" OnClick="ShowLogoutConfirmation">
+                                <span class="text-danger">
                                     <span class="bi bi-arrow-left-circle-fill px-2"></span> @locallizer["ออกจากระบบ"]
-                                </a>
+                                </span>
                             </MenuItem>
                         </Menu>
                     </Overlay>

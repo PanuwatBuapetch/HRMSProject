@@ -46,7 +46,9 @@ namespace HrmsSolution.Service
         {
             // ยิงไปที่ Endpoint: api/Employee/unassign/{id}
             // ใช้ PatchAsync เพราะเป็นการแก้ไขข้อมูลบางส่วน (Patch)
-            var response = await _httpClient.PatchAsync($"{ApiPath}/unassign/{id}", null);
+            // PatchAsync ต้องการ HttpContent ให้เป็น StringContent ที่ว่างเปล่า
+            var content = new StringContent("", System.Text.Encoding.UTF8, "application/json");
+            var response = await _httpClient.PatchAsync($"{ApiPath}/unassign/{id}", content);
             return response.IsSuccessStatusCode;
         }
     }
