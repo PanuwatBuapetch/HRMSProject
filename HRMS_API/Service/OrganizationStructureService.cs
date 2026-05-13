@@ -88,30 +88,6 @@ namespace HRMS_API.Service
             catch (Exception) { return false; }
         }
 
-        //public async Task<bool> DeleteDivisionAsync(string divisionId)
-        //{
-        //    using var context = await _contextFactory.CreateDbContextAsync();
-        //    using var transaction = await context.Database.BeginTransactionAsync();
-        //    try
-        //    {
-        //        var division = await context.Divisions.FindAsync(divisionId);
-        //        if (division == null) return false;
-
-        //        division.Isactive = "0";
-
-        //        var deps = await context.Departments.Where(d => d.DivisionId == divisionId).ToListAsync();
-        //        foreach (var d in deps) d.Isactive = "0";
-
-        //        await context.SaveChangesAsync();
-        //        await transaction.CommitAsync();
-        //        return true;
-        //    }
-        //    catch (Exception)
-        //    {
-        //        await transaction.RollbackAsync();
-        //        return false;
-        //    }
-        //}
         public async Task<bool> DeleteDivisionAsync(string divisionId)
         {
             using var context = await _contextFactory.CreateDbContextAsync();
@@ -284,7 +260,11 @@ namespace HRMS_API.Service
         public async Task<WorkUnit?> GetWorkUnitByIdAsync(string id)
         {
             using var context = await _contextFactory.CreateDbContextAsync();
-            return await context.WorkUnits.AsNoTracking().FirstOrDefaultAsync(d => d.UnitId == id && d.Isactive == "1");
+
+            // ลบเงื่อนไข && d.Isactive == "1" ออก เพื่อให้ดึงข้อมูลที่ถูกลบไปแล้วได้ด้วย
+            return await context.WorkUnits
+                .AsNoTracking()
+                .FirstOrDefaultAsync(d => d.UnitId == id);
         }
 
         public async Task<bool> AddWorkUnitAsync(WorkUnit unit)
@@ -333,57 +313,57 @@ namespace HRMS_API.Service
             catch (Exception) { return false; }
         }
 
-        public async Task<bool> DeleteWorkUnitAsync(string unitId)
+        public async Task<bool> DeleteWorkUnitALLAsync()
         {
+            using var context = await _contextFactory.CreateDbContextAsync();
             try
             {
-                using var context = await _contextFactory.CreateDbContextAsync();
-                var unit = await context.WorkUnits.FindAsync(unitId);
-                if (unit == null) return false;
+                // คำสั่งนี้จะทำการลบข้อมูลทั้งหมดในตาราง WorkUnits ทันที (ไม่ต้อง SaveChanges)
+                await context.WorkUnits.ExecuteDeleteAsync();
 
-                unit.Isactive = "0";
-
-                context.WorkUnits.Update(unit);
-                await context.SaveChangesAsync();
                 return true;
             }
-            catch (Exception) { return false; }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"\n❌ Error Delete ALL WorkUnits: {ex.Message}");
+                return false;
+            }
+        }
+
+        public async Task<bool> DeleteWorkUnitAsync(string unitId)
+        {
+            using var context = await _contextFactory.CreateDbContextAsync();
+            using var transaction = await context.Database.BeginTransactionAsync();
+            try
+            {
+                var dept = await context.WorkUnits.FindAsync(unitId);
+                if (dept == null) return false;
+
+                // 1. ดึงกลุ่มงานลูกๆ ออกมา
+                var units = await context.WorkUnits.Where(u => u.UnitId == unitId).ToListAsync();
+
+                // 2. ใช้คำสั่ง RemoveRange เพื่อ "ลบจริง" (Hard Delete) กลุ่มงาน
+                if (units.Any())
+                {
+                    context.WorkUnits.RemoveRange(units);
+                }
+
+                // 3. ใช้คำสั่ง Remove เพื่อ "ลบจริง" (Hard Delete) แผนก
+                context.WorkUnits.Remove(dept);
+
+                await context.SaveChangesAsync();
+                await transaction.CommitAsync();
+                return true;
+            }
+            catch (Exception ex)
+            {
+                await transaction.RollbackAsync();
+                Console.WriteLine($"Error Hard Delete: {ex.Message}");
+                return false;
+            }
         }
         // #endregion
     }
 
-    // =========================================================
-    // Interface & Models
-    // =========================================================
-    public interface IOrganizationStructureService
-    {
-        Task<OrganizationStructureData> GetFullOrganizationStructureAsync();
-
-        Task<List<Division>> GetAllDivisionsAsync();
-        Task<Division?> GetDivisionByIdAsync(string id);
-        Task<bool> AddDivisionAsync(Division division);
-        Task<bool> UpdateDivisionAsync(Division division);
-        Task<bool> DeleteDivisionAsync(string divisionId);
-
-        Task<List<Department>> GetAllDepartmentsAsync();
-        Task<List<Department>> GetDepartmentsByDivisionIdAsync(string divisionId);
-        Task<Department?> GetDepartmentByIdAsync(string id);
-        Task<bool> AddDepartmentAsync(Department department);
-        Task<bool> UpdateDepartmentAsync(Department department);
-        Task<bool> DeleteDepartmentAsync(string deptId);
-
-        Task<List<WorkUnit>> GetAllWorkUnitsAsync();
-        Task<List<WorkUnit>> GetWorkUnitsByDepartmentIdAsync(string deptId);
-        Task<WorkUnit?> GetWorkUnitByIdAsync(string id);
-        Task<bool> AddWorkUnitAsync(WorkUnit unit);
-        Task<bool> UpdateWorkUnitAsync(WorkUnit unit);
-        Task<bool> DeleteWorkUnitAsync(string unitId);
-    }
-
-    public class OrganizationStructureData
-    {
-        public List<Division> Divisions { get; set; } = new();
-        public List<Department> Departments { get; set; } = new();
-        public List<WorkUnit> WorkUnits { get; set; } = new();
-    }
+    
 }

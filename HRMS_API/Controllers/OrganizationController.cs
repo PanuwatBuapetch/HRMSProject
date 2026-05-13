@@ -166,13 +166,26 @@
                 var result = await _orgService.DeleteWorkUnitAsync(unitId);
                 return result ? Ok(true) : NotFound();
             }
-            #endregion
 
-            // =================================================================================
-            #region Employee Assignments (จัดการบุคลากร)
-            // =================================================================================
+            [HttpDelete("units")]
+            public async Task<IActionResult> DeleteWorkUnitALLAsync()
+            {
+                var result = await _orgService.DeleteWorkUnitALLAsync();
 
-            [HttpPut("employees/unassign/{employeeId}")]
+                // ถ้าสำเร็จตอบ 200 OK
+                // ถ้าพัง (ติด Foreign Key หรือ DB มีปัญหา) ตอบ 500 หรือ 400
+                return result
+                    ? Ok(new { success = true, message = "ลบข้อมูลกลุ่มงานทั้งหมดเรียบร้อยแล้ว" })
+                    : StatusCode(500, new { success = false, message = "ไม่สามารถลบข้อมูลได้ อาจมีบุคลากรที่ยังสังกัดกลุ่มงานเหล่านี้อยู่" });
+            }
+
+        #endregion
+
+        // =================================================================================
+        #region Employee Assignments (จัดการบุคลากร)
+        // =================================================================================
+
+        [HttpPut("employees/unassign/{employeeId}")]
             public async Task<IActionResult> UnassignEmployee(string employeeId)
             {
                 using var ctx = await _contextFactory.CreateDbContextAsync();

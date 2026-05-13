@@ -2,6 +2,7 @@
 using Datamodels.Hrms;
 using HrmsSolution.Service;
 using Microsoft.AspNetCore.Components;
+using Microsoft.AspNetCore.Components.Authorization;
 
 namespace Hrms_project.Components.Pages.Orignization
 {
@@ -9,7 +10,11 @@ namespace Hrms_project.Components.Pages.Orignization
     {
         [Inject]
         public IOrganizationService OriganiztionService { get; set; } = default!;
+
+        public AuthenticationStateProvider AuthStateProvider;
         public List<Datamodels.Hrms.Division> Divisions { get; set; } = new();
+
+        private bool isAdmin = false;
 
         private string searchEmpTerm = "";
         private string searchNewEmpTerm = "";
@@ -56,7 +61,19 @@ namespace Hrms_project.Components.Pages.Orignization
 
         private Division CurrentDivision => (ShowDivisions != null && ShowDivisions.Count > currentIndex) ? ShowDivisions[currentIndex] : null;
 
-        protected override async Task OnInitializedAsync() { await LoadOrganizationData(); }
+        protected override async Task OnInitializedAsync()
+        {
+            // 1. ดึงข้อมูล State ของคนที่ Login เข้ามา
+            var authState = await AuthStateProvider.GetAuthenticationStateAsync();
+            var user = authState.User;
+
+            // 2. ตรวจสอบ Role (อิงจากตอน Login ที่คุณเซ็ต State.Login("SuperAdmin"))
+            // คุณสามารถใช้ || (OR) เพื่อดักจับหลายๆ Role ที่มีสิทธิ์จัดการหน้าองค์กรได้ครับ
+            isAdmin = user.IsInRole("SuperAdmin") || user.IsInRole("Admin") || user.IsInRole("HR");
+
+            // 3. โหลดข้อมูลองค์กร (ที่มีอยู่แล้วของคุณ)
+            await LoadOrganizationData();
+        }
 
 
         private void OpenAddExistingEmpModal()
@@ -341,6 +358,13 @@ namespace Hrms_project.Components.Pages.Orignization
             StateHasChanged();
         }
 
+        // Wrapper method สำหรับ ChangeEventArgs
+        private void HandleEmpSearchInput(ChangeEventArgs e)
+        {
+            searchEmpTerm = e.Value?.ToString() ?? "";
+            HandleEmpSearch();
+        }
+
         private void HandleSearchNewEmployee()
         {
             if (string.IsNullOrWhiteSpace(searchNewEmpTerm))
@@ -362,6 +386,13 @@ namespace Hrms_project.Components.Pages.Orignization
                     .ToList();
             }
             StateHasChanged();
+        }
+
+        // Wrapper method สำหรับ ChangeEventArgs
+        private void HandleNewEmpSearchInput(ChangeEventArgs e)
+        {
+            searchNewEmpTerm = e.Value?.ToString() ?? "";
+            HandleSearchNewEmployee();
         }
 
 

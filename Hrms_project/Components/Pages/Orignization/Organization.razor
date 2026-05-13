@@ -38,17 +38,22 @@
                     <BreadcrumbItem><Icon Type="apartment" /> <span>@locallizer["โครงสร้างองค์กร"]</span></BreadcrumbItem>
                 </Breadcrumb>
             </div>
-            <div class="header-actions gap-2 d-flex">
-                <Button Type="Primary" Icon="plus-circle" OnClick="() => _visibleDivision = true">
-                    @locallizer["เพิ่มสำนัก/กอง"]
-                </Button>
-                @if (CurrentDivision != null)
-                {
-                    <Button Type="ButtonType.Default" Icon="folder-add" OnClick="() => OpenAddDepartmentModal()">
-                        @locallizer["เพิ่มฝ่าย (ในสังกัดนี้)"]
+            
+            @* ซ่อนปุ่มเพิ่มสำนัก/กอง ถ้าไม่ใช่ Admin *@
+            @if (isAdmin)
+            {
+                <div class="header-actions gap-2 d-flex">
+                    <Button Type="Primary" Icon="plus-circle" OnClick="() => _visibleDivision = true">
+                        @locallizer["เพิ่มสำนัก/กอง"]
                     </Button>
-                }
-            </div>
+                    @if (CurrentDivision != null)
+                    {
+                        <Button Type="ButtonType.Default" Icon="folder-add" OnClick="() => OpenAddDepartmentModal()">
+                            @locallizer["เพิ่มฝ่าย (ในสังกัดนี้)"]
+                        </Button>
+                    }
+                </div>
+            }
         </div>
 
         @* --- Navigation/Search --- *@
@@ -57,7 +62,8 @@
                 <div class="row align-items-center g-3">
                     <div class="col-12 col-md-6">
                         <div class="input-group">
-                            <Input Placeholder="@($"{locallizer["ค้นหาฝ่ายภายใน"]} {(CurrentDivision != null ? CurrentDivision.DivisionNameThai : "")}")"
+                            @* แก้ไข: ใช้ string.Empty แทน "" เพื่อไม่ให้ Razor สับสน *@
+                            <Input Placeholder="@($"{locallizer["ค้นหาฝ่ายภายใน"]} {(CurrentDivision != null ? CurrentDivision.DivisionNameThai : string.Empty)}")"
                                    @bind-Value="searchTerm" OnInput="HandleSearch" />
                             <Button OnClick="ClearData">@locallizer["ล้าง"]</Button>
                         </div>
@@ -88,14 +94,19 @@
                                     <div style="font-size: 12px; color: #8c8c8c;">@CurrentDivision.DivisionNameEng</div>
                                 </div>
                             </div>
-                            <div class="d-flex gap-1">
-                                <Tooltip Title="@locallizer["แก้ไขสำนัก/กอง"]">
-                                    <Button Type="ButtonType.Text" Shape="@ButtonShape.Circle" Icon="edit" OnClick="() => OpenEditDivision(CurrentDivision)" />
-                                </Tooltip>
-                                <Tooltip Title="@locallizer["ลบสำนัก/กอง"]">
-                                    <Button Type="ButtonType.Text" Danger Shape="@ButtonShape.Circle" Icon="delete" OnClick="() => HandleDeleteDivision(CurrentDivision)" />
-                                </Tooltip>
-                            </div>
+                            
+                            @* ซ่อนปุ่มแก้ไข/ลบ สำนัก ถ้าไม่ใช่ Admin *@
+                            @if (isAdmin)
+                            {
+                                <div class="d-flex gap-1">
+                                    <Tooltip Title="@locallizer["แก้ไขสำนัก/กอง"]">
+                                        <Button Type="ButtonType.Text" Shape="@ButtonShape.Circle" Icon="edit" OnClick="() => OpenEditDivision(CurrentDivision)" />
+                                    </Tooltip>
+                                    <Tooltip Title="@locallizer["ลบสำนัก/กอง"]">
+                                        <Button Type="ButtonType.Text" Danger Shape="@ButtonShape.Circle" Icon="delete" OnClick="() => HandleDeleteDivision(CurrentDivision)" />
+                                    </Tooltip>
+                                </div>
+                            }
                         </div>
                     </Card>
                 </div>
@@ -118,32 +129,37 @@
                                         <Extra>
                                             <div class="d-flex align-items-center gap-1">
                                                 <Tag Color="Blue">@dept.DeptId</Tag>
-                                                <Dropdown>
-                                                    <Overlay>
-                                                        <Menu>
-                                                            <MenuItem OnClick="() => OpenEditDepartment(dept)">
-                                                                <Icon Type="edit" /> @locallizer["แก้ไขข้อมูลฝ่าย"]
-                                                            </MenuItem>
-                                                            <MenuItem OnClick="() => NavigateToAddEmployee(dept)">
-                                                                <Icon Type="user-add" /> @locallizer["เพิ่มบุคลากรใหม่"]
-                                                            </MenuItem>
-                                                            <MenuDivider />
-                                                            <MenuItem OnClick="() => HandleDeleteDepartment(dept)">
-                                                                <Icon Type="delete" /> @locallizer["ลบฝ่าย"]
-                                                            </MenuItem>
-                                                        </Menu>
-                                                    </Overlay>
-                                                    <ChildContent>
-                                                        <Button Type="ButtonType.Text" Shape="@ButtonShape.Circle" Icon="more" />
-                                                    </ChildContent>
-                                                </Dropdown>
+                                                
+                                                @* ซ่อน Dropdown เมนูแก้ไขฝ่าย ถ้าไม่ใช่ Admin *@
+                                                @if (isAdmin)
+                                                {
+                                                    <Dropdown>
+                                                        <Overlay>
+                                                            <Menu>
+                                                                <MenuItem OnClick="() => OpenEditDepartment(dept)">
+                                                                    <Icon Type="edit" /> @locallizer["แก้ไขข้อมูลฝ่าย"]
+                                                                </MenuItem>
+                                                                <MenuItem OnClick="() => NavigateToAddEmployee(dept)">
+                                                                    <Icon Type="user-add" /> @locallizer["เพิ่มบุคลากรใหม่"]
+                                                                </MenuItem>
+                                                                <MenuDivider />
+                                                                <MenuItem OnClick="() => HandleDeleteDepartment(dept)">
+                                                                    <Icon Type="delete" /> @locallizer["ลบฝ่าย"]
+                                                                </MenuItem>
+                                                            </Menu>
+                                                        </Overlay>
+                                                        <ChildContent>
+                                                            <Button Type="ButtonType.Text" Shape="@ButtonShape.Circle" Icon="more" />
+                                                        </ChildContent>
+                                                    </Dropdown>
+                                                }
                                             </div>
                                         </Extra>
                                         <Body>
                                             <div class="mb-2"><span style="font-size: 12px; color: #8c8c8c;">@dept.DeptNameEng</span></div>
 
-                                            @* --- Employee Section (Click to Manage) --- *@
-                                                <div class="employee-section p-2 rounded bg-light" style="cursor: pointer;" @onclick="() => OpenManageEmployeesModal(dept)">
+                                            @* --- Employee Section (ดูได้อย่างเดียวสำหรับ User, กดจัดการได้สำหรับ Admin) --- *@
+                                            <div class="employee-section p-2 rounded bg-light" style="cursor: pointer;" @onclick="() => OpenManageEmployeesModal(dept)">
                                                 @{ 
                                                     var deptEmps = allEmployees
                                                         .Where(e => !string.IsNullOrEmpty(e.DeptId) && e.DeptId.Trim() == dept.DeptId.Trim())
@@ -154,7 +170,6 @@
                                                     <div class="d-flex align-items-center">
                                                         @if (deptEmps.Any())
                                                         {
-                                                            // โชว์แค่รูปเดียวของพนักงานคนแรกในฝ่าย
                                                             <Avatar Src="@deptEmps.First().PictureUrl" Icon="user" Size="@AntDesign.AvatarSize.Small" />
                                                             <span class="ms-2" style="font-size: 13px; color: #555;">พนักงานในฝ่าย</span>
                                                         }
@@ -165,7 +180,6 @@
                                                         }
                                                     </div>
         
-                                                    @* แสดงจำนวนคนไว้ด้านขวา ให้ดูสะอาดตา *@
                                                     <Tag Color="Cyan">@deptEmps.Count @locallizer["คน"]</Tag>
                                                 </div>
                                             </div>
@@ -174,9 +188,13 @@
                                             <div class="mt-2 pt-2 border-top">
                                                 <div class="d-flex justify-content-between align-items-center">
                                                     <span class="text-secondary" style="font-size: 0.75rem;">@locallizer["กลุ่มงานภายใน"]:</span>
-                                                    <Tooltip Title="@locallizer["เพิ่มกลุ่มงาน"]">
-                                                        <Button Type="ButtonType.Text" Size="ButtonSize.Small" Icon="plus" Class="text-primary" OnClick="() => OpenAddUnitModal(dept)" />
-                                                    </Tooltip>
+                                                    @* ซ่อนปุ่มเพิ่มกลุ่มงาน ถ้าไม่ใช่ Admin *@
+                                                    @if (isAdmin)
+                                                    {
+                                                        <Tooltip Title="@locallizer["เพิ่มกลุ่มงาน"]">
+                                                            <Button Type="ButtonType.Text" Size="ButtonSize.Small" Icon="plus" Class="text-primary" OnClick="() => OpenAddUnitModal(dept)" />
+                                                        </Tooltip>
+                                                    }
                                                 </div>
 
                                                 <div class="d-flex flex-wrap gap-1 mt-1">
@@ -185,8 +203,9 @@
                                                     {
                                                         @foreach (var u in myUnits)
                                                         {
-                                                            <div style="cursor: pointer;" @onclick="() => OpenEditUnit(u, dept)">
-                                                                <Tag Color="Purple" Style="font-size: 11px; margin-right:0;" Class="unit-tag">@u.UnitNameThai</Tag>
+                                                            @* แก้ไข: ใช้ if ธรรมดาใน onclick และ string.Empty ใน style เพื่อแก้ Error EventCallback และ Syntax *@
+                                                            <div style="@(isAdmin ? "cursor: pointer;" : null)" @onclick="() => { if(isAdmin) OpenEditUnit(u, dept); }">
+                                                                <Tag Color="Purple" Style="font-size: 11px; margin-right:0;" Class="@(isAdmin ? "unit-tag" : null)">@u.UnitNameThai</Tag>
                                                             </div>
                                                         }
                                                     }
@@ -215,7 +234,11 @@
                     {
                         <div class="text-center p-5">
                             <Empty Description="@locallizer["ไม่พบข้อมูลฝ่ายในสำนักนี้"]">
-                                <Button Type="Primary" OnClick="OpenAddDepartmentModal">@locallizer["เพิ่มฝ่ายใหม่"]</Button>
+                                @* ซ่อนปุ่มเพิ่มฝ่ายใหม่ กรณีว่างเปล่า *@
+                                @if (isAdmin)
+                                {
+                                    <Button Type="Primary" OnClick="OpenAddDepartmentModal">@locallizer["เพิ่มฝ่ายใหม่"]</Button>
+                                }
                             </Empty>
                         </div>
                     }
@@ -225,42 +248,45 @@
     }
 </div>
 
-@* --- Modal 1-3: Structure CRUD (Division, Dept, Unit) เหมือนเดิม --- *@
-<Modal Title="@(editingDivision.DivisionId == null ? locallizer["เพิ่มสำนัก/กอง"] : locallizer["แก้ไขสำนัก/กอง"])" @bind-Visible="@_visibleDivision" OnOk="HandleSaveDivision" OkText="@locallizer["บันทึก"]" CancelText="@locallizer["ยกเลิก"]">
-    <Form Model="@newDivision" Layout="@FormLayout.Vertical">
-        <FormItem Label="@locallizer["รหัสสำนัก/กอง"]"><Input @bind-Value="@context.DivisionId" MaxLength="10" Disabled="@(isEditingDivision)" /></FormItem>
-        <FormItem Label="@locallizer["ชื่อภาษาไทย"]"><Input @bind-Value="@context.DivisionNameThai" /></FormItem>
-        <FormItem Label="@locallizer["ชื่อภาษาอังกฤษ"]"><Input @bind-Value="@context.DivisionNameEng" /></FormItem>
-    </Form>
-</Modal>
+@* --- Modal 1-3: Structure CRUD --- *@
+@if (isAdmin)
+{
+    <Modal Title="@(editingDivision.DivisionId == null ? locallizer["เพิ่มสำนัก/กอง"] : locallizer["แก้ไขสำนัก/กอง"])" @bind-Visible="@_visibleDivision" OnOk="HandleSaveDivision" OkText="@locallizer["บันทึก"]" CancelText="@locallizer["ยกเลิก"]">
+        <Form Model="@newDivision" Layout="@FormLayout.Vertical">
+            <FormItem Label="@locallizer["รหัสสำนัก/กอง"]"><Input @bind-Value="@context.DivisionId" MaxLength="10" Disabled="@(isEditingDivision)" /></FormItem>
+            <FormItem Label="@locallizer["ชื่อภาษาไทย"]"><Input @bind-Value="@context.DivisionNameThai" /></FormItem>
+            <FormItem Label="@locallizer["ชื่อภาษาอังกฤษ"]"><Input @bind-Value="@context.DivisionNameEng" /></FormItem>
+        </Form>
+    </Modal>
 
-<Modal Title="@(isEditingDept ? locallizer["แก้ไขข้อมูลฝ่าย"] : locallizer["เพิ่มฝ่ายใหม่"])" @bind-Visible="@_visibleEditDept" OnOk="HandleSaveDepartment" OkText="@locallizer["บันทึก"]" CancelText="@locallizer["ยกเลิก"]">
-    <Form Model="@editingDept" Layout="@FormLayout.Vertical">
-        <FormItem Label="@locallizer["รหัสฝ่าย"]"><Input @bind-Value="@context.DeptId" MaxLength="10" Disabled="@isEditingDept" /></FormItem>
-        <FormItem Label="@locallizer["ชื่อฝ่าย (ไทย)"]"><Input @bind-Value="@context.DeptNameThai" /></FormItem>
-        <FormItem Label="@locallizer["ชื่อฝ่าย (อังกฤษ)"]"><Input @bind-Value="@context.DeptNameEng" /></FormItem>
-    </Form>
-</Modal>
+    <Modal Title="@(isEditingDept ? locallizer["แก้ไขข้อมูลฝ่าย"] : locallizer["เพิ่มฝ่ายใหม่"])" @bind-Visible="@_visibleEditDept" OnOk="HandleSaveDepartment" OkText="@locallizer["บันทึก"]" CancelText="@locallizer["ยกเลิก"]">
+        <Form Model="@editingDept" Layout="@FormLayout.Vertical">
+            <FormItem Label="@locallizer["รหัสฝ่าย"]"><Input @bind-Value="@context.DeptId" MaxLength="10" Disabled="@isEditingDept" /></FormItem>
+            <FormItem Label="@locallizer["ชื่อฝ่าย (ไทย)"]"><Input @bind-Value="@context.DeptNameThai" /></FormItem>
+            <FormItem Label="@locallizer["ชื่อฝ่าย (อังกฤษ)"]"><Input @bind-Value="@context.DeptNameEng" /></FormItem>
+        </Form>
+    </Modal>
 
-<Modal Title="@(isEditingUnit ? locallizer["แก้ไขกลุ่มงาน"] : locallizer["เพิ่มกลุ่มงานใหม่"])" @bind-Visible="@_visibleEditUnit" OnOk="HandleSaveUnit" OkText="@locallizer["บันทึก"]" CancelText="@locallizer["ยกเลิก"]">
-    <Form Model="@editingUnit" Layout="@FormLayout.Vertical">
-        <FormItem Label="@locallizer["รหัสกลุ่มงาน"]"><Input @bind-Value="@context.UnitId" Placeholder="เช่น IT-DEV" MaxLength="10" Disabled="@isEditingUnit" /></FormItem>
-        <FormItem Label="@locallizer["ชื่อกลุ่มงาน (ไทย)"]"><Input @bind-Value="@context.UnitNameThai" /></FormItem>
-        <FormItem Label="@locallizer["ชื่อกลุ่มงาน (อังกฤษ)"]"><Input @bind-Value="@context.UnitNameEng" /></FormItem>
-        <FormItem Label="@locallizer["สังกัดฝ่าย"]"><Input Value="@(editingUnitDeptName)" Disabled /></FormItem>
-        @if (isEditingUnit) { <div class="mt-3 text-end"><Button Danger Type="ButtonType.Text" Icon="delete" OnClick="() => HandleDeleteUnit(editingUnit)">@locallizer["ลบกลุ่มงานนี้"]</Button></div> }
-    </Form>
-</Modal>
+    <Modal Title="@(isEditingUnit ? locallizer["แก้ไขกลุ่มงาน"] : locallizer["เพิ่มกลุ่มงานใหม่"])" @bind-Visible="@_visibleEditUnit" OnOk="HandleSaveUnit" OkText="@locallizer["บันทึก"]" CancelText="@locallizer["ยกเลิก"]">
+        <Form Model="@editingUnit" Layout="@FormLayout.Vertical">
+            <FormItem Label="@locallizer["รหัสกลุ่มงาน"]"><Input @bind-Value="@context.UnitId" Placeholder="เช่น IT-DEV" MaxLength="10" Disabled="@isEditingUnit" /></FormItem>
+            <FormItem Label="@locallizer["ชื่อกลุ่มงาน (ไทย)"]"><Input @bind-Value="@context.UnitNameThai" /></FormItem>
+            <FormItem Label="@locallizer["ชื่อกลุ่มงาน (อังกฤษ)"]"><Input @bind-Value="@context.UnitNameEng" /></FormItem>
+            <FormItem Label="@locallizer["สังกัดฝ่าย"]"><Input Value="@(editingUnitDeptName)" Disabled /></FormItem>
+            @if (isEditingUnit) { <div class="mt-3 text-end"><Button Danger Type="ButtonType.Text" Icon="delete" OnClick="() => HandleDeleteUnit(editingUnit)">@locallizer["ลบกลุ่มงานนี้"]</Button></div> }
+        </Form>
+    </Modal>
+}
 
-@* --- Modal เดียวสำหรับจัดการบุคลากร --- *@
-<Modal Title="@($"จัดการบุคลากร: {manageEmpDeptName}")" @bind-Visible="@_visibleManageEmps" Width="1000" CancelText="@locallizer["ปิด"]" Footer="null">
+@* --- Modal สำหรับจัดการ/ดู บุคลากร --- *@
+<Modal Title="@($"บุคลากร: {manageEmpDeptName}")" @bind-Visible="@_visibleManageEmps" Width="1000" CancelText="@locallizer["ปิด"]" Footer="null">
     <Tabs>
-        @* Tab 1: รายชื่อปัจจุบัน *@
+        @* Tab 1: รายชื่อปัจจุบัน (ทุกคนดูได้ แต่ Admin ลบได้) *@
         <TabPane Tab="@locallizer["รายชื่อปัจจุบัน"]">
             <div class="mb-3">
                 <Input Placeholder="ค้นหารายชื่อพนักงาน..." 
                        @bind-Value="searchEmpTerm" 
-                       OnInput="@((ChangeEventArgs e) => { searchEmpTerm = e.Value?.ToString() ?? ""; HandleEmpSearch(); })">
+                       OnInput="HandleEmpSearchInput">
                     <PrefixTemplate><Icon Type="search" /></PrefixTemplate>
                 </Input>
             </div>
@@ -271,57 +297,62 @@
                     <div class="fw-bold">@context.FirstNameThai @context.LastNameThai</div>
                 </Column>
                 <Column TData="string" Title="ตำแหน่ง" Field="@context.PositionId" />
-                <ActionColumn Title="จัดการ" Width="80px">
-                    <Tooltip Title="@locallizer["นำออกจากฝ่าย"]">
-                        <Button Danger Shape="@AntDesign.ButtonShape.Circle" Icon="logout" OnClick="() => HandleUnassignEmployee(context)" />
-                    </Tooltip>
-                </ActionColumn>
+
+                @if (isAdmin)
+                {
+                    <ActionColumn Title="จัดการ" Width="80px">
+                        <Tooltip Title="@locallizer["นำออกจากฝ่าย"]">
+                            <Button Danger Shape="@AntDesign.ButtonShape.Circle" Icon="logout" OnClick="() => HandleUnassignEmployee(context)" />
+                        </Tooltip>
+                    </ActionColumn>
+                }
             </Table>
         </TabPane>
 
-        @* Tab 2: เพิ่มพนักงาน *@
-        <TabPane Tab="@locallizer["เพิ่มพนักงาน"]">
-            <div class="mb-3">
-                <Input Placeholder="ค้นหาพนักงานที่ต้องการเพิ่ม..." 
-                       @bind-Value="searchNewEmpTerm" 
-                       OnInput="@((ChangeEventArgs e) => { searchNewEmpTerm = e.Value?.ToString() ?? ""; HandleSearchNewEmployee(); })">
-                    <PrefixTemplate><Icon Type="search" /></PrefixTemplate>
-                </Input>
-            </div>
+        @* Tab 2: เพิ่มพนักงาน (ซ่อนสำหรับ User) *@
+        @if (isAdmin)
+        {
+            <TabPane Tab="@locallizer["เพิ่มพนักงาน"]">
+                
+                   <div class="mb-3">
+                    <Input Placeholder="ค้นหาพนักงานที่ต้องการเพิ่ม..." 
+                           @bind-Value="searchNewEmpTerm" 
+                           OnInput="HandleNewEmpSearchInput" />
+                    </div>
+               
 
-            <Table TItem="VEmployeeDetail" 
-                   DataSource="@FilteredNewEmployees" 
-                   PageSize="8" 
-                   Size="@AntDesign.TableSize.Small"
-                   @bind-SelectedRows="selectedEmployeesToAdd" 
-                   RowKey="x => x.EmployeeId">
-                <Selection Type="@AntDesign.SelectionType.Checkbox" />
-                <Column TData="string" Title="รูป" Width="60px"><Avatar Src="@context.PictureUrl" Icon="user" Size="@AntDesign.AvatarSize.Small" /></Column>
-                <Column TData="string" Title="ชื่อ-นามสกุล">@context.FirstNameThai @context.LastNameThai</Column>
-                <Column TData="string" Title="ตำแหน่ง" Field="@context.PositionId" />
-                <Column TData="string" Title="สังกัดปัจจุบัน">
-                    @if (!string.IsNullOrEmpty(context.DeptId))
-                    {
-                        var deptName = ShowDepartments.FirstOrDefault(d => d.DeptId == context.DeptId)?.DeptNameThai ?? context.DeptId;
-                        <span>@deptName</span>
-                    }
-                    else
-                    {
-                        <span class="text-muted">ไม่มีสังกัด</span>
-                    }
-                </Column>
-            </Table>
+                <Table TItem="VEmployeeDetail" 
+                       DataSource="@FilteredNewEmployees" 
+                       PageSize="8" 
+                       Size="@AntDesign.TableSize.Small"
+                       @bind-SelectedRows="selectedEmployeesToAdd" 
+                       RowKey="x => x.EmployeeId">
+                    <Selection Type="@AntDesign.SelectionType.Checkbox" />
+                    <Column TData="string" Title="รูป" Width="60px"><Avatar Src="@context.PictureUrl" Icon="user" Size="@AntDesign.AvatarSize.Small" /></Column>
+                    <Column TData="string" Title="ชื่อ-นามสกุล">@context.FirstNameThai @context.LastNameThai</Column>
+                    <Column TData="string" Title="ตำแหน่ง" Field="@context.PositionId" />
+                    <Column TData="string" Title="สังกัดปัจจุบัน">
+                        @if (!string.IsNullOrEmpty(context.DeptId))
+                        {
+                            var deptName = ShowDepartments.FirstOrDefault(d => d.DeptId == context.DeptId)?.DeptNameThai ?? context.DeptId;
+                            <span>@deptName</span>
+                        }
+                        else
+                        {
+                            <span class="text-muted">ไม่มีสังกัด</span>
+                        }
+                    </Column>
+                </Table>
 
-            <div class="mt-3 text-end">
-                <Button Type="@AntDesign.ButtonType.Primary" Icon="check" OnClick="HandleAssignExistingEmployee" Disabled="@(selectedEmployeesToAdd == null || !selectedEmployeesToAdd.Any())">
-                    @locallizer["ยืนยันการเพิ่ม"] (@(selectedEmployeesToAdd?.Count() ?? 0))
-                </Button>
-            </div>
-        </TabPane>
+                <div class="mt-3 text-end">
+                    <Button Type="@AntDesign.ButtonType.Primary" Icon="check" OnClick="HandleAssignExistingEmployee" Disabled="@(selectedEmployeesToAdd == null || !selectedEmployeesToAdd.Any())">
+                        @locallizer["ยืนยันการเพิ่ม"] (@(selectedEmployeesToAdd?.Count() ?? 0))
+                    </Button>
+                </div>
+            </TabPane>
+        }
     </Tabs>
 </Modal>
-
-@* --- Modal สำหรับเลือกพนักงานเข้าฝ่าย --- *@
 
 <style>
     .dept-card { border-radius: 12px; transition: all 0.3s ease; }
