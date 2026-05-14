@@ -1,29 +1,93 @@
 ﻿@page "/profile"
 @inject AuthState State
+@inject IJSRuntime JSRuntime
+@inject IVEmployeeDetailsService EmployeeService
 @using AntDesign
+@using HrmsSolution.Service
 @using Hrms_project.Models
+@using Datamodels.Hrms
 
 <div style="padding: 24px;">
-    <Card Title="ข้อมูลส่วนตัว (My Profile)" Style="max-width: 800px; margin: auto; border-radius: 15px;">
-        <div style="display: flex; gap: 30px; align-items: flex-start;">
-            @* ส่วนรูปภาพ *@
-            <div style="text-align: center;">
-                <Avatar Size="AvatarSize.Large" Src="picture/user.png" />
-                <Tag Color="Blue" Style="margin-top: 10px; display: block;">@State.Role</Tag>
-            </div>
-
-            @* ส่วนรายละเอียด *@
-            <div style="flex-grow: 1;">
-                <Descriptions Title="รายละเอียดบุคลากร" Bordered Column="1">
-                    <DescriptionsItem Title="ชื่อ-นามสกุล">ภานุวัฒน์ บัวเพชร</DescriptionsItem>
-                    <DescriptionsItem Title="รหัสพนักงาน">HR69001</DescriptionsItem>
-                    <DescriptionsItem Title="ตำแหน่ง">Full Stack Developer</DescriptionsItem>
-                    <DescriptionsItem Title="แผนก">เทคโนโลยีสารสนเทศ (IT)</DescriptionsItem>
-                    <DescriptionsItem Title="อีเมล">panuwat.b@company.com</DescriptionsItem>
-                    <DescriptionsItem Title="เบอร์โทรศัพท์">081-234-5678</DescriptionsItem>
-                    <DescriptionsItem Title="สถานะ">พนักงานประจำ</DescriptionsItem>
-                </Descriptions>
-            </div>
+    @if (isLoading)
+    {
+        <div style="text-align: center; padding: 50px;">
+            <Spin Size="SpinSize.Large" Tip="กำลังโหลดข้อมูลส่วนตัว..." />
         </div>
-    </Card>
+    }
+    else if (myProfile != null)
+    {
+        <Card Title="ข้อมูลส่วนตัว (My Profile)" Style="max-width: 800px; margin: auto; border-radius: 15px; box-shadow: 0 4px 10px rgba(0,0,0,0.05);">
+            <div style="display: flex; gap: 30px; align-items: flex-start; flex-wrap: wrap;">
+                
+                @* ส่วนรูปภาพ *@
+                <div style="text-align: center; min-width: 150px;">
+                    @* เช็คว่ามีรูปไหม ถ้าไม่มีให้ใช้รูป Default *@
+                    <Avatar Size="Large" Src="@(string.IsNullOrEmpty(myProfile.PictureUrl) ? "picture/user.png" : myProfile.PictureUrl)" />
+                    <Tag Color="Blue" Style="margin-top: 15px; display: block; font-size: 14px; padding: 5px;">@State.Role</Tag>
+                </div>
+
+                @* ส่วนรายละเอียด *@
+                <div style="flex-grow: 1;">
+                    <Descriptions Title="รายละเอียดบุคลากร" Bordered Column="1">
+                        <DescriptionsItem Title="ชื่อ-นามสกุล">@myProfile.FirstNameThai @myProfile.LastNameThai</DescriptionsItem>
+                        <DescriptionsItem Title="รหัสพนักงาน">@myProfile.EmployeeId</DescriptionsItem>
+                        <DescriptionsItem Title="ตำแหน่ง">@(string.IsNullOrEmpty(myProfile.PositionId) ? "-" : myProfile.PositionId)</DescriptionsItem>
+                        <DescriptionsItem Title="แผนก/สังกัด">
+                            @* ถ้ามีชื่อเต็มของฝ่ายให้ใส่ตรงนี้แทนได้ครับ ชั่วคราวแสดงรหัสไปก่อน *@
+                            @(string.IsNullOrEmpty(myProfile.DeptId) ? "-" : myProfile.DeptId)
+                        </DescriptionsItem>
+                        
+                        @* ถ้าใน VEmployeeDetail ของคุณมี Email หรือ Phone ก็เอามาใส่ตรงนี้ครับ ถ้าไม่มีลบออกได้ *@
+                        @* <DescriptionsItem Title="อีเมล">@myProfile.Email</DescriptionsItem> *@
+                        @* <DescriptionsItem Title="เบอร์โทรศัพท์">@myProfile.Phone</DescriptionsItem> *@
+                        
+                        <DescriptionsItem Title="สถานะ"><Tag Color="Green">กำลังทำงาน</Tag></DescriptionsItem>
+                    </Descriptions>
+                </div>
+            </div>
+        </Card>
+    }
+    else
+    {
+        <div style="text-align: center; padding: 50px;">
+            <Empty Description="@("ไม่พบข้อมูลพนักงานของคุณในระบบ กรุณาติดต่อ HR")" />
+        </div>
+    }
 </div>
+
+@code {
+    private VEmployeeDetail myProfile;
+    private bool isLoading = true;
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            try
+            {
+                // 1. ดึงรหัสพนักงานของคนที่ Login อยู่จาก LocalStorage
+                var empId = await JSRuntime.InvokeAsync<string>("localStorage.getItem", "employeeId");
+
+                if (!string.IsNullOrEmpty(empId))
+                {
+                    // 2. ดึงข้อมูลพนักงานจาก Service
+                    // (แนะนำให้ไปสร้างเมธอด GetEmployeeByIdAsync(empId) ใน EmployeeService จะทำงานได้เร็วกว่า)
+                    
+                    // แต่ถ้าตอนนี้มีแค่ GetAll() ก็ใช้วิธีดึงมาหา (Filter) แบบนี้ไปก่อนได้ครับ:
+                    var allEmps = await EmployeeService.GetAllEmployeeDetailsAsync();
+                    myProfile = allEmps?.FirstOrDefault(e => e.EmployeeId == empId);
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error loading profile: {ex.Message}");
+            }
+            finally
+            {
+                // โหลดเสร็จแล้ว สั่งปิดตัวหมุน (Spin) และอัปเดตหน้าจอ
+                isLoading = false;
+                StateHasChanged();
+            }
+        }
+    }
+}

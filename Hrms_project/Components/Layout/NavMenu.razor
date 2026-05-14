@@ -1,7 +1,10 @@
 ﻿@namespace Hrms_project.Components.Layout
+@using Hrms_project.Models
 @using Hrms_project.Service
 @implements IAsyncDisposable
+@inject AuthState State
 
+@* --- 1. Top Navbar (Mobile / Header) --- *@
 <div class="container-fluid">
     <div class="profile-mobile">
         <div class="d-flex">
@@ -13,11 +16,15 @@
                                 <span class="bi bi-house-fill px-2"></span> @locallizer["หน้าแรก"]
                             </a>
                         </li>
-                        <li class="nav-item">
-                            <a class="nav-link text-white" href="settings">
-                                <span class="bi bi-gear-wide-connected px-2"></span> @locallizer["ตั้งค่า"]
-                            </a>
-                        </li>
+                        @* ตั้งค่าให้เห็นเฉพาะแอดมิน *@
+                        @if (State.Role == "Admin" || State.Role == "SuperAdmin")
+                        {
+                            <li class="nav-item">
+                                <a class="nav-link text-white" href="settings">
+                                    <span class="bi bi-gear-wide-connected px-2"></span> @locallizer["ตั้งค่า"]
+                                </a>
+                            </li>
+                        }
                     </ul>
                 </div>
             </nav>
@@ -56,60 +63,71 @@
     </div>
 </div>
 
+@* --- 2. Sidebar Navigation Menu --- *@
 <div class="@NavMenuCssClass" @onclick="ToggleNavMenu">
     <div class="container-fluid">
-        <div class="profile-ipad">
-            <nav class="flex-column">
-                <div class="topic-menu mt-3">
-                    <p>@locallizer["เมนู"]</p>
-                </div>
-                <div class="nav-item px-3">
-                    <NavLink class="nav-link" href="" Match="NavLinkMatch.All">
-                        <span class="bi bi-house-fill" aria-hidden="true"></span> @locallizer["หน้าแรก"]
-                    </NavLink>
-                </div>
-                <div class="nav-item px-3">
-                    <NavLink class="nav-link" href="settings">
-                        <span class="bi bi-gear-wide-connected" aria-hidden="true"></span> @locallizer["ตั้งค่า"]
-                    </NavLink>
-                </div>
-            </nav>
-        </div>
-
         <nav class="flex-column">
-            <div class="topic-menu">
-                <p>@locallizer["การจัดการ"]</p>
+            
+            @* --- เมนูทั่วไป (ทุกคนเห็น) --- *@
+            <div class="topic-menu mt-3">
+                <p>@locallizer["เมนูหลัก"]</p>
             </div>
             <div class="nav-item px-3">
-                <NavLink class="nav-link" href="employees">
-                    <span class="bi bi-people-fill" aria-hidden="true"></span> @locallizer["ข้อมูลบุคลากร"]
+                <NavLink class="nav-link" href="" Match="NavLinkMatch.All">
+                    <span class="bi bi-house-fill" aria-hidden="true"></span> @locallizer["หน้าแรก"]
                 </NavLink>
             </div>
-            <div class="nav-item px-3">
-                <NavLink class="nav-link" href="executive">
-                    <span class="bi bi-person-badge-fill" aria-hidden="true"></span> @locallizer["ข้อมูลผู้บริหาร"]
-                </NavLink>
-            </div>
-            <div class="nav-item px-3">
-                <NavLink class="nav-link" href="organization">
-                    <span class="bi bi-buildings-fill" aria-hidden="true"></span> @locallizer["โครงสร้างองค์กร"]
-                </NavLink>
-            </div>
-
             <div class="line-hr"><hr /></div>
 
-            <div class="topic-menu">
-                <p>@locallizer["ข้อมูลส่วนตัว"]</p>
-            </div>
-            <div class="nav-item px-3">
-                <NavLink class="nav-link" href="profile">
-                    <span class="bi bi-person-vcard-fill" aria-hidden="true"></span> @locallizer["ข้อมูลส่วนตัว"]
-                </NavLink>
-            </div>
+            @* --- เช็คว่าล็อกอินแล้วหรือยัง --- *@
+            @if (State.IsLoggedIn)
+            {
+                @* --- โซนของ Admin (เห็นเมนูจัดการองค์กร) --- *@
+                @if (State.Role == "Admin" || State.Role == "SuperAdmin")
+                {
+                    <div class="topic-menu">
+                        <p>@locallizer["การจัดการ (Admin)"]</p>
+                    </div>
+                    <div class="nav-item px-3">
+                        <NavLink class="nav-link" href="employees">
+                            <span class="bi bi-people-fill" aria-hidden="true"></span> @locallizer["ข้อมูลบุคลากร"]
+                        </NavLink>
+                    </div>
+                    <div class="nav-item px-3">
+                        <NavLink class="nav-link" href="executive">
+                            <span class="bi bi-person-badge-fill" aria-hidden="true"></span> @locallizer["ข้อมูลผู้บริหาร"]
+                        </NavLink>
+                    </div>
+                    <div class="nav-item px-3">
+                        <NavLink class="nav-link" href="organization">
+                            <span class="bi bi-buildings-fill" aria-hidden="true"></span> @locallizer["โครงสร้างองค์กร"]
+                        </NavLink>
+                    </div>
+                    <div class="nav-item px-3">
+                        <NavLink class="nav-link" href="settings">
+                            <span class="bi bi-gear-wide-connected" aria-hidden="true"></span> @locallizer["ตั้งค่า"]
+                        </NavLink>
+                    </div>
+                    <div class="line-hr"><hr /></div>
+                }
 
-            <div class="line-hr"><hr /></div>
+                @* --- โซนของ User ทั่วไป (และ Admin ก็เห็นด้วย) --- *@
+                <div class="topic-menu">
+                    <p>@locallizer["ระบบพนักงาน (ESS)"]</p>
+                </div>
+                <div class="nav-item px-3">
+                    <NavLink class="nav-link" href="profile">
+                        <span class="bi bi-person-vcard-fill" aria-hidden="true"></span> @locallizer["ข้อมูลส่วนตัว"]
+                    </NavLink>
+                </div>
+                
+                @* เผื่ออนาคตคุณจะเพิ่มเมนู ลาหยุด หรือ สลิปเงินเดือน ก็เอามาต่อตรงนี้ได้เลยครับ *@
+                
+                <div class="line-hr"><hr /></div>
+            }
 
-            <div class="detail-navmenu text-detail-navmenu">
+            @* --- Footer --- *@
+            <div class="detail-navmenu text-detail-navmenu mt-4">
                 <p>
                     จัดทำโดย ภานุวัฒน์ บัวเพชร <br />
                     Software Version : Demo
