@@ -40,6 +40,22 @@
 </div>
 
 @code {
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            // เช็คว่าใน LocalStorage มีประวัติการ Login ค้างอยู่ไหม
+            var isLoggedIn = await JSRuntime.InvokeAsync<string>("localStorage.getItem", "isLoggedIn");
+
+            if (isLoggedIn == "true" || State.IsLoggedIn)
+            {
+                // ถ้าเคยล็อกอินไว้แล้ว ให้ Redirect กลับไปหน้าแรกเลยทันที
+                Nav.NavigateTo("/", true);
+            }
+        }
+    }
+
     private LoginRequest loginModel = new();
 
     public class LoginRequest

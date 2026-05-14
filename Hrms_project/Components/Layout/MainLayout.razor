@@ -53,6 +53,7 @@ else
     {
         if (firstRender)
         {
+            // 1. จัดการเรื่องภาษา (โค้ดเดิมของคุณ)
             var culture = await JS.InvokeAsync<string>(
                 "localStorage.getItem",
                 "selectedCulture");
@@ -61,6 +62,18 @@ else
                 await LocService.SetCulture(culture);
             else
                 await LocService.SetCulture("th-TH");
+
+            // 2. ฟื้นคืนชีพสถานะล็อกอิน (โค้ดที่เพิ่มเข้ามาใหม่)
+            var isLoggedIn = await JS.InvokeAsync<string>("localStorage.getItem", "isLoggedIn");
+
+            if (isLoggedIn == "true" && !State.IsLoggedIn)
+            {
+                var role = await JS.InvokeAsync<string>("localStorage.getItem", "userRole");
+                State.Login(role ?? "User");
+                
+                // สั่งอัปเดตหน้าจอ เพื่อให้มันสลับจาก <Login /> เป็นโครงสร้างเว็บปกติ
+                StateHasChanged();
+            }
         }
     }
 
